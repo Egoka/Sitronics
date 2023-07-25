@@ -44,13 +44,18 @@ const items = ref([
   },
   {
     name: 'List',
-    href: baseUrl+'/list',
+    href: baseUrl+'/select',
     imageSrc: 'https://horizon-ui.com/components/static/media/list.3f5491d88bae6288e55f2d69dafd8eca.svg',
   },
   {
     name: 'Calendar',
     href: baseUrl+'/calendar',
     imageSrc: 'https://horizon-ui.com/components/static/media/calendar.6f0efec158c880ac4debb167d18a1f45.svg',
+  },
+  {
+    name: 'Switch',
+    href: baseUrl+'/switch',
+    imageSrc: 'https://horizon-ui.com/components/static/media/switch.f617ef9b0d24894e1002ce0bda81758e.svg',
   },
 ])
 </script>

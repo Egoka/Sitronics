@@ -27,13 +27,13 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
         label: "Первое поле",
         type: "text",
         class: "text-right",
-        help: "Это тестовое поле предназначеное для проверки работы справодного поля",
+        help: "<img src='https://cdn-icons-png.flaticon.com/512/1828/1828439.png' class='w-20 m-auto' alt=''> Это тестовое поле предназначеное для проверки работы справодного поля",
         clear: true,
         isRequired: true,
         isInvalid: isInvalid,
         messageValid: messageValid,
-        onUpdateModelValue: (e)=> value.value = e,
-        onUpdateIsInvalid: (e)=> isInvalid.value = e
+        onUpdateModelValue: (e:any)=> value.value = e,
+        onUpdateIsInvalid: (e:any)=> isInvalid.value = e
       },
       slots:{
         before:()=> [
@@ -57,7 +57,7 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
             props: {
               class: "ring-0 min-w-[3rem]",
               modelValue: country,
-              onUpdateModelValue: (e)=>country.value = e,
+              onUpdateModelValue: (e:any)=>country.value = e,
               items: ['RU', 'US','CN'],
               selectIcon: "ChevronDownIcon"
             },
@@ -81,7 +81,7 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
             props: {
               class: "ring-0 min-w-[3rem]",
               modelValue: currency,
-              onUpdateModelValue: (e)=>currency.value = e,
+              onUpdateModelValue: (e:any)=>currency.value = e,
               items: ['₽', '¥','$','€'],
               selectIcon: "ChevronDownIcon"
             },
@@ -99,7 +99,7 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
         label:"Пароль",
         type:"password",
         isRequired: true,
-        onUpdateModelValue: (e)=> password.value = e,
+        onUpdateModelValue: (e:any)=> password.value = e,
       },
       slots: {
         before: ()=>[
@@ -121,7 +121,7 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
         type: "text",
         clear: true,
         mask: "phone",
-        onUpdateModelValue: (e)=> phone.value = e,
+        onUpdateModelValue: (e:any)=> phone.value = e,
       },
       slots: {
         before: ()=>[
@@ -147,7 +147,7 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
         lengthInteger: "7",
         lengthDecimal: "2",
         clear: true,
-        onUpdateModelValue: (e)=> price.value = e,
+        onUpdateModelValue: (e:any)=> price.value = e,
       },
       slots: {
         before: ()=>[
@@ -181,7 +181,7 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
         lengthInteger: "7",
         lengthDecimal: "1",
         clear: true,
-        onUpdateModelValue: (e)=> count.value = e,
+        onUpdateModelValue: (e:any)=> count.value = e,
       },
       slots: {
         before: ()=>[
@@ -217,7 +217,7 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
         help: "Вспомогательный текст",
         clear: true,
         disabled: true,
-        onUpdateModelValue: (e)=> length.value = e,
+        onUpdateModelValue: (e:any)=> length.value = e,
       },
       slots: {
         before: ()=>[
@@ -251,8 +251,8 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
         class: "text-right",
         clear: true,
         messageValid: messageValidDimension,
-        onUpdateModelValue: (e)=> dimension.value = e,
-        onUpdateIsInvalid: (e)=> isInvalidDimension.value = e
+        onUpdateModelValue: (e:any)=> dimension.value = e,
+        onUpdateIsInvalid: (e:any)=> isInvalidDimension.value = e
       },
       slots: {
         before: ()=>[

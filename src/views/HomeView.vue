@@ -17,10 +17,10 @@ import Link from "@/components/functional/Link.vue";
         <h1 class="font-extrabold text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-tr from-fuchsia-500 to-sky-500">Разработка для Sitronics</h1>
         <p class="mt-6 text-lg leading-8 text-gray-600">Демонстрация готовых компонентов с примерами их работы</p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
-          <Link link="/components" class="rounded-md bg-[#587cec] px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-fuchsia-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+          <Link link="/components" class="rounded-md bg-[#587cec] px-3.5 py-2.5 text-sm font-semibold text-white dark:text-black shadow-sm transition-all hover:bg-fuchsia-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
             Попробовать
           </Link>
-          <a href="#" class="text-sm font-semibold leading-6 text-gray-900">
+          <a href="#" class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-300">
             Узнать больше<span aria-hidden="true" class="ml-1">→</span></a>
         </div>
       </div>

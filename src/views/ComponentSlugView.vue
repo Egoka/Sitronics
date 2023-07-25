@@ -183,7 +183,7 @@ const mobileFiltersOpen = ref(false)
             <div class="lg:col-span-3">
               <!-- Your content -->
               <div class="w-full max-h-full bg-stone-100 rounded mt-1 p-3">
-                <div class="flex flex-col justify-center w-full bg-stone-50 rounded m-auto py-10 px-10 md:px-56 dark:bg-blue-950">
+                <div class="flex flex-col justify-center w-full bg-stone-50 rounded m-auto py-10 px-10 md:px-56">
                 
                 </div>
 <!--                <CodeBlock-->

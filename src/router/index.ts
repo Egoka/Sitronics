@@ -37,6 +37,22 @@ const router = createRouter({
       component: () => import('../views/ComponentInput.vue')
     },
     {
+      path: '/components/switch',
+      name: 'switch',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/ComponentSwitch.vue')
+    },
+    {
+      path: '/components/select',
+      name: 'select',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/ComponentSelect.vue')
+    },
+    {
       path: '/components/all',
       name: 'componentsAll',
       meta: {

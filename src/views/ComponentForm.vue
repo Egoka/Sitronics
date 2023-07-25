@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import ComponentViews from "@/components/ComponentViews.vue";
-import StForm, {IFormStructure} from "@/components/form/StForm.vue";
-import {ref} from "vue";
-import {IResultCallback} from "@/helpers/rules";
+import StForm, {type IFormExpose, type IFormStructure} from "@/components/form/StForm.vue";
+import {ref, watch} from "vue";
+import {type IResultCallback} from "@/helpers/rules";
 const form = ref<any>(null)
-const structures = <Array<IFormStructure>>ref([
+const formTest = ref<IFormExpose|null>(null)
+const structures = ref<Array<IFormStructure>>([
   {
     title: "Профиль",
     subTitle: "Эта информация будет отображаться публично, поэтому будьте осторожны с тем, чем вы делитесь.",
@@ -12,11 +13,11 @@ const structures = <Array<IFormStructure>>ref([
       {
         typeComponent: "StInput",
         name: "name",
-        modelValue: "Egor",
+        modelValue: "",
         label:"Имя",
         clear: true,
         beforeIcon: "UserCircleIcon",
-        help: "Ваше имя должно начинаться с большой буквы. Это поле будет выводиться публично",
+        help: "<img src='https://cdn-icons-png.flaticon.com/512/1828/1828439.png' class='w-10 m-auto' alt=''> Ваше имя должно начинаться с большой буквы. Это поле будет выводиться публично",
         rules: {
           required: "Имя обязательно для заполнения"
         }
@@ -25,6 +26,7 @@ const structures = <Array<IFormStructure>>ref([
         typeComponent: "StInput",
         name: "surname",
         modelValue: "Bonda",
+        placeholder: "Bonda",
         label:"Фамилия",
         isRequired: true,
         clear: true,
@@ -35,6 +37,7 @@ const structures = <Array<IFormStructure>>ref([
         name: "age",
         modelValue: "25",
         label: "Возраст",
+        placeholder: "25",
         isRequired: true,
         mask: "number",
         lengthInteger: 3,
@@ -44,11 +47,32 @@ const structures = <Array<IFormStructure>>ref([
         classCol: "sm:col-span-3",
         beforeIcon: "manage_accounts"
       },
+      {
+        typeComponent: "StSelect",
+        name: "professionType",
+        label: "Профессия",
+        items: ["Програмиист", "HR", "Дизайнер", "1C"],
+        beforeIcon: "BookOpenIcon",
+        clear: true,
+      },
+      {
+        typeComponent: "StSwitch",
+        name: "isInfo",
+        modelValue: true,
+        // disabled: true,
+        label: "Указать персональную информацию",
+        isRequired: true,
+        // classCol: "sm:col-span-3",
+        help: "Вся информация о пользователе"
+      }
+      
     ]
   },
   {
     title: "Персональная информация",
     subTitle: "Используйте постоянный адрес, на который вы можете получать почту.",
+    class: "border-b border-gray-900/50 dark:border-gray-400/50 pb-0 mt-10 pl-10",
+    isHidden: true,
     fields: [
       {
         typeComponent: "StInput",
@@ -155,7 +179,7 @@ const structures = <Array<IFormStructure>>ref([
         rules: {
           async: {
             message: "Придумайте другой пароль",
-            async validationCallback(value: any):IResultCallback {
+            validationCallback(value: any):Promise<IResultCallback> {
               return new Promise((resolve)=>{
                 setTimeout(()=> {
                   if (value === "123") {
@@ -165,7 +189,7 @@ const structures = <Array<IFormStructure>>ref([
                   } else if (value === "1234"){
                     resolve({isInvalid:true, message: "Пароль не должен быть больше 1234"})
                   } else {
-                    resolve(false)
+                    resolve({isInvalid:false, message: ""})
                   }
                 },1000)
               })
@@ -206,44 +230,43 @@ const structures = <Array<IFormStructure>>ref([
     ]
   },
 ])
-function getValidate(value) {
-  return new Promise((resolve)=>{
-    setTimeout(()=> {
-      if (value === "123") {
-        resolve({isInvalid:true, message: "Пароль не должен быть равен 123"})
-      } else if (+value < 123){
-        resolve({isInvalid:true})
-      } else if (value === "1234"){
-        resolve({isInvalid:true, message: "Пароль не должен быть больше 1234"})
-      } else {
-        resolve(false)
-      }
-    },1000)
-  })
-}
+// setTimeout(()=>{
+//   formTest.value?.setFieldValue("phone", "7999999")
+//   formTest.value?.setFieldParam("age", "beforeIcon", "FireIcon")
+//   formTest.value?.setFieldParam("age", "isHidden", true)
+// },3000)
+// setTimeout(()=>{
+//   formTest.value?.setStructureParam(1, "isHidden", true)
+//   formTest.value?.setFieldParam("age", "isHidden", false)
+// },4000)
+// setTimeout(()=>{
+//   console.log(form.value)
+//   formTest.value?.setFieldParam("age", "disabled", true)
+//   formTest.value?.setStructureParam(1, "isHidden", false)
+// },5000)
+watch(form, ()=>{
+  formTest.value?.setStructureParam(1, "isHidden", !form.value["isInfo"])
+}, {deep:true})
 </script>
 
 <template>
   <ComponentViews>
     <template #title>Form</template>
     <StForm
+      ref="formTest"
       :structure="structures"
-      mode-style="filled"
+
       mode-label="offsetDynamic"
       mode-validate="onChange"
       submit-button="Сохранить"
-      structure-class="border-b border-gray-900/10 pb-0 mt-10"
+      structure-class="border-b border-gray-900/50 dark:border-gray-400/50 pb-0 mt-10"
       structure-class-grid="grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5"
       @update:form-fields="(formFields)=>form = formFields"
     >
       <template #itemTitle="{structure}">
-        <h2 v-if="structure?.title?.length" class="text-xl font-semibold leading-7 text-gray-900">{{ structure?.title }}</h2>
-        <p v-if="structure?.subTitle?.length" class="mt-1 text-sm leading-6 text-gray-600">{{ structure?.subTitle }}</p>
+        <h2 v-if="structure?.title?.length" class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">{{ structure?.title }}</h2>
+        <p v-if="structure?.subTitle?.length" class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">{{ structure?.subTitle }}</p>
       </template>
     </StForm>
   </ComponentViews>
 </template>
-
-<style scoped>
-
-</style>

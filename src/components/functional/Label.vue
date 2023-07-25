@@ -5,17 +5,19 @@ export type ILabelMode = "static"|"offsetDynamic"|"offsetStatic"|"dynamic"|"none
 const props = defineProps<{
   title?: string
   isRequired?: boolean
+  isDisabled?: boolean
   type?: ILabelMode
   mode?: IMode
-  translateX?:number
-  maxWidth?:number
+  translateX?:number|undefined
+  maxWidth?:number|undefined
 }>();
 const title = computed(()=>props.title||"")
 const mode = computed<IMode>(()=> props.mode || "outlined")
 const isRequired = computed(()=>props.isRequired)
+const isDisabled = computed(()=>props.isDisabled)
 const type = computed(()=>props.type||"dynamic")
 const translateX = computed(()=> {
-  const x = props.translateX > 10 ? props.translateX : 10
+  const x = props.translateX && props.translateX > 10 ? props.translateX : 10
   if (x >=10 &&  x < 17) { return 'translate-x-[1rem]'
   } else if (x >=17 &&  x < 32) { return 'translate-x-[2rem]'
   } else if (x >=32 &&  x < 48) { return 'translate-x-[3rem]'
@@ -30,13 +32,13 @@ const translateX = computed(()=> {
 const maxWidth = computed(()=> props.maxWidth || null)
 const background = computed(()=> {
   if (mode.value === 'outlined'){
-    return 'from-white from-50% to-transparent to-55%'
+    return `${isDisabled.value ? 'from-slate-50 dark:from-slate-950' : 'from-white dark:from-black'} from-50% to-transparent to-55%`
   }
   if (mode.value === 'underlined'){
-    return 'from-stone-50 from-50% to-transparent to-55%'
+    return 'from-stone-50 dark:from-stone-950 from-50% to-transparent to-55%'
   }
   if (mode.value === 'filled'){
-    return 'from-stone-100 from-50% to-transparent to-55%'
+    return 'from-stone-100 dark:from-stone-900 from-50% to-transparent to-55%'
   }
 })
 </script>
@@ -50,8 +52,8 @@ const background = computed(()=> {
   !(type === 'none')||'invisible',
   !isRequired||`after:content-['*'] after:text-red-500 after:ml-1` ]">
     <span
-      class="block text-sm font-medium text-gray-400 truncate"
-      :class="[!(type === 'static')||'text-gray-900']"
+      class="block text-sm font-medium text-gray-400 dark:text-gray-500 truncate"
+      :class="[!(type === 'static')||'text-gray-900 dark:text-gray-100']"
       :style="`max-width: ${maxWidth-35}px`">
       {{ title }}
     </span>

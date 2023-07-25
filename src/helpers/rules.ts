@@ -25,7 +25,7 @@ interface ILengthRule extends IRule {
   max?: number
 }
 interface IAsyncRule extends IRule {
-  validationCallback(value:any): IResultCallback
+  validationCallback(value:any): Promise<IResultCallback>
 }
 interface ICustomRule extends IRule {
   validationCallback(value:any): IResultCallback
@@ -35,7 +35,7 @@ interface ICompareRule extends IRule {
 }
 // ---------------------------------------
 type Rules = {
-  required?: message|IRequiredRule,
+  required?: message|IRequiredRule|boolean,
   email?: message|IEmailRule,
   phone?: message|IPhoneRule,
   numeric?: message|INumericRule
@@ -61,38 +61,41 @@ export {
   type IResultCallback
 }
 // ---------------------------------------
+const emptyData = [undefined, null, ""]
+// ---------------------------------------
 function required(value:boolean|string|number|[]) {
   if (typeof value === "string" && Array.isArray(value)){
     return !!(value) && value?.length }
   return !!(value)
 }
 function email(value:string) {
-  if (value === null) { return false }
+  if (emptyData.includes(value)) { return false }
   return !(value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)?.[0])
 }
 function phone(value:string) {
-  if (value === null) { return false }
+  if (emptyData.includes(value)) { return false }
   return !value.match(/^\s*(?:\+?(\d{1,3}))?([-. (]*(\d{1,3})[-. )]*)?((\d{1,4})[-. ]*(\d{0,4})[-. ]*(\d{0,4})[-. ]*(\d{0,7}))$/m)
 }
 function numeric(value:string) {
-  if (value === null) { return false }
+  if (emptyData.includes(value)) { return false }
   return !(value.match(/^\d+$/)?.[0])
 }
 function regular(value:string, regular:IRegularRule["regular"]) {
+  if (emptyData.includes(value)) { return false }
   return typeof regular === "string"
     ? !(value.match(new RegExp(regular))?.[0])
     : !(value.match(regular)?.[0])
 }
 function range(value:string, min:IRangeRule["min"], max:IRangeRule["max"] ) {
+  if (emptyData.includes(value)) { return false }
   if (!(value.match(/^\d+$/)?.[0])) return true
   if (min && +value < min) return true
   if (max && +value > max) return true
-  return false
 }
 function length(value:string, min:IRangeRule["min"], max:IRangeRule["max"] ) {
+  if (emptyData.includes(value)) { return false }
   if (min && value.length < min) return true
   if (max && value.length > max) return true
-  return false
 }
 export function getValidate (value: any, field:any): {isInvalid: boolean, message: string} {
   const rules:Rules = field.rules
@@ -104,7 +107,9 @@ export function getValidate (value: any, field:any): {isInvalid: boolean, messag
         if(!required(value)){
           message = typeof rules["required"] === "string"
             ? rules["required"]||""
-            : rules["required"]?.message||""
+            : typeof rules["required"] === "boolean"
+              ? rules["required"] ? "Обязательное поле" : ""
+              : rules["required"]?.message||""
           return true
         }
       } else if(rule === "email"){
@@ -165,3 +170,6 @@ export async function getAsyncValidate (value: any, field:any) {
   }
   return {isInvalid, message}
 }
+//https://webdevnerdstuff.github.io/vue3-code-block/#add-lang-examples
+//https://github.com/Leecason/element-tiptap/tree/alpha
+//https://vcalendar.netlify.app/

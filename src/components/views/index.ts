@@ -38,12 +38,12 @@ export const viewComponent = (title?:string, content?:Array<IStructure>|IStructu
           {
             component: "div",
             props: {
-              class: "w-full max-h-full bg-stone-100 rounded mt-1 p-3"
+              class: "w-full max-h-full bg-stone-100 dark:bg-stone-900 rounded mt-1 p-3"
             },
             children: [{
               component: "div",
               props: {
-                class: "flex flex-col justify-center w-full bg-stone-50 rounded m-auto py-10 px-10 md:px-56 dark:bg-blue-950"
+                class: "flex flex-col justify-center w-full bg-stone-50 dark:bg-stone-950 rounded m-auto py-10 px-10 md:px-56"
               },
               children: [...content]
             },]

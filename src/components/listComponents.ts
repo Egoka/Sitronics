@@ -27,7 +27,7 @@ type Components =
   | "Link"
   | "StForm"
   | "CardList"
-const listComponents = {
+const listComponents:any = {
   WithImageTiles,
   GridImage,
   StartNavBar,
