@@ -28,7 +28,7 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "Bonda",
         placeholder: "Bonda",
         label:"Фамилия",
-        isRequired: true,
+        required: true,
         clear: true,
         beforeIcon: "UserIcon"
       },
@@ -38,34 +38,44 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "25",
         label: "Возраст",
         placeholder: "25",
-        isRequired: true,
+        required: true,
         mask: "number",
         lengthInteger: 3,
         clear: true,
-        class: "text-right",
+        classInput: "text-right",
         afterText: "лет",
         classCol: "sm:col-span-3",
-        beforeIcon: "manage_accounts"
+        beforeIcon: "manage_accounts",
       },
       {
         typeComponent: "StSelect",
         name: "professionType",
         label: "Профессия",
-        items: ["Програмиист", "HR", "Дизайнер", "1C"],
+        dataSelect: [
+          {value: 1, label: "Програмиист"},
+          {value: 2, label: "HR"},
+          {value: 3, label: "Дизайнер"},
+          {value: 4, label: "1C"},
+        ],
         beforeIcon: "BookOpenIcon",
         clear: true,
+        keySelect: "value",
+        multiple: true
       },
       {
         typeComponent: "StSwitch",
         name: "isInfo",
-        modelValue: true,
+        switchingType: "checkbox",
+        modelValue: false,
+        rounded: 9,
+        // iconActive: "SunIcon",
+        // iconInactive: "MoonIcon",
         // disabled: true,
         label: "Указать персональную информацию",
-        isRequired: true,
+        required: true,
         // classCol: "sm:col-span-3",
         help: "Вся информация о пользователе"
       }
-      
     ]
   },
   {
@@ -79,11 +89,11 @@ const structures = ref<Array<IFormStructure>>([
         name: "price",
         modelValue: "",
         label: "Стоимость услуги",
-        isRequired: true,
+        required: true,
         mask: "price",
         lengthInteger: 6,
         clear: true,
-        class: "text-right",
+        classInput: "text-right",
         afterText: "рубля",
         beforeIcon: "currency_ruble"
         // classCol: "sm:col-span-3"
@@ -93,7 +103,7 @@ const structures = ref<Array<IFormStructure>>([
         name: "phone",
         modelValue: "79992397588",
         label: "Номер телевона",
-        isRequired: true,
+        required: true,
         mask: "phone",
         lengthInteger: 6,
         clear: true,
@@ -109,7 +119,7 @@ const structures = ref<Array<IFormStructure>>([
         name: "email",
         modelValue: "",
         label: "Почта",
-        isRequired: true,
+        required: true,
         rules: {
           email: "Не верный формат почты"
         },
@@ -123,9 +133,9 @@ const structures = ref<Array<IFormStructure>>([
         name: "isNumeric",
         modelValue: "",
         label: "Возраст",
-        // isRequired: true,
+        // required: true,
         clear: true,
-        class: "text-right",
+        classInput: "text-right",
         beforeIcon: "counter_1",
         help: "Поле должно состоять только из числа",
         rules: {
@@ -148,7 +158,7 @@ const structures = ref<Array<IFormStructure>>([
         name: "login",
         modelValue: "",
         label: "Логин",
-        isRequired: true,
+        required: true,
         clear: true,
         beforeIcon: "AtSymbolIcon",
         help: "От 3 до 30 символов",
@@ -172,7 +182,7 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "",
         label: "Пароль",
         type: "password",
-        isRequired: true,
+        required: true,
         clear: true,
         beforeIcon: "FingerPrintIcon",
         help: "От 3 до 30 символов",
@@ -208,7 +218,7 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "",
         label: "Пароль для проерки",
         type: "password",
-        // isRequired: true,
+        // required: true,
         clear: true,
         beforeIcon: "FingerPrintIcon",
         help: "От 3 до 30 символов",
@@ -255,7 +265,7 @@ watch(form, ()=>{
     <StForm
       ref="formTest"
       :structure="structures"
-
+      mode-style="filled"
       mode-label="offsetDynamic"
       mode-validate="onChange"
       submit-button="Сохранить"

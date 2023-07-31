@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {computed, onMounted, reactive, ref, watch} from "vue";
-import * as HeroIcons from "@heroicons/vue/24/outline"
-const heroIcons:any = HeroIcons
+import Icons from "@/components/functional/Icons.vue";
 import StInput, {type IInput} from "@/components/form/StInput.vue";
 import StSelect, {type ISelect} from "@/components/form/StSelect.vue";
 import StSwitch, {type ISwitch} from "@/components/form/StSwitch.vue";
@@ -129,11 +128,11 @@ function getStructure (structures:Array<IFormStructure>):Array<IFormStructure> {
           field.name = "field"+Math.floor(Math.random() * 100)
           console.error(`There is no name field. Temporary name ${field.name} is set.`, field) }
         if (field.rules){
-          field.isRequired = !!(field.rules['required'])||field?.isRequired||false
-          if (field.isRequired && (!field.rules['required'] || typeof field.rules['required'] === "boolean")) {
+          field.required = !!(field.rules['required'])||field?.required||false
+          if (field.required && (!field.rules['required'] || typeof field.rules['required'] === "boolean")) {
             field.rules['required'] = "Обязательное поле"
           }
-        } else { if (field?.isRequired) {
+        } else { if (field?.required) {
           field.rules = {required: "Обязательное поле"}
         }}
         if (!field.classCol?.length) field.classCol = "col-span-full"
@@ -239,47 +238,33 @@ function submit(){
                     @change:model-value="changeField(field)"
                   >
                     <template #before>
-                      <template v-if="field.beforeIcon">
-                        <component v-if="heroIcons[field?.beforeIcon]" :is="heroIcons[field?.beforeIcon]" class="h-5 w-5 text-gray-400 dark:text-gray-600" aria-hidden="true" />
-                        <span v-else class="material-symbols-sharp h-5 w-5 font-light text-gray-400 dark:text-gray-600 select-none">{{ field?.beforeIcon }}</span>
-                      </template>
+                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
                       <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
                     </template>
                     <template #after>
-                      <template v-if="field.afterIcon">
-                        <component v-if="heroIcons[field?.afterIcon]" :is="heroIcons[field?.afterIcon]" class="h-5 w-5 text-gray-400 dark:text-gray-600" aria-hidden="true" />
-                        <span v-else class="material-symbols-sharp h-5 w-5 font-light text-gray-400 dark:text-gray-600 select-none">{{ field?.afterIcon }}</span>
-                      </template>
+                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                       <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
                     </template>
                   </StInput>
-                  <!-- Switch -->
-<!--                  <StSelect-->
-<!--                    v-if="field.typeComponent === 'StSelect'"-->
-<!--                    v-model:model-value="formFields[field.name]"-->
-<!--                    :items="field.items"-->
-<!--                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}">-->
-<!--                    <template #before>-->
-<!--                      <template v-if="field.beforeIcon">-->
-<!--                        <component v-if="heroIcons[field?.beforeIcon]" :is="heroIcons[field?.beforeIcon]" class="h-5 w-5 text-gray-400 dark:text-gray-600" aria-hidden="true" />-->
-<!--                        <span v-else class="material-symbols-sharp h-5 w-5 font-light text-gray-400 dark:text-gray-600 select-none">{{ field?.beforeIcon }}</span>-->
-<!--                      </template>-->
-<!--                      <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>-->
-<!--                    </template>-->
-<!--                    <template #after>-->
-<!--                      <template v-if="field.afterIcon">-->
-<!--                        <component v-if="heroIcons[field?.afterIcon]" :is="heroIcons[field?.afterIcon]" class="h-5 w-5 text-gray-400 dark:text-gray-600" aria-hidden="true" />-->
-<!--                        <span v-else class="material-symbols-sharp h-5 w-5 font-light text-gray-400 dark:text-gray-600 select-none">{{ field?.afterIcon }}</span>-->
-<!--                      </template>-->
-<!--                      <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>-->
-<!--                    </template>-->
-<!--                    <template #selected="{selected}">-->
-<!--                      {{ selected }}-->
-<!--                    </template>-->
-<!--                    <template #item="{item}">-->
-<!--                      {{ item }}-->
-<!--                    </template>-->
-<!--                  </StSelect>-->
+                  <!-- Select -->
+                  <StSelect
+                    v-if="field.typeComponent === 'StSelect'"
+                    v-model:model-value="formFields[field.name]"
+                    :data-select="field.dataSelect"
+                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                  >
+                    <template #item="{item}">
+                      {{item.item}}
+                    </template>
+                    <template #before>
+                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
+                      <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
+                    </template>
+                    <template #after>
+                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                      <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                    </template>
+                  </StSelect>
                   <!-- Switch -->
                   <StSwitch
                     v-if="field.typeComponent === 'StSwitch'"

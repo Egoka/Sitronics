@@ -5,6 +5,7 @@ import {computed, getCurrentInstance, onMounted, ref, watch} from "vue";
 import Dropdown from "@/components/functional/Dropdown.vue";
 import {toPhone, toNumber, convertToPhone, convertToNumber, onkeydown} from "@/helpers/numbers";
 import type {IMode} from "./StForm.vue";
+import {getLabelType} from "@/helpers/label";
 
 // ---------------------------------------
 const arrayInputType:Array<IInputType> = ['text','number','email','password']
@@ -25,11 +26,12 @@ export interface IInput {
   help?: string
   isInvalid?: boolean
   messageInvalid?: string
-  isRequired?: boolean
+  required?: boolean
   mask?: IInputMask
   lengthInteger?: number
   lengthDecimal?: number
   class?: string
+  classInput?: string
 }
 // ---------------------------------------
 const props = defineProps<IInput>()
@@ -42,7 +44,7 @@ const autocomplete = computed<IInput["autocomplete"]>(()=> props.autocomplete ||
 const mode = computed<IInput["mode"]>(()=> props.mode || "outlined")
 const label = computed<IInput["label"]>(()=> String(props.label || ""))
 const labelMode = computed<ILabelMode>(()=> props.labelMode || "offsetDynamic")
-const labelType = computed<ILabelMode>(()=> getLabelType())
+const labelType = computed<ILabelMode>(()=> getLabelType(value.value, label.value, labelMode.value))
 const mask = computed<IInput["mask"]|null>(()=>props.mask||null)
 const lengthInteger = computed<IInput["lengthInteger"]>(()=> +(props.lengthInteger || 20))
 const lengthDecimal = computed<IInput["lengthDecimal"]>(()=>+(props.lengthDecimal || 0))
@@ -50,7 +52,7 @@ const isLoading = computed<IInput["loading"]>(()=>props.loading || false)
 const isDisabled = computed<IInput["disabled"]>(()=>props.disabled || false)
 const isInvalid = computed<IInput["isInvalid"]>(()=>!isDisabled.value ? props.isInvalid : false)
 const messageInvalid = computed<IInput["messageInvalid"]>(()=> props.messageInvalid || "")
-const isRequired = computed<IInput["isRequired"]>(()=>props.isRequired)
+const isRequired = computed<IInput["required"]>(()=>props.required)
 const isCopy = ref(false)
 // ---------------------------------------
 const input = ref<HTMLElement|undefined>()
@@ -100,15 +102,6 @@ async function copy() {
     console.error('Failed to copy: ', err);
   }
 }
-function getLabelType() {
-  if (label.value?.length) {
-    if (!!(value.value)) {
-      if (['offsetDynamic','offsetStatic'].includes(labelMode.value)){
-        return "offsetStatic"
-      } else {return "static"}
-    } else { return labelMode.value }
-  } else { return "none" }
-}
 // ---------------------------------------
 const beforeWidth = ref<number|null>(null)
 const afterWidth = ref<number|null>(null)
@@ -131,13 +124,15 @@ onMounted(()=>{
 </script>
 
 <template>
-  <div ref="inputBody" class="relative mb-6 rounded-md" :class="[
-    ['offsetDynamic','offsetStatic'].includes(labelType)?'mt-1':'mt-6',
+  <div ref="inputBody" :class="[
+    'relative',
+    props.class||' mb-6 rounded-md',
+    ['offsetDynamic','offsetStatic'].includes(labelType)?'mt-1':'',
       !(mode === 'outlined')||'shadow-sm',
       !(mode === 'underlined')||'shadow-none',
-      !(mode === 'filled')||'shadow-sm',
+      !(mode === 'filled')||'shadow-none',
     ]">
-    <div ref="beforeInput" class="absolute inset-y-0 left-0 flex items-center pl-3 pr-1">
+    <div ref="beforeInput" class="absolute inset-y-0 left-0 flex items-center pl-3 pr-1 z-10">
       <slot name="before"/>
     </div>
     <input
@@ -148,9 +143,8 @@ onMounted(()=>{
       :disabled="isDisabled"
       :placeholder="placeholder"
       :autocomplete="autocomplete"
-      class="block peer w-full rounded-md py-1.5 text-gray-900 dark:text-gray-100 ring-0 ring-inset ring-gray-300
+      class="block peer w-full rounded-md py-1.5 text-gray-900 dark:text-gray-100 ring-0 ring-inset
       transition-all
-      [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
       placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600
       focus:outline-none focus:ring-inset focus:ring-indigo-600 focus:dark:ring-indigo-400
       sm:text-sm sm:leading-6
@@ -159,7 +153,7 @@ onMounted(()=>{
       !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black focus:ring-2 focus:border-transparent',
       !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950 focus:border-b-[1px] focus:border-indigo-400 focus:dark:border-indigo-600 focus:ring-0',
       !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900 focus:ring-2 disabled:bg-stone-100 disabled:dark:bg-stone-900 disabled:border-dotted disabled:border-2 disabled:border-slate-200',
-      props.class]"
+      props.classInput]"
       :style="`padding-left: ${beforeWidth||10}px; padding-right: ${afterWidth||10}px; scroll-margin-top: ${headerHeight + 10}px;`"
       :value="value"
       @input="inputEvent($event)"
@@ -174,7 +168,7 @@ onMounted(()=>{
            :translate-x="beforeWidth||10"
            :max-width="input?.['offsetWidth']"
     />
-    <div ref="afterInput" class="absolute inset-y-0 right-0 flex items-center pl-1">
+    <div ref="afterInput" class="absolute inset-y-0 right-0 flex items-center pl-1 z-10">
       <slot name="after"/>
       <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                   enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">

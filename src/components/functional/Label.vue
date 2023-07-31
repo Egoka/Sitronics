@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed} from "vue";
 import type {IMode} from "@/components/form/StForm.vue";
-export type ILabelMode = "static"|"offsetDynamic"|"offsetStatic"|"dynamic"|"none"
+export type ILabelMode = "static"|"offsetDynamic"|"offsetStatic"|"dynamic"|"vanishing"|"none"
 const props = defineProps<{
   title?: string
   isRequired?: boolean
@@ -44,12 +44,13 @@ const background = computed(()=> {
 </script>
 
 <template>
-  <div :class="['absolute flex pointer-events-none select-none h-5 rounded-md ',
+  <div :class="['absolute top-[38px] flex pointer-events-none select-none h-5 rounded-md transition ',
   !(type === 'dynamic')||`peer-focus:-translate-y-[60px] peer-focus:translate-x-4 -translate-y-7 ${translateX} transition-transform`,
   !(type === 'offsetDynamic')||`peer-focus:-translate-y-[48px] peer-focus:translate-x-4 -translate-y-7 ${translateX} transition-transform px-1 bg-gradient-to-t ${background}`,
   !(type === 'offsetStatic')||`-translate-y-[48px] translate-x-4 px-1 bg-gradient-to-t ${background} from-50% to-transparent to-55%`,
   !(type === 'static')||'-translate-y-[60px] translate-x-4',
-  !(type === 'none')||'invisible',
+  !(type === 'vanishing')||`-translate-y-[28px] ${translateX}`,
+  !(type === 'none')||'invisible -translate-y-[30px] translate-x-4',
   !isRequired||`after:content-['*'] after:text-red-500 after:ml-1` ]">
     <span
       class="block text-sm font-medium text-gray-400 dark:text-gray-500 truncate"
