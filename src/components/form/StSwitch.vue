@@ -118,7 +118,7 @@ function changeModelValue(value:any) {
       <label :for="id" :class="[
         `font-medium text-gray-600 dark:text-gray-400`,
         !isDisabled||'text-slate-800 dark:text-slate-200',
-        !isRequired||`after:content-['*'] after:text-red-500 after:ml-1`]">
+        !isRequired||`after:content-['*'] after:text-red-500 after:dark:text-red-800 after:ml-1`]">
         {{ label }}
       </label>
     </div>

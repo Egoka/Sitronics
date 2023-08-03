@@ -197,7 +197,7 @@ onMounted(()=>{
         </transition>
         <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-          <XCircleIcon v-if="clear && value?.length" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition" aria-hidden="true" @click="inputModelValue(null)" />
+          <XCircleIcon v-if="clear && value?.length" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition" aria-hidden="true" @click="inputModelValue('')" />
         </transition>
       </template>
       <template v-else-if="value?.length">

@@ -51,15 +51,17 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "StSelect",
         name: "professionType",
         label: "Профессия",
-        dataSelect: [
-          {value: 1, label: "Програмиист"},
-          {value: 2, label: "HR"},
-          {value: 3, label: "Дизайнер"},
-          {value: 4, label: "1C"},
-        ],
         beforeIcon: "BookOpenIcon",
-        clear: true,
+        dataSelect: ["apple", "banana", "cherry", "apple", "cherry"],
+        // dataSelect: [
+        //   {value: 1, label: "Програмиист"},
+        //   {value: 2, label: "HR"},
+        //   {value: 3, label: "Дизайнер"},
+        //   {value: 4, label: "1C"},
+        // ],
         keySelect: "value",
+        valueSelect: "label",
+        clear: true,
         multiple: true
       },
       {
@@ -278,5 +280,10 @@ watch(form, ()=>{
         <p v-if="structure?.subTitle?.length" class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">{{ structure?.subTitle }}</p>
       </template>
     </StForm>
+    <template v-if="form">
+      <div v-for="field in Object.keys(form)" :key="field" class="text-gray-500">
+        {{ field }} = {{form[field]}}
+      </div>
+    </template>
   </ComponentViews>
 </template>

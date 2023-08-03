@@ -51,7 +51,7 @@ const background = computed(()=> {
   !(type === 'static')||'-translate-y-[60px] translate-x-4',
   !(type === 'vanishing')||`-translate-y-[28px] ${translateX}`,
   !(type === 'none')||'invisible -translate-y-[30px] translate-x-4',
-  !isRequired||`after:content-['*'] after:text-red-500 after:ml-1` ]">
+  !isRequired||`after:content-['*'] after:text-red-500 after:dark:text-red-800 after:ml-1` ]">
     <span
       class="block text-sm font-medium text-gray-400 dark:text-gray-500 truncate"
       :class="[!(type === 'static')||'text-gray-900 dark:text-gray-100']"

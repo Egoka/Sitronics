@@ -149,17 +149,10 @@ function getStructure (structures:Array<IFormStructure>):Array<IFormStructure> {
   })
 }
 function getParamsStructure (structure:{[key:string]: any}, calculatedFields:Array<string>):{ [key:string]: any } {
-  if (structure.name === "professionType"){
-    console.log(structure, calculatedFields)
-  }
-  const result =  Object.keys(structure).reduce((acc:{[key:string]: any}, key:string) => {
+  return Object.keys(structure).reduce((acc:{[key:string]: any}, key:string) => {
     calculatedFields.includes(key)||(acc[key] = structure[key])
     return acc
   }, {})
-  if (structure.name === "professionType"){
-    console.log("result", result)
-  }
-  return result
 }
 // ---------------------------------------
 onMounted(()=>{
@@ -251,16 +244,20 @@ function submit(){
                     v-if="field.typeComponent === 'StSelect'"
                     v-model:model-value="formFields[field.name]"
                     :data-select="field.dataSelect"
-                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
-                  >
-                    <template #item="{item}">
-                      {{item.item}}
+                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}">
+                    <template #default="{selected, key}">
+                      <div v-if="field.multiple" class="m-[2px] bg-stone-200 dark:bg-stone-800 h-4 leading-4 px-1 rounded-[2px]">{{selected[key]}}</div>
+                      <div v-else>{{selected[key]}}</div>
                     </template>
-                    <template #before>
+                    <template #item="{item}">
+                      <div v-if="!field?.noQuery" v-html="item?.marker" class="text-gray-600 dark:text-gray-400"/>
+                      <div v-else class="text-gray-500">{{field.valueSelect? item[field.valueSelect] : item}}</div>
+                    </template>
+                    <template v-if="field.beforeIcon || field.beforeText" #before>
                       <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
                       <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
                     </template>
-                    <template #after>
+                    <template v-if="field.afterIcon || field.afterText" #after>
                       <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                       <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
                     </template>
