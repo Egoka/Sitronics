@@ -35,10 +35,10 @@ interface ICompareRule extends IRule {
 }
 // ---------------------------------------
 type Rules = {
-  required?: message|IRequiredRule|boolean,
-  email?: message|IEmailRule,
-  phone?: message|IPhoneRule,
-  numeric?: message|INumericRule
+  required?: IRequiredRule|message|boolean,
+  email?: IEmailRule|message,
+  phone?: IPhoneRule|message,
+  numeric?: INumericRule|message
   regular?: IRegularRule
   range?: IRangeRule
   length?: ILengthRule
@@ -155,6 +155,10 @@ export function getValidate (value: any, field:any): {isInvalid: boolean, messag
           return true
         }
       } else if (rule === "compare"){
+        // if (rules["compare"]?.compareField) {
+        //   message = rules["compare"]?.message||""
+        //   return true
+        // }
       }
     })
   return {isInvalid, message}

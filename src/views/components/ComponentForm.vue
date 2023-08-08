@@ -13,7 +13,17 @@ const structures = ref<Array<IFormStructure>>([
       {
         typeComponent: "StInput",
         name: "name",
-        modelValue: "",
+        label:"Имя",
+        clear: true,
+        beforeIcon: "UserCircleIcon",
+        help: "<img src='https://cdn-icons-png.flaticon.com/512/1828/1828439.png' class='w-10 m-auto' alt=''> Ваше имя должно начинаться с большой буквы. Это поле будет выводиться публично",
+        rules: {
+          required: "Имя обязательно для заполнения"
+        }
+      },
+      {
+        typeComponent: "StInput",
+        name: "nameDop",
         label:"Имя",
         clear: true,
         beforeIcon: "UserCircleIcon",
@@ -62,6 +72,16 @@ const structures = ref<Array<IFormStructure>>([
         keySelect: "value",
         valueSelect: "label",
         clear: true,
+        required: true,
+        rules: {
+          length: {
+            message: "Максимальная длина 2",
+            max: 3,
+            min: 3
+          },
+          
+          // required: "test"
+        },
         multiple: true
       },
       {
@@ -70,12 +90,13 @@ const structures = ref<Array<IFormStructure>>([
         switchingType: "checkbox",
         modelValue: false,
         rounded: 9,
+        modeSwitch: "none",
         // iconActive: "SunIcon",
         // iconInactive: "MoonIcon",
         // disabled: true,
         label: "Указать персональную информацию",
         required: true,
-        // classCol: "sm:col-span-3",
+        classCol: "sm:col-span-3",
         help: "Вся информация о пользователе"
       }
     ]

@@ -26,7 +26,7 @@ const router = createRouter({
       meta: {
         layout: 'home'
       },
-      component: () => import('../views/ComponentForm.vue')
+      component: () => import('../views/components/ComponentForm.vue')
     },
     {
       path: '/components/input',
@@ -34,7 +34,7 @@ const router = createRouter({
       meta: {
         layout: 'home'
       },
-      component: () => import('../views/ComponentInput.vue')
+      component: () => import('../views/components/ComponentInput.vue')
     },
     {
       path: '/components/switch',
@@ -42,7 +42,7 @@ const router = createRouter({
       meta: {
         layout: 'home'
       },
-      component: () => import('../views/ComponentSwitch.vue')
+      component: () => import('../views/components/ComponentSwitch.vue')
     },
     {
       path: '/components/select',
@@ -50,7 +50,15 @@ const router = createRouter({
       meta: {
         layout: 'home'
       },
-      component: () => import('../views/ComponentSelect.vue')
+      component: () => import('../views/components/ComponentSelect.vue')
+    },
+    {
+      path: '/components/calendar',
+      name: 'calendar',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentCalendar.vue')
     },
     {
       path: '/components/all',

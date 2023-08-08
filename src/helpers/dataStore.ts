@@ -20,7 +20,7 @@ class DataStore {
   }
   // ---------------------------------------
   public setData (data:Array<IDataItem>){
-    data.map(item=>
+    data?.map(item=>
       typeof item === "object"
         ? this.data.add(item)
         : this.data.add({uuid:item})
@@ -29,7 +29,7 @@ class DataStore {
   public clearData () { this.data.clear()}
   // ---------------------------------------
   private setValueInValue(value:any) {
-    ((!this.data.has(value))|| this.value.has(value)) ? this.value.delete(value) : this.value.add(value)
+    ((!this.data.has(value)) || this.value.has(value)) ? this.value.delete(value) : this.value.add(value)
   }
   public isValue(value:any) {
     return this.data.has(value) && this.value.has(value)
@@ -40,8 +40,14 @@ class DataStore {
         value.map(item => this.setValueInValue(item))
       } else { this.setValueInValue(value) }
     } else {
-      this.value.clear()
-      this.setValueInValue(value) }
+      if (Array.isArray(value)) { value = value[0] }
+      if (((!this.data.has(value)) || this.value.has(value))) {
+        this.value.clear()
+      } else {
+        this.value.clear()
+        this.setValueInValue(value)
+      }
+    }
   }
   public getValue ():Array<any>|any { return [...this.value] }
   public getKeyValue ():Array<any>|any { return [...this.value].map(item=>this.key ? item[this.key]: item) }

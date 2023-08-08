@@ -58,7 +58,7 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
               class: "ring-0 min-w-[3rem]",
               modelValue: country,
               onUpdateModelValue: (e:any)=>country.value = e,
-              items: ['RU', 'US','CN'],
+              dataSelect: ['RU', 'US','CN'],
               selectIcon: "ChevronDownIcon"
             },
             slots:{

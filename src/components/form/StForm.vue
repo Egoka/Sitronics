@@ -5,14 +5,16 @@ import StInput, {type IInput} from "@/components/form/StInput.vue";
 import StSelect, {type ISelect} from "@/components/form/StSelect.vue";
 import StSwitch, {type ISwitch} from "@/components/form/StSwitch.vue";
 import type {ILabelMode} from "@/components/functional/Label.vue";
-import {getValidate, getAsyncValidate, type Rules} from "@/helpers/rules";
+import {getValidate, getAsyncValidate, type Rules, IRequiredRule} from "@/helpers/rules";
 // ---------------------------------------
 export type IMode = 'outlined'|'underlined'|'filled'
 type classCol = "col-span-full"|'sm:col-span-3'|'sm:col-span-4'|'sm:col-span-5'|'sm:col-span-6'|string
 // ---------------------------------------
+export interface IRulesInput extends Rules {}
+export interface IRulesSelect extends Omit<Rules, "email"|"phone"|"numeric"|"regular"> {}
+// ---------------------------------------
 interface IFields {
   name: string
-  rules?: Rules
   classCol?: classCol
   isHidden?: boolean|undefined
 }
@@ -22,6 +24,7 @@ const calculatedFieldsInput = ['typeComponent', 'classCol', 'modelValue', 'isInv
   'beforeIcon', 'beforeText', 'afterIcon', 'afterText']
 export interface IFieldsInput extends IFields, IInput {
   typeComponent: "StInput"
+  rules?: IRulesInput
   beforeIcon?: string
   beforeText?: string
   afterIcon?: string
@@ -29,6 +32,7 @@ export interface IFieldsInput extends IFields, IInput {
 }
 export interface IFieldsSelect extends IFields, ISelect {
   typeComponent: "StSelect"
+  rules?: IRulesSelect
   beforeIcon?: string
   beforeText?: string
   afterIcon?: string
@@ -65,7 +69,9 @@ const emit = defineEmits<{
   (event: 'update:formFields', payload: IFormFields): void;
 }>()
 // ---------------------------------------
-const modeStyle = computed<IMode|string>(()=>props.modeStyle || "")
+const arrayFieldsIS = ["StInput", "StSelect"]
+// ---------------------------------------
+const modeStyle = computed<IMode|undefined>(()=>props.modeStyle || undefined)
 const modeLabel = computed<ILabelMode>(()=>props.modeLabel || "offsetDynamic")
 const isDisabled = computed<boolean>(()=>props.disabled || false)
 const modeValidate = computed(()=>props.modeValidate || "onSubmit")
@@ -127,17 +133,19 @@ function getStructure (structures:Array<IFormStructure>):Array<IFormStructure> {
         if (!field.name){
           field.name = "field"+Math.floor(Math.random() * 100)
           console.error(`There is no name field. Temporary name ${field.name} is set.`, field) }
-        if (field.rules){
-          field.required = !!(field.rules['required'])||field?.required||false
-          if (field.required && (!field.rules['required'] || typeof field.rules['required'] === "boolean")) {
-            field.rules['required'] = "Обязательное поле"
-          }
-        } else { if (field?.required) {
-          field.rules = {required: "Обязательное поле"}
-        }}
+        if (arrayFieldsIS.includes(field.typeComponent)) {
+          if ("rules" in field && field?.rules){
+            field.required = !!(field.rules['required'])||field?.required||false
+            if (field.required && (!field.rules['required'] || typeof field.rules['required'] === "boolean")) {
+              field.rules['required'] = "Обязательное поле"
+            }
+          } else { if (field?.required) {
+            (field as IFieldsIS).rules = {required: "Обязательное поле"}
+          }}
+        }
         if (!field.classCol?.length) field.classCol = "col-span-full"
         field.mode = field.mode || modeStyle.value
-        if (["StInput", "StSelect"].includes(field.typeComponent)){
+        if (arrayFieldsIS.includes(field.typeComponent)){
           (field as IFieldsIS).labelMode =
             (field as IFieldsIS).labelMode || modeLabel.value
         }
@@ -165,22 +173,23 @@ watch(formFields, (value:IFormFields)=>{
 })
 // ---------------------------------------
 async function validateField (field: IFieldsType) {
-  if (field.rules) {
-    let {isInvalid, message} = getValidate(formFields[field.name], field)
-    if (!isInvalid && Object.keys(field.rules).includes("async")) {
-      if (["StInput", "StSelect"].includes(field.typeComponent)){
-        (field as IFieldsIS).loading = true
+  if (arrayFieldsIS.includes(field.typeComponent)) {
+    if ("rules" in field && field?.rules) {
+      let {isInvalid, message} = getValidate(formFields[field.name], field)
+      if (!isInvalid && Object.keys(field.rules).includes("async")) {
+        if (arrayFieldsIS.includes(field.typeComponent)) {
+          (field as IFieldsIS).loading = true
+        }
+        const result = await getAsyncValidate(formFields[field.name], field)
+        if (arrayFieldsIS.includes(field.typeComponent)) {
+          (field as IFieldsIS).loading = false
+        }
+        isInvalid = result?.isInvalid || isInvalid
+        message = result?.message || message
       }
-      const result = await getAsyncValidate(formFields[field.name], field)
-      if (["StInput", "StSelect"].includes(field.typeComponent)){
-        (field as IFieldsIS).loading = false
-      }
-      isInvalid = result?.isInvalid || isInvalid
-      message = result?.message || message
-    }
-    formInvalidFields[field.name] = isInvalid
-    if (["StInput", "StSelect"].includes(field.typeComponent)){
-      (field as IFieldsIS)["messageInvalid"] = message
+      console.log(field.name, isInvalid, message)
+      formInvalidFields[field.name] = isInvalid
+      field["messageInvalid"] = message
     }
   }
 }
@@ -243,6 +252,7 @@ function submit(){
                   <StSelect
                     v-if="field.typeComponent === 'StSelect'"
                     v-model:model-value="formFields[field.name]"
+                    v-model:is-invalid="formInvalidFields[field.name]"
                     :data-select="field.dataSelect"
                     v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}">
                     <template #default="{selected, key}">

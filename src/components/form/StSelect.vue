@@ -23,6 +23,7 @@ export interface ISelect extends Omit<ILayout, "value">{
 const props = defineProps<ISelect>()
 // ---------------------------------------
 const emit = defineEmits<{
+  (event: 'update:isInvalid', payload: ISelect["invalid"]): void;
   (event: 'update:modelValue', payload: ISelect["modelValue"]): void;
 }>()
 // ---------------------------------------
@@ -58,8 +59,10 @@ const isValue = computed<boolean>(()=> Boolean(multiple.value ? value.value ? St
 const noData = computed<ILayout["noData"]>(()=> props.noData || "Нет данных")
 const isQuery = computed<ILayout["noData"]>(()=> !props.noQuery)
 const classMaskQuery = computed<ILayout["noData"]>(()=> props.classMaskQuery||"font-bold text-indigo-700 dark:text-indigo-300")
-const inputLayout = reactive({value: isValue, mode, label: props.label,
-  labelMode: props.labelMode, invalid: props.invalid, messageInvalid: props.messageInvalid,
+const isInvalid = computed<ILayout["noData"]>(()=> props.isInvalid)
+const messageInvalid = computed<ILayout["noData"]>(()=> props.messageInvalid)
+const inputLayout = reactive({value: isValue, mode: mode.value, label: props.label,
+  labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
   required: props.required, disabled: props.disabled, help: props.help, clear: props.clear,
   classBody: props.classBody, class: props.class})
 // ---------------------------------------
@@ -68,7 +71,9 @@ const dataStore = ref(new DataStore(value.value, keySelect.value, dataSelect.val
 // ---------------------------------------
 onMounted(()=>{
   document.addEventListener( 'click', (e) => {
-    isOpenList.value = e.composedPath().includes((list.value as HTMLElement))
+    if (isOpenList.value) {
+      isOpenList.value = e.composedPath().includes((list.value as HTMLElement))
+    }
   })
   document.onkeydown = function(evt) {
     if (isOpenList.value) {
@@ -80,18 +85,32 @@ onMounted(()=>{
     }
   };
 })
+watch(isInvalid, (value)=>{
+  inputLayout.isInvalid = props.isInvalid
+})
+watch(messageInvalid, (value)=>{
+  inputLayout.messageInvalid = props.messageInvalid
+})
 watch(isOpenList, (value)=>{
   inputLayout.class = props.class+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
 })
-watch(() => dataSelect.value, (value)=>{
+watch(dataSelect, (value)=>{
   dataStore.value.setData(value)
+})
+watch(value, (value)=>{
+  const dataStoreValue = dataStore.value.getKeyValue()
+  if (value?.some((item, index)=>item !== dataStoreValue[index])) {
+    dataStore.value.clearValue()
+    dataStore.value.setValue(dataStore.value.getData().filter(item=>value.includes(item[dataStore.value.getKey()])))
+  }
 })
 // ---------------------------------------
 function select(item:IDataItem|null) {
   if (item) {
     dataStore.value.setValue(item)
   } else { dataStore.value.clearValue() }
-  emit('update:modelValue', dataStore.value.getKeyValue())
+  emit('update:isInvalid', false)
+  emit('update:modelValue', dataStore.value.getKeyValue().length ? dataStore.value.getKeyValue() : null)
 }
 // ---------------------------------------
 const dataList = computed<IDataStore["dataSelect"]>(()=> {
@@ -181,8 +200,7 @@ const delay = computed(()=> {
           :mode="mode"
           label-mode="vanishing"
           class="m-2 my-5 sticky top-0 z-20"
-          clear
-        >
+          clear>
           <template #before>
             <Icons type="MagnifyingGlassIcon"/>
           </template>
@@ -193,16 +211,14 @@ const delay = computed(()=> {
           :css="false"
           @before-enter="onBeforeEnter"
           @enter="onEnter"
-          @leave="onLeave"
-        >
+          @leave="onLeave">
             <template v-if="dataSelect?.length" >
               <li v-for="(item, index) in dataList"
                   :key="dataStore.getKey() !== 'uuid'? item[dataStore.getKey()]: item[dataStore.getKey()]+index"
                   :data-index="index"
                   class="text-gray-900 dark:text-gray-100 relative cursor-default select-none flex items-center h-9 pl-10 pr-4"
                   :class="['hover:bg-indigo-100 hover:dark:bg-indigo-900']"
-                  @click="select(item)"
-              >
+                  @click="select(item)">
                 <slot name="item" :item="item">
                   <div v-if="isQuery" v-html="item.marker" class="text-gray-600 dark:text-gray-400"/>
                   <div v-else class="text-gray-500">{{valueSelect? item[valueSelect] : item}}</div>

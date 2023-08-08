@@ -1,0 +1,75 @@
+<script setup lang="ts">
+import ComponentViews from "@/components/ComponentViews.vue";
+import StForm, {type IFormExpose, type IFormStructure} from "@/components/form/StForm.vue";
+import {reactive, ref, watch} from "vue";
+import StSelect from "@/components/form/StSelect.vue";
+import {CheckIcon} from "@heroicons/vue/20/solid";
+import InputLayout from "@/components/functional/inputLayout.vue";
+import Icons from "@/components/functional/Icons.vue";
+import Select from "@/components/form/StSelect.vue";
+const formFields = reactive({isInfo: ""})
+
+const people = ref([
+  {value: 1, label: "Wade Cooper"},
+  {value: 2, label: "Arlene Mccoy"},
+  {value: 3, label: "Devon Webb"},
+  {value: 4, label: "Tom Cook"},
+  {value: 5, label: "Tanya Fox"},
+  {value: 6, label: "Hellen Schmidt"},
+])
+
+const roles = ref([
+  {value: 1, label: "Marketing "},
+  {value: 2, label: "Front desk "},
+  {value: 3, label: "Support awda wdaw awd awd"},
+  {value: 4, label: "Support awda wdaw awd awd"},
+  {value: 11, label: "Wade Cooper"},
+  {value: 12, label: "Arlene Mccoy"},
+  {value: 13, label: "Devon Webb"},
+  {value: 14, label: "Tom Cook"},
+  {value: 15, label: "Tanya Fox"},
+  {value: 16, label: "Hellen Schmidt"},
+])
+
+const test = [123, '12314124 23123 ', 214124, 3, 2]
+const form = ref({
+  person_id: null,
+  role_ids: []
+});
+
+</script>
+<template>
+  <ComponentViews>
+    <template #title>Select</template>
+    {{formFields}}
+    <Select
+      v-model="formFields.isInfo"
+      mode="filled"
+      label="Профессия"
+      label-mode="vanishing"
+      required
+      :data-select="roles"
+      key-select="value"
+      help="Test field"
+      clear>
+      <template #before>
+        <Icons type="SunIcon"/>
+      </template>
+    </Select>
+    <Select
+      v-model="formFields.isInfo"
+      mode="underlined"
+      label="Профессия"
+      label-mode="vanishing"
+      required
+      :data-select="roles"
+      key-select="value"
+      help="Test field"
+      multiple
+      clear>
+      <template #before>
+        <Icons type="SunIcon"/>
+      </template>
+    </Select>
+  </ComponentViews>
+</template>

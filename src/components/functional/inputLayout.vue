@@ -15,9 +15,10 @@ export interface ILayout {
   mode?: IMode
   label?: string
   labelMode?: ILabelMode
-  invalid?: boolean
+  isInvalid?: boolean
   messageInvalid?: string
   required?: boolean
+  loading?: boolean
   disabled?:boolean
   help?: string
   clear?: boolean
@@ -33,8 +34,9 @@ const label = computed<ILayout["label"]>(()=> String(props.label || ""))
 const labelMode = computed<ILabelMode>(()=> props.labelMode || "offsetDynamic")
 const labelType = computed<ILabelMode>(()=> getLabelType(value.value, label.value, labelMode.value))
 const isRequired = computed<ILayout["required"]>(()=>props.required)
+const isLoading = computed<ILayout["loading"]>(()=> props.loading || false)
 const isDisabled = computed<ILayout["disabled"]>(()=>props.disabled || false)
-const isInvalid = computed<ILayout["invalid"]>(()=>!isDisabled.value ? props.invalid : false)
+const isInvalid = computed<ILayout["isInvalid"]>(()=>!isDisabled.value ? props.isInvalid : false)
 const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid || "")
 
 // ---------------------------------------
@@ -88,6 +90,13 @@ onMounted(()=>{
            :max-width="input?.['offsetWidth']"/>
     <span ref="afterInput" class="absolute inset-y-0 right-0 flex items-center">
       <slot name="after"/>
+      <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                        enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
+        <div v-if="isLoading" class="relative mx-2">
+          <div class="w-4 h-4 border-gray-200 dark:border-gray-800 border-2 rounded-full"></div>
+          <div class="w-4 h-4 border-gray-700 dark:border-gray-300 border-t-2 animate-spin rounded-full absolute left-0 top-0"></div>
+        </div>
+      </transition>
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
           <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400" aria-hidden="true" />
