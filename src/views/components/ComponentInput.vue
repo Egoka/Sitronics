@@ -59,7 +59,7 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
               modelValue: country,
               onUpdateModelValue: (e:any)=>country.value = e,
               dataSelect: ['RU', 'US','CN'],
-              selectIcon: "ChevronDownIcon"
+              selectIcon: "ChevronDown"
             },
             slots:{
               selected:({selected})=> [selected],
@@ -83,7 +83,7 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
               modelValue: currency,
               onUpdateModelValue: (e:any)=>currency.value = e,
               items: ['₽', '¥','$','€'],
-              selectIcon: "ChevronDownIcon"
+              selectIcon: "ChevronDown"
             },
             slots:{
               selected:({selected})=> [selected],

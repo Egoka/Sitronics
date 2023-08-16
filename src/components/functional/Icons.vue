@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {convertToCamelCase, convertToDashCase, convertToSnakeCase} from "@/helpers/string";
+
 export type IPropsIconsType = "currency_ruble_FILL1_wght300_GRAD0_opsz20"|"Sitronics"|string
   // |"Copy"|"Avatar"|"Search"|"Documentation"|"Components"|"Templates"|"Screencasts"|"Playground"|"Resources"|"Community"|"Sitronics"|"Print"
 export interface IIcon {
@@ -6,10 +8,17 @@ export interface IIcon {
   class?: "h-5 w-5 text-gray-400 dark:text-gray-600"|string|Array<string|boolean>
   style?: string
 }
+// ---------------------------------------
 import * as HeroIcons from "@heroicons/vue/24/outline"
 const heroIcons:any = HeroIcons
+// ---------------------------------------
+import { OhVueIcon, addIcons } from "oh-vue-icons";
+import * as Icons from "oh-vue-icons/icons";
+const AllIcons = Object.values({ ...Icons });
+const ohIcons:any = new Set(AllIcons.map(icon=>icon.name))
+addIcons(...AllIcons);
+// ---------------------------------------
 const props = defineProps<IIcon>()
-
 </script>
 <script lang="ts">
 export const IconValues  = ()=>["currency_ruble_FILL1_wght300_GRAD0_opsz20","Sitronics"]
@@ -49,89 +58,8 @@ export const IconValues  = ()=>["currency_ruble_FILL1_wght300_GRAD0_opsz20","Sit
     </defs>
   </svg>
   <template v-else>
-    <component v-if="heroIcons[props.type]" :is="heroIcons[props.type]" :class="[props.class||'h-5 w-5 text-gray-400 dark:text-gray-600']" :style="style" aria-hidden="true" />
-    <span v-else :class="props.class" class="material-symbols-sharp h-5 w-5 font-light text-gray-400 dark:text-gray-600 select-none">{{ props.type }}</span>
+    <component v-if="heroIcons[convertToCamelCase(props.type)+'Icon']" :is="heroIcons[convertToCamelCase(props.type)+'Icon']" :class="[props.class||'h-5 w-5 text-gray-400 dark:text-gray-600']" :style="style" aria-hidden="true" />
+    <OhVueIcon v-else-if="ohIcons.has(convertToDashCase(props.type))" :name="convertToDashCase(props.type)" class="material-symbols-sharp h-5 w-5 font-light text-gray-400 dark:text-gray-600 select-none"/>
+    <span v-else :class="props.class" class="material-symbols-sharp h-5 w-5 font-light text-gray-400 dark:text-gray-600 select-none">{{ convertToSnakeCase(props.type) }}</span>
   </template>
-<!--  <svg v-else-if="props.type ==='Print'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path d="M20 18v-4h-3v1h-2v-1H9v1H7v-1H4v4h16M6.33 8l-1.74 4H7v-1h2v1h6v-1h2v1h2.41l-1.74-4H6.33M9 5v1h6V5H9m12.84 7.61c.1.22.16.48.16.8V18c0 .53-.21 1-.6 1.41c-.4.4-.85.59-1.4.59H4c-.55 0-1-.19-1.4-.59C2.21 19 2 18.53 2 18v-4.59c0-.32.06-.58.16-.8L4.5 7.22C4.84 6.41 5.45 6 6.33 6H7V5c0-.55.18-1 .57-1.41C7.96 3.2 8.44 3 9 3h6c.56 0 1.04.2 1.43.59c.39.41.57.86.57 1.41v1h.67c.88 0 1.49.41 1.83 1.22l2.34 5.39z" fill="currentColor"></path>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Community'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path fill-rule="evenodd" clip-rule="evenodd" d="M11 5a6 6 0 0 0-4.687 9.746c.215.27.315.62.231.954l-.514 2.058a1 1 0 0 0 1.485 1.1l2.848-1.71c.174-.104.374-.15.576-.148H13a6 6 0 0 0 0-12h-2Z" class="fill-violet-400 group-hover:fill-violet-500 dark:group-hover:fill-violet-300 dark:fill-slate-600"></path>-->
-<!--    <circle cx="12" cy="11" r="1" class="fill-white dark:group-hover:fill-white dark:fill-slate-400"></circle>-->
-<!--    <circle cx="9" cy="11" r="1" class="fill-violet-200 dark:group-hover:fill-white dark:fill-slate-400"></circle>-->
-<!--    <circle cx="15" cy="11" r="1" class="fill-violet-200 dark:fill-slate-400 dark:group-hover:fill-white"></circle>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Templates'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path fill-rule="evenodd" clip-rule="evenodd" d="M8 6C6.89543 6 6 6.89543 6 8V16C6 17.1046 6.89543 18 8 18H10.5C11.0523 18 11.5 17.5523 11.5 17V12C11.5 10.6193 12.6193 9.5 14 9.5H18V8C18 6.89543 17.1046 6 16 6H8ZM7.25 8C7.25 7.58579 7.58579 7.25 8 7.25H8.01C8.42421 7.25 8.76 7.58579 8.76 8C8.76 8.41421 8.42421 8.75 8.01 8.75H8C7.58579 8.75 7.25 8.41421 7.25 8ZM10 7.25C9.58579 7.25 9.25 7.58579 9.25 8C9.25 8.41421 9.58579 8.75 10 8.75H10.01C10.4242 8.75 10.76 8.41421 10.76 8C10.76 7.58579 10.4242 7.25 10.01 7.25H10Z" fill="#E879F9" class="fill-fuchsia-400 group-hover:fill-fuchsia-500 dark:group-hover:fill-fuchsia-300 dark:fill-slate-400"></path>-->
-<!--    <path d="M13 12C13 11.4477 13.4477 11 14 11H17C17.5523 11 18 11.4477 18 12V17C18 17.5523 17.5523 18 17 18H14C13.4477 18 13 17.5523 13 17V12Z" fill="#F0ABFC" class="fill-fuchsia-300 group-hover:fill-fuchsia-400 dark:fill-slate-500"></path>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Resources'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path d="M6 8a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8ZM6 15a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-1Z" class="fill-purple-400 group-hover:fill-purple-500 dark:group-hover:fill-purple-300 dark:fill-slate-600"></path>-->
-<!--    <path d="M13 8a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2V8Z" class="fill-purple-200 group-hover:fill-purple-300 dark:group-hover:fill-white dark:fill-slate-400"></path>-->
-<!--    <path d="M13 15a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-1Z" class="fill-purple-400 group-hover:fill-purple-500 dark:group-hover:fill-purple-300 dark:fill-slate-600"></path>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Screencasts'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path fill-rule="evenodd" clip-rule="evenodd" d="M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" class="fill-pink-400 group-hover:fill-pink-500 dark:group-hover:fill-pink-300 dark:fill-slate-600"></path>-->
-<!--    <path d="M11.082 9.107a.685.685 0 0 0-.72-.01.757.757 0 0 0-.362.653v4.5c0 .27.138.52.362.653.224.133.5.13.72-.01l3.571-2.25A.758.758 0 0 0 15 12a.758.758 0 0 0-.347-.643l-3.571-2.25Z" class="fill-pink-50 group-hover:fill-pink-100 dark:group-hover:fill-white dark:fill-slate-400"></path>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Playground'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path d="M4 12a7 7 0 0 1 7-7h2a7 7 0 1 1 0 14h-2a7 7 0 0 1-7-7Z" class="fill-blue-400 group-hover:fill-blue-500 dark:group-hover:fill-blue-400 dark:fill-slate-600"></path>-->
-<!--    <path d="M10.25 9.75 7.75 12l2.5 2.25" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="stroke-blue-50 dark:stroke-slate-400 dark:group-hover:stroke-white dark:stroke-slate-400"></path>-->
-<!--    <path d="m13.75 9.75 2.5 2.25-2.5 2.25" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="stroke-blue-200 dark:group-hover:stroke-white dark:stroke-slate-400"></path>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Sitronics'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path d="M27.4806 8.82656L15.1208 12.3958L12.636 20.802L0 24.4509L2.60903 15.6245L14.9689 12.0553L17.4536 3.64903L30.0895 0L27.4806 8.82656ZM0.748467 13.9724L3.3575 5.14597L15.9934 1.49694L13.3845 10.3235L0.748467 13.9724ZM29.4659 10.3539L26.8569 19.1804L14.2209 22.8293L16.8299 14.0028L29.4659 10.3539Z" fill="url(#paint0_linear_0_3584)"></path>-->
-<!--    <defs>-->
-<!--      <linearGradient id="paint0_linear_0_3584" x1="4.7794" y1="24.4715" x2="17.898" y2="0.795629" gradientUnits="userSpaceOnUse">-->
-<!--        <stop offset="0.219156" stop-color="#A954FF"></stop>-->
-<!--        <stop offset="1" stop-color="#19C2FF"></stop>-->
-<!--      </linearGradient>-->
-<!--    </defs>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Components'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path d="m6 9 6-3 6 3v6l-6 3-6-3V9Z" class="fill-indigo-100 group-hover:fill-indigo-200 dark:fill-slate-400"></path>-->
-<!--    <path d="m6 9 6 3v7l-6-3V9Z" class="fill-indigo-300 group-hover:fill-indigo-400 dark:group-hover:fill-indigo-300 dark:fill-slate-500"></path>-->
-<!--    <path d="m18 9-6 3v7l6-3V9Z" class="fill-indigo-400 group-hover:fill-indigo-500 dark:group-hover:fill-indigo-400 dark:fill-slate-600"></path>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Documentation'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.5 7c1.093 0 2.117.27 3 .743V17a6.345 6.345 0 0 0-3-.743c-1.093 0-2.617.27-3.5.743V7.743C5.883 7.27 7.407 7 8.5 7Z" class="fill-sky-200 group-hover:fill-sky-500 dark:fill-sky-300 dark:group-hover:fill-sky-300"></path>-->
-<!--    <path fill-rule="evenodd" clip-rule="evenodd" d="M15.5 7c1.093 0 2.617.27 3.5.743V17c-.883-.473-2.407-.743-3.5-.743s-2.117.27-3 .743V7.743a6.344 6.344 0 0 1 3-.743Z" class="fill-sky-400 group-hover:fill-sky-500 dark:fill-sky-200 dark:group-hover:fill-sky-200"></path>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Search'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path d="m19 19-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>-->
-<!--    <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></circle>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Avatar'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <g filter="url(#icon__a)">-->
-<!--      <rect x="14" y="8" width="64" height="64" rx="32" fill="#fff"/>-->
-<!--    </g>-->
-<!--    <g filter="url(#icon__b)">-->
-<!--      <path d="M46 40c2.763 0 5-2.237 5-5s-2.237-5-5-5-5 2.237-5 5 2.237 5 5 5Zm0 2.5c-3.337 0-10 1.675-10 5v1.25c0 .688.563 1.25 1.25 1.25h17.5c.688 0 1.25-.563 1.25-1.25V47.5c0-3.325-6.663-5-10-5Z" fill="#4318FF"/>-->
-<!--    </g>-->
-<!--    <defs>-->
-<!--      <filter id="icon__a" x="0" y="0" width="92" height="92" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">-->
-<!--        <feFlood flood-opacity="0" result="BackgroundImageFix"/>-->
-<!--        <feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>-->
-<!--        <feOffset dy="6"/>-->
-<!--        <feGaussianBlur stdDeviation="7"/>-->
-<!--        <feComposite in2="hardAlpha" operator="out"/>-->
-<!--        <feColorMatrix values="0 0 0 0 0.783353 0 0 0 0 0.812582 0 0 0 0 0.841812 0 0 0 0.6 0"/>-->
-<!--        <feBlend in2="BackgroundImageFix" result="effect1_dropShadow_2478_38025"/>-->
-<!--        <feBlend in="SourceGraphic" in2="effect1_dropShadow_2478_38025" result="shape"/>-->
-<!--      </filter>-->
-<!--      <filter id="icon__b" x="18" y="18" width="56" height="56" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">-->
-<!--        <feFlood flood-opacity="0" result="BackgroundImageFix"/>-->
-<!--        <feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>-->
-<!--        <feOffset dy="6"/>-->
-<!--        <feGaussianBlur stdDeviation="9"/>-->
-<!--        <feComposite in2="hardAlpha" operator="out"/>-->
-<!--        <feColorMatrix values="0 0 0 0 0.262745 0 0 0 0 0.0941176 0 0 0 0 1 0 0 0 0.5 0"/>-->
-<!--        <feBlend in2="BackgroundImageFix" result="effect1_dropShadow_2478_38025"/>-->
-<!--        <feBlend in="SourceGraphic" in2="effect1_dropShadow_2478_38025" result="shape"/>-->
-<!--      </filter>-->
-<!--    </defs>-->
-<!--  </svg>-->
-<!--  <svg v-else-if="props.type ==='Copy'" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" :class="props.class">-->
-<!--    <path d="M190.957-27.565q-48 0-81.479-33.592t-33.479-80.8v-578.259h114.958v578.259h480.259v114.392H190.957ZM394.87-230.913q-47.999 0-81.478-33.874-33.479-33.875-33.479-81.083v-472.173q0-47.208 33.479-80.8t81.478-33.592h374.173q48 0 81.479 33.592t33.479 80.8v472.173q0 47.208-33.479 81.083-33.479 33.874-81.479 33.874H394.87Zm0-114.957h374.173v-472.173H394.87v472.173Zm0 0v-472.173 472.173Z"/>-->
-<!--  </svg>-->
 </template>

@@ -5,6 +5,7 @@ import {ref, watch} from "vue";
 import {type IResultCallback} from "@/helpers/rules";
 const form = ref<any>(null)
 const formTest = ref<IFormExpose|null>(null)
+
 const structures = ref<Array<IFormStructure>>([
   {
     title: "Профиль",
@@ -14,8 +15,9 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "StInput",
         name: "name",
         label:"Имя",
+        rounded: 1,
         clear: true,
-        beforeIcon: "UserCircleIcon",
+        beforeIcon: "UserCircle",
         help: "<img src='https://cdn-icons-png.flaticon.com/512/1828/1828439.png' class='w-10 m-auto' alt=''> Ваше имя должно начинаться с большой буквы. Это поле будет выводиться публично",
         rules: {
           required: "Имя обязательно для заполнения"
@@ -26,7 +28,7 @@ const structures = ref<Array<IFormStructure>>([
         name: "nameDop",
         label:"Имя",
         clear: true,
-        beforeIcon: "UserCircleIcon",
+        beforeIcon: "UserCircle",
         help: "<img src='https://cdn-icons-png.flaticon.com/512/1828/1828439.png' class='w-10 m-auto' alt=''> Ваше имя должно начинаться с большой буквы. Это поле будет выводиться публично",
         rules: {
           required: "Имя обязательно для заполнения"
@@ -40,7 +42,7 @@ const structures = ref<Array<IFormStructure>>([
         label:"Фамилия",
         required: true,
         clear: true,
-        beforeIcon: "UserIcon"
+        beforeIcon: "User"
       },
       {
         typeComponent: "StInput",
@@ -61,16 +63,19 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "StSelect",
         name: "professionType",
         label: "Профессия",
-        beforeIcon: "BookOpenIcon",
-        dataSelect: ["apple", "banana", "cherry", "apple", "cherry"],
+        beforeIcon: "BookOpen",
+        paramsSelect: {
+          dataSelect: ["apple", "banana", "cherry", "apple", "cherry"],
+          keySelect: "value",
+          valueSelect: "label",
+          multiple: true,
         // dataSelect: [
         //   {value: 1, label: "Програмиист"},
         //   {value: 2, label: "HR"},
         //   {value: 3, label: "Дизайнер"},
         //   {value: 4, label: "1C"},
         // ],
-        keySelect: "value",
-        valueSelect: "label",
+        },
         clear: true,
         required: true,
         rules: {
@@ -79,10 +84,54 @@ const structures = ref<Array<IFormStructure>>([
             max: 3,
             min: 3
           },
-          
-          // required: "test"
         },
-        multiple: true
+      },
+      {
+        typeComponent: "StSelect",
+        name: "professionType1",
+        label: "Профессия",
+        beforeIcon: "BookOpen",
+        paramsSelect: {
+          dataSelect: ["apple", "banana", "cherry", "apple", "cherry"],
+          keySelect: "value",
+          valueSelect: "label",
+          multiple: true,
+        // dataSelect: [
+        //   {value: 1, label: "Програмиист"},
+        //   {value: 2, label: "HR"},
+        //   {value: 3, label: "Дизайнер"},
+        //   {value: 4, label: "1C"},
+        // ],
+        },
+        clear: true,
+        required: true,
+        rules: {
+          length: {
+            message: "Максимальная длина 2",
+            max: 3,
+            min: 3
+          },
+        },
+      },
+      {
+        typeComponent: "StCalendar",
+        name: "birthday1",
+        label: "День рождения",
+        modelValue: "2023-08-02T21:00:00.000Z",
+        beforeIcon: "CoBirthdayCake",
+        required: true,
+        clear: true,
+      },
+      {
+        typeComponent: "StCalendar",
+        name: "birthday",
+        // modelValue: "2023-08-09T21:00:00.000Z",
+        modelValue: { "start": "2023-08-02T21:00:00.000Z", "end": "2023-08-10T21:00:00.000Z" },
+        paramsDatePicker: { isRange: true },
+        label: "День рождения",
+        beforeIcon: "CoBirthdayCake",
+        required: true,
+        clear: true
       },
       {
         typeComponent: "StSwitch",
@@ -91,8 +140,8 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: false,
         rounded: 9,
         modeSwitch: "none",
-        // iconActive: "SunIcon",
-        // iconInactive: "MoonIcon",
+        // iconActive: "Sun",
+        // iconInactive: "Moon",
         // disabled: true,
         label: "Указать персональную информацию",
         required: true,
@@ -135,7 +184,7 @@ const structures = ref<Array<IFormStructure>>([
           phone: "Не верный формат номера телефона"
         },
         // classCol: "sm:col-span-3"
-        beforeIcon: "PhoneIcon"
+        beforeIcon: "Phone"
       },
       {
         typeComponent: "StInput",
@@ -149,7 +198,7 @@ const structures = ref<Array<IFormStructure>>([
         clear: true,
         placeholder: "test@gmail.com",
         // classCol: "sm:col-span-3"
-        beforeIcon: "EnvelopeIcon"
+        beforeIcon: "Envelope"
       },
       {
         typeComponent: "StInput",
@@ -159,7 +208,8 @@ const structures = ref<Array<IFormStructure>>([
         // required: true,
         clear: true,
         classInput: "text-right",
-        beforeIcon: "counter_1",
+        // beforeIcon: "counter_1",
+        beforeIcon: "ai-hal",
         help: "Поле должно состоять только из числа",
         rules: {
           range: {
@@ -183,7 +233,7 @@ const structures = ref<Array<IFormStructure>>([
         label: "Логин",
         required: true,
         clear: true,
-        beforeIcon: "AtSymbolIcon",
+        beforeIcon: "AtSymbol",
         help: "От 3 до 30 символов",
         rules: {
           custom: {
@@ -207,7 +257,7 @@ const structures = ref<Array<IFormStructure>>([
         type: "password",
         required: true,
         clear: true,
-        beforeIcon: "FingerPrintIcon",
+        beforeIcon: "FingerPrint",
         help: "От 3 до 30 символов",
         rules: {
           async: {
@@ -243,7 +293,7 @@ const structures = ref<Array<IFormStructure>>([
         type: "password",
         // required: true,
         clear: true,
-        beforeIcon: "FingerPrintIcon",
+        beforeIcon: "FingerPrint",
         help: "От 3 до 30 символов",
         rules: {
           required: true,
@@ -265,7 +315,7 @@ const structures = ref<Array<IFormStructure>>([
 ])
 // setTimeout(()=>{
 //   formTest.value?.setFieldValue("phone", "7999999")
-//   formTest.value?.setFieldParam("age", "beforeIcon", "FireIcon")
+//   formTest.value?.setFieldParam("age", "beforeIcon", "Fire")
 //   formTest.value?.setFieldParam("age", "isHidden", true)
 // },3000)
 // setTimeout(()=>{

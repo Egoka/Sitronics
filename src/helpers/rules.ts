@@ -63,10 +63,13 @@ export {
 // ---------------------------------------
 const emptyData = [undefined, null, ""]
 // ---------------------------------------
-function required(value:boolean|string|number|[]) {
-  if (typeof value === "string" && Array.isArray(value)){
-    return !!(value) && value?.length }
-  return !!(value)
+function required(value:boolean|string|number|{[index:string]:any}|[any]) {
+  if (value && Array.isArray(value)) { return !!(value) && value?.length
+  }else if (Object.prototype.toString.call(value) === '[object Date]'){
+    return true
+  } else if (value && !Object.keys(value)?.filter(i=>(value as any)[i]).length) {
+    return Object.keys(value)?.filter(i=>(value as any)[i]).length
+  } else { return !!(value) }
 }
 function email(value:string) {
   if (emptyData.includes(value)) { return false }
@@ -176,4 +179,3 @@ export async function getAsyncValidate (value: any, field:any) {
 }
 //https://webdevnerdstuff.github.io/vue3-code-block/#add-lang-examples
 //https://github.com/Leecason/element-tiptap/tree/alpha
-//https://vcalendar.netlify.app/

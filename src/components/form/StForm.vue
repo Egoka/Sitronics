@@ -6,6 +6,8 @@ import StSelect, {type ISelect} from "@/components/form/StSelect.vue";
 import StSwitch, {type ISwitch} from "@/components/form/StSwitch.vue";
 import type {ILabelMode} from "@/components/functional/Label.vue";
 import {getValidate, getAsyncValidate, type Rules, IRequiredRule} from "@/helpers/rules";
+import {getParamsStructure} from "@/helpers/object";
+import StCalendar, {ICalendar} from "@/components/form/StCalendar.vue";
 // ---------------------------------------
 export type IMode = 'outlined'|'underlined'|'filled'
 type classCol = "col-span-full"|'sm:col-span-3'|'sm:col-span-4'|'sm:col-span-5'|'sm:col-span-6'|string
@@ -38,11 +40,19 @@ export interface IFieldsSelect extends IFields, ISelect {
   afterIcon?: string
   afterText?: string
 }
+export interface IFieldsCalendar extends IFields, ICalendar {
+  typeComponent: "StCalendar"
+  rules?: IRulesSelect
+  beforeIcon?: string
+  beforeText?: string
+  afterIcon?: string
+  afterText?: string
+}
 export interface IFieldsSwitch extends IFields, ISwitch {
   typeComponent: "StSwitch"
 }
-export type IFieldsTypeKeys = keyof IFieldsInput|keyof IFieldsSelect|keyof IFieldsSwitch
-export type IFieldsType = IFieldsInput|IFieldsSelect|IFieldsSwitch
+export type IFieldsTypeKeys = keyof IFieldsInput|keyof IFieldsSelect|keyof IFieldsCalendar|keyof IFieldsSwitch
+export type IFieldsType = IFieldsInput|IFieldsSelect|IFieldsCalendar|IFieldsSwitch
 export type IFieldsIS = IFieldsInput|IFieldsSelect
 // ---------------------------------------
 export interface IFormStructure {
@@ -69,7 +79,7 @@ const emit = defineEmits<{
   (event: 'update:formFields', payload: IFormFields): void;
 }>()
 // ---------------------------------------
-const arrayFieldsIS = ["StInput", "StSelect"]
+const arrayFieldsValidate = ["StInput", "StSelect", "StCalendar"]
 // ---------------------------------------
 const modeStyle = computed<IMode|undefined>(()=>props.modeStyle || undefined)
 const modeLabel = computed<ILabelMode>(()=>props.modeLabel || "offsetDynamic")
@@ -126,14 +136,14 @@ function setStructureParam(indexStructure:number, param:keyof IFormStructure, va
 // ---------------------------------------
 function getStructure (structures:Array<IFormStructure>):Array<IFormStructure> {
   return structures.map(structure=>{
-    if (!structure.class?.length) structure.class = props.structureClass||"border-b border-gray-900/10 pb-12"
+    if (!structure?.class?.length) structure.class = props.structureClass||"border-b border-gray-900/10 pb-12"
     if (!structure?.classGrid?.length) structure.classGrid = props.structureClassGrid||"grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 mt-10"
     if (structure.fields){
       structure.fields = structure.fields.map((field:IFieldsType)=>{
         if (!field.name){
           field.name = "field"+Math.floor(Math.random() * 100)
           console.error(`There is no name field. Temporary name ${field.name} is set.`, field) }
-        if (arrayFieldsIS.includes(field.typeComponent)) {
+        if (arrayFieldsValidate.includes(field.typeComponent)) {
           if ("rules" in field && field?.rules){
             field.required = !!(field.rules['required'])||field?.required||false
             if (field.required && (!field.rules['required'] || typeof field.rules['required'] === "boolean")) {
@@ -143,9 +153,9 @@ function getStructure (structures:Array<IFormStructure>):Array<IFormStructure> {
             (field as IFieldsIS).rules = {required: "Обязательное поле"}
           }}
         }
-        if (!field.classCol?.length) field.classCol = "col-span-full"
+        if (!field?.classCol?.length) field.classCol = "col-span-full"
         field.mode = field.mode || modeStyle.value
-        if (arrayFieldsIS.includes(field.typeComponent)){
+        if (arrayFieldsValidate.includes(field.typeComponent)){
           (field as IFieldsIS).labelMode =
             (field as IFieldsIS).labelMode || modeLabel.value
         }
@@ -155,12 +165,6 @@ function getStructure (structures:Array<IFormStructure>):Array<IFormStructure> {
     }
     return structure
   })
-}
-function getParamsStructure (structure:{[key:string]: any}, calculatedFields:Array<string>):{ [key:string]: any } {
-  return Object.keys(structure).reduce((acc:{[key:string]: any}, key:string) => {
-    calculatedFields.includes(key)||(acc[key] = structure[key])
-    return acc
-  }, {})
 }
 // ---------------------------------------
 onMounted(()=>{
@@ -173,21 +177,20 @@ watch(formFields, (value:IFormFields)=>{
 })
 // ---------------------------------------
 async function validateField (field: IFieldsType) {
-  if (arrayFieldsIS.includes(field.typeComponent)) {
+  if (arrayFieldsValidate.includes(field.typeComponent)) {
     if ("rules" in field && field?.rules) {
       let {isInvalid, message} = getValidate(formFields[field.name], field)
       if (!isInvalid && Object.keys(field.rules).includes("async")) {
-        if (arrayFieldsIS.includes(field.typeComponent)) {
+        if (arrayFieldsValidate.includes(field.typeComponent)) {
           (field as IFieldsIS).loading = true
         }
         const result = await getAsyncValidate(formFields[field.name], field)
-        if (arrayFieldsIS.includes(field.typeComponent)) {
+        if (arrayFieldsValidate.includes(field.typeComponent)) {
           (field as IFieldsIS).loading = false
         }
         isInvalid = result?.isInvalid || isInvalid
         message = result?.message || message
       }
-      console.log(field.name, isInvalid, message)
       formInvalidFields[field.name] = isInvalid
       field["messageInvalid"] = message
     }
@@ -253,15 +256,15 @@ function submit(){
                     v-if="field.typeComponent === 'StSelect'"
                     v-model:model-value="formFields[field.name]"
                     v-model:is-invalid="formInvalidFields[field.name]"
-                    :data-select="field.dataSelect"
+                    :data-select="field?.paramsSelect?.dataSelect"
                     v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}">
                     <template #default="{selected, key}">
-                      <div v-if="field.multiple" class="m-[2px] bg-stone-200 dark:bg-stone-800 h-4 leading-4 px-1 rounded-[2px]">{{selected[key]}}</div>
+                      <div v-if="field.paramsSelect?.multiple" class="m-[2px] bg-stone-200 dark:bg-stone-800 h-4 leading-4 px-1 rounded-[2px]">{{selected[key]}}</div>
                       <div v-else>{{selected[key]}}</div>
                     </template>
                     <template #item="{item}">
-                      <div v-if="!field?.noQuery" v-html="item?.marker" class="text-gray-600 dark:text-gray-400"/>
-                      <div v-else class="text-gray-500">{{field.valueSelect? item[field.valueSelect] : item}}</div>
+                      <div v-if="!field.paramsSelect?.noQuery" v-html="item?.marker" class="text-gray-600 dark:text-gray-400"/>
+                      <div v-else class="text-gray-500">{{field.paramsSelect?.valueSelect ? item[field.paramsSelect.valueSelect] : item}}</div>
                     </template>
                     <template v-if="field.beforeIcon || field.beforeText" #before>
                       <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
@@ -272,6 +275,22 @@ function submit(){
                       <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
                     </template>
                   </StSelect>
+                  <!-- Calendar -->
+                  <StCalendar
+                    v-if="field.typeComponent === 'StCalendar'"
+                    v-model:model-value="formFields[field.name]"
+                    v-model:is-invalid="formInvalidFields[field.name]"
+                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}">
+                    <template #footerPicker></template>
+                    <template v-if="field.beforeIcon || field.beforeText" #before>
+                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
+                      <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
+                    </template>
+                    <template v-if="field.afterIcon || field.afterText" #after>
+                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                      <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                    </template>
+                  </StCalendar>
                   <!-- Switch -->
                   <StSwitch
                     v-if="field.typeComponent === 'StSwitch'"

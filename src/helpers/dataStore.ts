@@ -3,7 +3,7 @@ export interface IDataItem {
 }
 export interface IDataStore {
   value: Set<any>
-  key: string|null
+  key: string | null | undefined
   data: Set<IDataItem>
   multiple: boolean
 }

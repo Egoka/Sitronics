@@ -48,12 +48,14 @@ const form = ref({
       label="Профессия"
       label-mode="vanishing"
       required
-      :data-select="roles"
-      key-select="value"
+      :params-select="{
+        dataSelect: roles,
+        keySelect: 'value',
+      }"
       help="Test field"
       clear>
       <template #before>
-        <Icons type="SunIcon"/>
+        <Icons type="Sun"/>
       </template>
     </Select>
     <Select
@@ -62,13 +64,14 @@ const form = ref({
       label="Профессия"
       label-mode="vanishing"
       required
-      :data-select="roles"
-      key-select="value"
+      :params-select="{
+        dataSelect: roles,
+        keySelect: 'value',
+      }"
       help="Test field"
-      multiple
       clear>
       <template #before>
-        <Icons type="SunIcon"/>
+        <Icons type="Sun"/>
       </template>
     </Select>
   </ComponentViews>

@@ -72,7 +72,7 @@ onMounted(()=>{
     <div ref="beforeInput" class="absolute inset-y-0 left-0 flex items-center pl-3 pr-1">
       <slot name="before"/>
     </div>
-    <div ref="input" class="block peer w-full min-h-[38px] max-h-20 overflow-auto rounded-md py-1.5 pt-2 text-gray-900 dark:text-gray-100 ring-0 ring-inset ring-gray-300 transition-all sm:text-sm sm:leading-6"
+    <div ref="input" class="block peer w-full min-h-[38px] max-h-20 overflow-auto rounded-md text-gray-900 dark:text-gray-100 ring-0 ring-inset ring-gray-300 transition-all sm:text-sm sm:leading-6"
          :class="[!isInvalid||'is-invalid ring-2 ring-red-500 scroll-mt-10',
          !isDisabled||'bg-slate-50 dark:bg-slate-950 text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
       !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
