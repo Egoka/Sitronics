@@ -39,6 +39,7 @@ const structures = ref<Array<IFormStructure>>([
         name: "surname",
         modelValue: "Bonda",
         placeholder: "Bonda",
+        disabled: true,
         label:"Фамилия",
         required: true,
         clear: true,
@@ -91,6 +92,8 @@ const structures = ref<Array<IFormStructure>>([
         name: "professionType1",
         label: "Профессия",
         beforeIcon: "BookOpen",
+        disabled: true,
+        modelValue: ["apple"],
         paramsSelect: {
           dataSelect: ["apple", "banana", "cherry", "apple", "cherry"],
           keySelect: "value",
@@ -119,17 +122,20 @@ const structures = ref<Array<IFormStructure>>([
         label: "День рождения",
         modelValue: "2023-08-02T21:00:00.000Z",
         beforeIcon: "CoBirthdayCake",
+        disabled: true,
         required: true,
         clear: true,
       },
       {
         typeComponent: "StCalendar",
         name: "birthday",
+        disabled: true,
         // modelValue: "2023-08-09T21:00:00.000Z",
         modelValue: { "start": "2023-08-02T21:00:00.000Z", "end": "2023-08-10T21:00:00.000Z" },
         paramsDatePicker: { isRange: true },
         label: "День рождения",
         beforeIcon: "CoBirthdayCake",
+        help: "Dates",
         required: true,
         clear: true
       },
@@ -313,20 +319,20 @@ const structures = ref<Array<IFormStructure>>([
     ]
   },
 ])
-// setTimeout(()=>{
-//   formTest.value?.setFieldValue("phone", "7999999")
-//   formTest.value?.setFieldParam("age", "beforeIcon", "Fire")
-//   formTest.value?.setFieldParam("age", "isHidden", true)
-// },3000)
-// setTimeout(()=>{
-//   formTest.value?.setStructureParam(1, "isHidden", true)
-//   formTest.value?.setFieldParam("age", "isHidden", false)
-// },4000)
-// setTimeout(()=>{
-//   console.log(form.value)
-//   formTest.value?.setFieldParam("age", "disabled", true)
-//   formTest.value?.setStructureParam(1, "isHidden", false)
-// },5000)
+setTimeout(()=>{
+  formTest.value?.setFieldValue("phone", "7999999")
+  formTest.value?.setFieldParam("age", "beforeIcon", "Fire")
+  formTest.value?.setFieldParam("age", "isHidden", true)
+},3000)
+setTimeout(()=>{
+  formTest.value?.setStructureParam(1, "isHidden", true)
+  formTest.value?.setFieldParam("age", "isHidden", false)
+},4000)
+setTimeout(()=>{
+  console.log(form.value)
+  formTest.value?.setFieldParam("age", "disabled", true)
+  formTest.value?.setStructureParam(1, "isHidden", false)
+},5000)
 watch(form, ()=>{
   formTest.value?.setStructureParam(1, "isHidden", !form.value["isInfo"])
 }, {deep:true})

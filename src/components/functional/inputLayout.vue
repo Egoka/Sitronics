@@ -5,6 +5,7 @@ import Label, {type ILabelMode} from "@/components/functional/Label.vue";
 import {getLabelType} from "@/helpers/label";
 import Dropdown from "@/components/functional/Dropdown.vue";
 import {
+  CheckIcon, DocumentDuplicateIcon,
   ExclamationCircleIcon,
   QuestionMarkCircleIcon,
   XCircleIcon
@@ -12,6 +13,7 @@ import {
 // ---------------------------------------
 export interface ILayout {
   value: any
+  isValue?: boolean
   mode?: IMode
   label?: string
   labelMode?: ILabelMode
@@ -29,10 +31,11 @@ export interface ILayout {
 const props = defineProps<ILayout>()
 // ---------------------------------------
 const value = computed<ILayout["value"]>(()=> props.value || null)
+const isValue = computed<ILayout["value"]>(()=> props.isValue || false)
 const mode = computed<ILayout["mode"]>(()=> props.mode || "outlined")
 const label = computed<ILayout["label"]>(()=> String(props.label || ""))
 const labelMode = computed<ILabelMode>(()=> props.labelMode || "offsetDynamic")
-const labelType = computed<ILabelMode>(()=> getLabelType(value.value, label.value, labelMode.value))
+const labelType = computed<ILabelMode>(()=> getLabelType(isValue.value, label.value, labelMode.value))
 const isRequired = computed<ILayout["required"]>(()=>props.required)
 const isLoading = computed<ILayout["loading"]>(()=> props.loading || false)
 const isDisabled = computed<ILayout["disabled"]>(()=>props.disabled || false)
@@ -50,6 +53,7 @@ const emit = defineEmits(["clear"]);
 const beforeWidth = ref<number|null>(null)
 const afterWidth = ref<number|null>(null)
 const headerHeight = ref(0)
+const isCopy = ref(false)
 // ---------------------------------------
 onMounted(()=>{
   new ResizeObserver(entries => {
@@ -65,6 +69,16 @@ onMounted(()=>{
   }).observe((afterInput.value as HTMLElement));
   headerHeight.value = <number>document.querySelector("header")?.offsetHeight
 })
+// ---------------------------------------
+async function copy() {
+  try {
+    await navigator.clipboard.writeText(String(value.value))
+    isCopy.value = true
+    setTimeout(()=>isCopy.value = false, 3000)
+  } catch (err) {
+    console.error('Failed to copy: ', err);
+  }
+}
 </script>
 
 <template>
@@ -74,7 +88,7 @@ onMounted(()=>{
     </div>
     <div ref="input" class="block peer w-full min-h-[38px] max-h-20 overflow-auto rounded-md text-gray-900 dark:text-gray-100 ring-0 ring-inset ring-gray-300 transition-all sm:text-sm sm:leading-6"
          :class="[!isInvalid||'is-invalid ring-2 ring-red-500 scroll-mt-10',
-         !isDisabled||'bg-slate-50 dark:bg-slate-950 text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
+         !isDisabled||'bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
       !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
       !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950',
       !(mode === 'filled')||`border-0 bg-stone-100 dark:bg-stone-900 ${!isDisabled||'border-dotted border-2 border-slate-200'}`,
@@ -91,7 +105,7 @@ onMounted(()=>{
     <span ref="afterInput" class="absolute inset-y-0 right-0 flex items-center">
       <slot name="after"/>
       <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                        enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
+                  enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
         <div v-if="isLoading" class="relative mx-2">
           <div class="w-4 h-4 border-gray-200 dark:border-gray-800 border-2 rounded-full"></div>
           <div class="w-4 h-4 border-gray-700 dark:border-gray-300 border-t-2 animate-spin rounded-full absolute left-0 top-0"></div>
@@ -99,22 +113,32 @@ onMounted(()=>{
       </transition>
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
-          <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400" aria-hidden="true" />
+          <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition" aria-hidden="true" />
         </template>
       </Dropdown>
-      <Dropdown v-if="isInvalid" :content="messageInvalid">
-        <template #head>
-          <ExclamationCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-red-500" aria-hidden="true" />
-        </template>
-      </Dropdown>
-      <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                  enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <XCircleIcon v-if="clear && value" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition" aria-hidden="true"
-                     @click.stop="emit('clear')" />
-      </transition>
+      <template v-if="!isDisabled">
+        <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                    enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
+          <div>
+            <Dropdown v-if="isInvalid&&messageInvalid" :content="messageInvalid">
+              <template #head>
+                <ExclamationCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-red-500" aria-hidden="true" />
+              </template>
+            </Dropdown>
+          </div>
+        </transition>
+        <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                    enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
+          <XCircleIcon v-if="clear && (value?.length||value>0)" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition" aria-hidden="true" @click.stop="emit('clear')" />
+        </transition>
+      </template>
+      <template v-else-if="value?.length">
+        <DocumentDuplicateIcon v-if="!isCopy" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-gray-600 hover:dark:text-gray-400 transition" aria-hidden="true" @click="copy" />
+        <CheckIcon v-else class="h-5 w-5 mr-2 text-emerald-400 dark:text-emerald-600" aria-hidden="true" />
+      </template>
     </span>
     <p
-      class="absolute block text-red-600 dark:text-red-400 text-sm truncate  ml-1"
+      class="absolute block text-red-600 dark:text-red-400 text-sm truncate ml-1"
       :class="[isInvalid ? 'visible' : 'invisible']"
       :style="`max-width: ${inputBody?.['offsetWidth']||10}px`">
       {{ messageInvalid }}

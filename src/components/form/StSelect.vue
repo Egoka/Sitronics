@@ -58,6 +58,7 @@ const dataSelect = computed<IDataStore["dataSelect"]>(()=> keySelect.value
   ? props.paramsSelect?.dataSelect.map(item=>{return{[keySelect.value]: item[keySelect.value], [valueSelect.value]: item[valueSelect.value] }})
   : props.paramsSelect?.dataSelect)
 const mode = computed<ILayout["mode"]>(()=> props.mode || "outlined")
+const isDisabled = computed<ILayout["disabled"]>(()=> props.disabled || false)
 const isInvalid = computed<ILayout["isInvalid"]>(()=> props.isInvalid)
 const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid)
 const isValue = computed<boolean>(()=> Boolean(isMultiple.value ? value.value ? String(value.value).length : value.value : value.value || isOpenList.value))
@@ -65,9 +66,9 @@ const isMultiple = computed<IDateSelect["multiple"]>(()=> props.paramsSelect?.mu
 const noData = computed<IDateSelect["noData"]>(()=> props.paramsSelect?.noData || "Нет данных")
 const isQuery = computed<IDateSelect["noQuery"]>(()=> !props.paramsSelect?.noQuery)
 const classMaskQuery = computed<IDateSelect["classMaskQuery"]>(()=> props.paramsSelect?.classMaskQuery||"font-bold text-indigo-700 dark:text-indigo-300")
-const inputLayout = reactive({value: isValue, mode: mode.value, label: props.label,
+const inputLayout = reactive({value: value.value, isValue: isValue, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
-  required: props.required, loading: props.loading, disabled: props.disabled, help: props.help, clear: props.clear,
+  required: props.required, loading: props.loading, disabled: isDisabled.value, help: props.help, clear: props.clear,
   classBody: props.classBody, class: props.class})
 // ---------------------------------------
 const dataStore = ref(new DataStore(value.value, keySelect.value, dataSelect.value, isMultiple.value))
@@ -80,6 +81,11 @@ onMounted(()=>{
       isOpenList.value = e.composedPath().includes(select) || e.composedPath().includes(list)
     }
   })
+  setTimeout(()=>{
+    inputLayout.value = dataStore.value.getValue()
+      .map(item => item[dataStore.value.getKey(item)])
+      .join(",")
+  },10)
 })
 watch(isInvalid, (value)=>{
   inputLayout.isInvalid = props.isInvalid
@@ -162,6 +168,10 @@ function onLeave(el, done) {
     onComplete: done
   })
 }
+function open() {
+  if (isDisabled.value) { return }
+  isOpenList.value = true
+}
 const delay = computed(()=> {
   const d = dataStore.value.getData()
   if (d>=0 && d>10) { return 0.25
@@ -172,7 +182,7 @@ const delay = computed(()=> {
 </script>
 <template>
   <InputLayout v-bind="inputLayout" @clear="select(null)">
-    <div :id="`select${id}`" class="flex w-full min-h-[36px] max-h-16 overflow-auto" @click="isOpenList=true">
+    <div :id="`select${id}`" class="flex w-full min-h-[36px] max-h-16 overflow-auto" @click="open">
       <div class="flex items-center flex-wrap">
         <template v-if="isMultiple">
           <transition-group leave-active-class="transition ease-in-out duration-300" leave-from-class="opacity-100 translate-x-0" leave-to-class="opacity-0 -translate-x-5"

@@ -148,6 +148,7 @@ onMounted(()=>{
       placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600
       focus:outline-none focus:ring-inset focus:ring-indigo-600 focus:dark:ring-indigo-400
       sm:text-sm sm:leading-6
+      [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
       disabled:bg-slate-50 disabled:dark:bg-slate-950 disabled:text-slate-500 disabled:border-slate-200 disabled:dark:border-slate-800 disabled:border-dashed disabled:shadow-none"
       :class="[!isInvalid||'is-invalid ring-2 ring-red-500 scroll-mt-10',
       !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black focus:ring-2 focus:border-transparent',

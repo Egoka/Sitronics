@@ -19,6 +19,11 @@ import {getParamsStructure} from "@/helpers/object";
 // ---------------------------------------
 type DateValueCalendar = Date | number | string | null
 export type ColorCalendarPicker = "gray"|"red"|"orange"|"yellow"|"green"|"teal"|"blue"|"indigo"|"purple"|"pink"
+
+export interface IRangeDate {
+  start: string;
+  end: string;
+}
 export interface ICalendarPicker {
   showCalendar: import("vue").Ref<boolean>;
   datePickerPopoverId: import("vue").Ref<string>;
@@ -32,10 +37,7 @@ export interface ICalendarPicker {
   hideTimeHeader: import("vue").Ref<boolean>;
   timeAccuracy: import("vue").Ref<number>;
   isDragging: import("vue").ComputedRef<boolean>;
-  inputValue: string | {
-    start: string;
-    end: string;
-  }
+  inputValue: string | IRangeDate
   inputEvents: import("vue").ComputedRef<{
     click?: ((e: MouseEvent) => void) | undefined;
     mousemove?: ((e: MouseEvent) => void) | undefined;
@@ -206,14 +208,17 @@ const baseDate = computed<Date|SimpleDateRange|null>(()=>{
   } else { return null }
 })
 // ---------------------------------------
-const inputLayout = reactive({value: isValue, mode, label: props.label,
+const inputLayout = reactive({value: visibleDate.value, isValue: isValue, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: props.isInvalid, messageInvalid: props.messageInvalid,
   required: props.required, loading: isLoading, disabled: props.disabled, help: props.help, clear: props.clear,
   classBody: props.classBody, class: props.class})
 // ---------------------------------------
 onMounted(()=>{
   setTimeout(()=>{
-    visibleDate.value = (calendar.value?.inputValue as ICalendarPicker["inputValue"])
+    visibleDate.value = <ICalendarPicker["inputValue"]>(calendar.value?.inputValue as ICalendarPicker["inputValue"])
+    inputLayout.value = datePicker.value?.isRange
+      ? `${(visibleDate.value as IRangeDate)?.start} > ${(visibleDate.value as IRangeDate)?.end}`
+      : visibleDate.value
   },10)
   const dataPicker = document.getElementById(`dataPicker${id.value}`)
   const picker = document.getElementById(`picker${id.value}`)
@@ -255,6 +260,10 @@ function changeDate (date) {
   emit('update:isInvalid', false)
   emit('update:modelValue', baseDate.value)
 }
+function open() {
+  if (isDisabled.value) { return }
+  isOpenPicker.value=true
+}
 function clear () {
   isOpenPicker.value=false
   emit('update:isInvalid', false)
@@ -264,10 +273,13 @@ function clear () {
 
 <template>
   <InputLayout v-bind="inputLayout" @clear="clear">
-    <div :id="`dataPicker${id}`" class="flex w-full min-h-[36px] max-h-16 overflow-auto" @click="isOpenPicker=true">
+    <div :id="`dataPicker${id}`" class="flex w-full min-h-[36px] max-h-16 overflow-auto" @click="open">
       <div v-if="datePicker?.isRange" class="flex items-center">
         {{(visibleDate as IRangeValue)?.start}}
-        <Icons v-if="(visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end" type="arrow-long-right" class="h-5 w-5 text-gray-600 dark:text-gray-400 mx-2"/>
+        <Icons v-if="(visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"
+               type="arrow-long-right"
+               :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '']"
+               class="h-5 w-5 text-gray-600 dark:text-gray-400 mx-2"/>
         <div v-else class="text-gray-400 dark:text-gray-600">{{placeholder}}</div>
         {{(visibleDate as IRangeValue)?.end}}
       </div>
@@ -279,6 +291,7 @@ function clear () {
         type="text"
         disabled
         :value="visibleDate"
+        :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '']"
         class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6 transition-all"
         :disabled="isDisabled"
         :placeholder="placeholder"/>

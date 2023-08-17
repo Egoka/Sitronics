@@ -5,6 +5,9 @@ import Controller from "@/classes/Controller";
 import type {IController, IStructure} from "@/classes/Controller.interface";
 import {viewComponent} from "@/components/views";
 import {ArrowsRightLeftIcon, CubeIcon, CurrencyYenIcon, PhoneIcon, UserGroupIcon} from "@heroicons/vue/24/outline";
+import ComponentViews from "@/components/ComponentViews.vue";
+import StInput from "@/components/form/StInput.vue";
+import SInput from "@/components/form/SInput.vue";
 const value = ref("50")
 const isInvalid = ref(false)
 const messageValid = ref("")
@@ -18,6 +21,7 @@ const length = ref("12234234.34")
 const dimension = ref("")
 const isInvalidDimension = ref(false)
 const messageValidDimension = ref("")
+/*
 const inputView = <IController>new Controller(<Array<IStructure>>[
   viewComponent("Input",[
     {
@@ -286,145 +290,185 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
     ]
   }
 ], {UserGroupIcon, PhoneIcon, CurrencyYenIcon, ArrowsRightLeftIcon, CubeIcon})
+*/
+
 function valid() {
   isInvalid.value = true
   isInvalidDimension.value = true
   messageValid.value = "Обязательное поле"
   messageValidDimension.value = "Обязательное поле"
 }
-onMounted(()=>{
-  console.log(inputView)
-})
+// onMounted(()=>{
+//   console.log(inputView)
+// })
 </script>
 
-<!--<template>-->
-<!--  <StInput-->
-<!--    v-model.trim="value"-->
-<!--    label="Первое поле"-->
-<!--    type="text"-->
-<!--    help="Это тестовое поле предназначеное для проверки работы справодного поля"-->
-<!--    clear-->
-<!--    :rules="['required',{}]"-->
-<!--  >-->
-<!--    <template #before>-->
-<!--      <UserGroupIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />-->
-<!--      <label for="country" class="sr-only">Country</label>-->
-<!--      <StSelect class="ring-0 min-w-[3rem]" v-model="country" :items="['RU', 'US','CN']" select-icon="ChevronDownIcon">-->
-<!--        <template #selected="{selected}">-->
-<!--          {{ selected }}-->
-<!--        </template>-->
-<!--        <template #item="{item}">-->
-<!--          {{ item }}-->
-<!--        </template>-->
-<!--      </StSelect>-->
-<!--    </template>-->
-<!--    <template #after>-->
-<!--      <label for="currency" class="sr-only">Currency</label>-->
-<!--      <StSelect class="ring-0 min-w-[1rem]" v-model="currency" :items="['₽', '¥','$','€']">-->
-<!--        <template #selected="{selected}">-->
-<!--          {{ selected }}-->
-<!--        </template>-->
-<!--        <template #item="{item}">-->
-<!--          {{ item }}-->
-<!--        </template>-->
-<!--      </StSelect>-->
-<!--    </template>-->
-<!--  </StInput>-->
-<!--  <StInput-->
-<!--    v-model.trim="value"-->
-<!--    label="Пароль"-->
-<!--    type="password"-->
-<!--    :rules="['required',{}]"-->
-<!--  >-->
-<!--    <template #before>-->
-<!--      <span class="flex select-none items-center text-gray-500 sm:text-sm">Ваш пароль</span>-->
-<!--    </template>-->
-<!--  </StInput>-->
-<!--  <StInput-->
-<!--    v-model.trim="phone"-->
-<!--    label="Телефон"-->
-<!--    type="text"-->
-<!--    clear-->
-<!--    mask="phone"-->
-<!--  >-->
-<!--    <template #before>-->
-<!--      <PhoneIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />-->
-<!--    </template>-->
-<!--  </StInput>-->
-<!--  <StInput-->
-<!--    v-model.trim="price"-->
-<!--    label="Цена"-->
-<!--    type="text"-->
-<!--    mask="price"-->
-<!--    class="text-right"-->
-<!--    length-integer="7"-->
-<!--    length-decimal="2"-->
-<!--    clear-->
-<!--  >-->
-<!--    <template #before>-->
-<!--      <CurrencyYenIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />-->
-<!--    </template>-->
-<!--    <template #after>-->
-<!--      <p class="mx-2 text-gray-400">¥</p>-->
-<!--    </template>-->
-<!--  </StInput>-->
-<!--  <StInput-->
-<!--    v-model.trim="count"-->
-<!--    label="Ширина"-->
-<!--    label-mode="offsetDynamic"-->
-<!--    type="text"-->
-<!--    mask="price"-->
-<!--    mode="underlined"-->
-<!--    class="text-right"-->
-<!--    length-integer="7"-->
-<!--    length-decimal="1"-->
-<!--    clear-->
-<!--  >-->
-<!--    <template #before>-->
-<!--      <ArrowsRightLeftIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />-->
-<!--    </template>-->
-<!--    <template #after>-->
-<!--      <p v-if="count" class="mx-2 text-gray-400">метра</p>-->
-<!--    </template>-->
-<!--  </StInput>-->
-<!--  <StInput-->
-<!--    v-model.trim="length"-->
-<!--    label="Длина"-->
-<!--    label-mode="offsetDynamic"-->
-<!--    type="text"-->
-<!--    mask="number"-->
-<!--    mode="underlined"-->
-<!--    class="text-right"-->
-<!--    length-integer="7"-->
-<!--    help="Вспомогательный текст"-->
-<!--    length-decimal="1"-->
-<!--    clear-->
-<!--    disabled-->
-<!--  >-->
-<!--    <template #before>-->
-<!--      <ArrowsRightLeftIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />-->
-<!--    </template>-->
-<!--    <template #after>-->
-<!--      <p v-if="length" class="ml-1 mr-3 text-gray-400 select-none">метра</p>-->
-<!--    </template>-->
-<!--  </StInput>-->
-<!--  <StInput-->
-<!--    v-model.trim="dimension"-->
-<!--    label="Степень негабаритности"-->
-<!--    placeholder="H0000"-->
-<!--    type="text"-->
-<!--    mode="filled"-->
-<!--    help="Вспомогательный текст"-->
-<!--    clear-->
-<!--    class="text-right"-->
-<!--    v-model:is-invalid="isInvalid"-->
-<!--    :message-valid="messageValid"-->
-<!--  >-->
-<!--    <template #before>-->
-<!--      <CubeIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />-->
-<!--    </template>-->
-<!--    <template #after>-->
-<!--      <p v-if="dimension" class="ml-1 mr-3 text-gray-400 select-none">степень</p>-->
-<!--    </template>-->
-<!--  </StInput>-->
-<!--</template>-->
+<template>
+  <ComponentViews>
+    <template #title>Calendar</template>
+<!--  <StInput
+    v-model.trim="value"
+    label="Первое поле"
+    type="text"
+    help="Это тестовое поле предназначеное для проверки работы справодного поля"
+    clear
+    :rules="['required',{}]"
+  >
+    <template #before>
+      <UserGroupIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+      <label for="country" class="sr-only">Country</label>
+      <StSelect class="ring-0 min-w-[3rem]" v-model="country" :items="['RU', 'US','CN']" select-icon="ChevronDownIcon">
+        <template #selected="{selected}">
+          {{ selected }}
+        </template>
+        <template #item="{item}">
+          {{ item }}
+        </template>
+      </StSelect>
+    </template>
+    <template #after>
+      <label for="currency" class="sr-only">Currency</label>
+      <StSelect class="ring-0 min-w-[1rem]" v-model="currency" :items="['₽', '¥','$','€']">
+        <template #selected="{selected}">
+          {{ selected }}
+        </template>
+        <template #item="{item}">
+          {{ item }}
+        </template>
+      </StSelect>
+    </template>
+  </StInput>
+  <StInput
+    v-model.trim="value"
+    label="Пароль"
+    type="password"
+    :rules="['required',{}]"
+  >
+    <template #before>
+      <span class="flex select-none items-center text-gray-500 sm:text-sm">Ваш пароль</span>
+    </template>
+  </StInput>
+  <StInput
+    v-model.trim="phone"
+    label="Телефон"
+    type="text"
+    clear
+    mask="phone"
+  >
+    <template #before>
+      <PhoneIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+    </template>
+  </StInput>
+  <StInput
+    v-model.trim="price"
+    label="Цена"
+    type="text"
+    mask="price"
+    class="text-right"
+    length-integer="7"
+    length-decimal="2"
+    clear
+  >
+    <template #before>
+      <CurrencyYenIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+    </template>
+    <template #after>
+      <p class="mx-2 text-gray-400">¥</p>
+    </template>
+  </StInput>
+  <StInput
+    v-model.trim="count"
+    label="Ширина"
+    label-mode="offsetDynamic"
+    type="text"
+    mask="price"
+    mode="underlined"
+    class="text-right"
+    length-integer="7"
+    length-decimal="1"
+    clear
+  >
+    <template #before>
+      <ArrowsRightLeftIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+    </template>
+    <template #after>
+      <p v-if="count" class="mx-2 text-gray-400">метра</p>
+    </template>
+  </StInput>
+  <StInput
+    v-model.trim="length"
+    label="Длина"
+    label-mode="offsetDynamic"
+    type="text"
+    mask="number"
+    mode="underlined"
+    class="text-right"
+    length-integer="7"
+    help="Вспомогательный текст"
+    length-decimal="1"
+    clear
+    disabled
+  >
+    <template #before>
+      <ArrowsRightLeftIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+    </template>
+    <template #after>
+      <p v-if="length" class="ml-1 mr-3 text-gray-400 select-none">метра</p>
+    </template>
+  </StInput>
+  <StInput
+    v-model.trim="dimension"
+    label="Степень негабаритности"
+    placeholder="H0000"
+    type="text"
+    mode="filled"
+    help="Вспомогательный текст"
+    clear
+    class="text-right"
+    v-model:is-invalid="isInvalid"
+    :message-valid="messageValid"
+  >
+    <template #before>
+      <CubeIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+    </template>
+    <template #after>
+      <p v-if="dimension" class="ml-1 mr-3 text-gray-400 select-none">степень</p>
+    </template>
+  </StInput>-->
+    <StInput
+      v-model.trim="dimension"
+      label="Степень негабаритности"
+      placeholder="H0000"
+      type="text"
+      mask="number"
+      mode="filled"
+      help="Вспомогательный текст"
+      clear
+      class="text-right mb-5"
+      v-model:is-invalid="isInvalid"
+      :message-valid="messageValid"
+    >
+      <template #before>
+        <CubeIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+      </template>
+      <template #after>
+        <p v-if="dimension" class="ml-1 mr-3 text-gray-400 select-none">степень</p>
+      </template>
+    </StInput>
+    <SInput v-model="value"
+            mode="filled"
+            label="Степень негабаритности"
+            :params-input="{type:'text', mask: 'number', classInput:'text-right', placeholder:'H0000'}"
+            clear
+            help="Вспомогательный текст"
+            v-model:is-invalid="isInvalid"
+            :message-valid="messageValid">
+      <template #before>
+        <CubeIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+      </template>
+      <template #after>
+        <p v-if="value" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">руб</p>
+      </template>
+    </SInput>
+  </ComponentViews>
+</template>
