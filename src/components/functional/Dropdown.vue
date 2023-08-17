@@ -9,7 +9,9 @@ const dropdown = ref<HTMLElement|undefined>()
 onMounted(()=>{
   const iconDropdown = document.getElementById(`iconDropdown${getCurrentInstance()?.uid}`)
   document.addEventListener( 'click', (e) => {
-    isOpen.value = e.composedPath().includes(iconDropdown) || e.composedPath().includes((dropdown.value as HTMLElement))
+    if (iconDropdown && dropdown.value){
+      isOpen.value = e.composedPath().includes(iconDropdown) || e.composedPath().includes((dropdown.value as HTMLElement))
+    }
   })
 })
 </script>

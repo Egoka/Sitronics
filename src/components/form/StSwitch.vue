@@ -1,41 +1,43 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, onMounted, ref} from 'vue'
+import {computed, getCurrentInstance, ref} from 'vue'
 import type {IMode} from "./StForm.vue";
 import {QuestionMarkCircleIcon} from "@heroicons/vue/20/solid";
-import * as HeroIcons from "@heroicons/vue/24/outline"
-const heroIcons:any = HeroIcons
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
 import Dropdown from "../functional/Dropdown.vue";
 import Icons, {type IIcon} from "@/components/functional/Icons.vue";
 type IModeSwitch = IMode|'none'
 
+export interface IDataSwitch {
+  switchingType?:"checkbox"|"switch"
+  rounded?: 1|2|3|4|5|6|7|8|9|10|number|"full"
+  iconActive?: IIcon["type"]
+  iconInactive?: IIcon["type"]
+  mode?: IModeSwitch
+}
 export interface ISwitch {
   id?: string
   modelValue?: boolean|null|undefined,
-  switchingType?:"checkbox"|"switch"
+  paramsSwitch?: IDataSwitch
   mode?: IMode
   label?: string
   disabled?:boolean
   help?: string
   required?: boolean
   class?: string
-  rounded?: 1|2|3|4|5|6|7|8|9|10|number|"full"
-  iconActive?: IIcon["type"]
-  iconInactive?: IIcon["type"]
 }
 // ---------------------------------------
 const props = defineProps<ISwitch>()
 // ---------------------------------------
 const id = ref(props.id||getCurrentInstance()?.uid)
 const value = computed<boolean>(()=> Boolean(props.modelValue||false))
-const switchingType = computed<ISwitch["switchingType"]>(()=> props.switchingType||"checkbox")
-const mode = computed<IModeSwitch>(()=> props.mode || "none")
+const switchingType = computed<IDataSwitch["switchingType"]>(()=> props.paramsSwitch?.switchingType||"checkbox")
+const mode = computed<IDataSwitch["mode"]>(()=> props.paramsSwitch?.mode || props.mode || "none")
 const label = computed<ISwitch["label"]>(()=> String(props.label || ""))
 const isDisabled = computed<ISwitch["disabled"]>(()=>props.disabled || false)
 const isRequired = computed<ISwitch["required"]>(()=>props.required)
-const rounded = computed<number>(()=> props?.rounded === "full" ? 9999 : props?.rounded || 9999)
-const iconActive = computed<ISwitch["iconActive"]>(()=> props?.iconActive||"")
-const iconInactive = computed<ISwitch["iconInactive"]>(()=> props?.iconInactive||"")
+const rounded = computed<number>(()=> props.paramsSwitch?.rounded === "full" ? 9999 : props.paramsSwitch?.rounded || 9999)
+const iconActive = computed<IDataSwitch["iconActive"]>(()=> props.paramsSwitch?.iconActive||"")
+const iconInactive = computed<IDataSwitch["iconInactive"]>(()=> props.paramsSwitch?.iconInactive||"")
 // ---------------------------------------
 function inputEvent (value:boolean) {
   inputModelValue(value)
@@ -74,9 +76,6 @@ function changeModelValue(value:any) {
                :style="`border-radius: ${rounded-1}px`"/>
         <span v-else aria-hidden="true" :class="[value ? 'translate-x-3.5' : 'translate-x-0', 'h-4 w-4 transform bg-white dark:bg-stone-950 shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out']"
               :style="`border-radius: ${rounded-1}px`"/>
-<!--        <component v-if="value" :is="heroIcons['SunIcon']" class="text-gray-400 dark:text-gray-600" :class="[value ? 'translate-x-3.5' : 'translate-x-0', 'h-4 w-4 transform rounded-full bg-white shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out']" aria-hidden="true" />-->
-<!--        <component v-else :is="heroIcons['MoonIcon']" class="text-gray-400 dark:text-gray-600" :class="[value ? 'translate-x-3.5' : 'translate-x-0', 'h-4 w-4 transform rounded-full bg-white shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out']" aria-hidden="true" />-->
-<!--        <span v-else class="material-symbols-sharp h-5 w-5 font-light text-gray-400 dark:text-gray-600 select-none">{{ field?.beforeIcon }}</span>-->
       </Switch>
     </div>
     <SwitchLabel

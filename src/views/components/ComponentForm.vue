@@ -15,9 +15,8 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "StInput",
         name: "name",
         label:"Имя",
-        rounded: 1,
         clear: true,
-        beforeIcon: "UserCircle",
+        // beforeIcon: "UserCircle",
         help: "<img src='https://cdn-icons-png.flaticon.com/512/1828/1828439.png' class='w-10 m-auto' alt=''> Ваше имя должно начинаться с большой буквы. Это поле будет выводиться публично",
         rules: {
           required: "Имя обязательно для заполнения"
@@ -38,8 +37,10 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "StInput",
         name: "surname",
         modelValue: "Bonda",
-        placeholder: "Bonda",
-        disabled: true,
+        paramsInput: {
+          placeholder: "Bonda",
+        },
+        // disabled: true,
         label:"Фамилия",
         required: true,
         clear: true,
@@ -50,12 +51,14 @@ const structures = ref<Array<IFormStructure>>([
         name: "age",
         modelValue: "25",
         label: "Возраст",
-        placeholder: "25",
         required: true,
-        mask: "number",
-        lengthInteger: 3,
+        paramsInput: {
+          placeholder: "25",
+          mask: "number",
+          lengthInteger: 3,
+          classInput: "text-right"
+        },
         clear: true,
-        classInput: "text-right",
         afterText: "лет",
         classCol: "sm:col-span-3",
         beforeIcon: "manage_accounts",
@@ -66,7 +69,7 @@ const structures = ref<Array<IFormStructure>>([
         label: "Профессия",
         beforeIcon: "BookOpen",
         paramsSelect: {
-          dataSelect: ["apple", "banana", "cherry", "apple", "cherry"],
+          dataSelect: ["apple", "banana", "cherry", "apple", "cherry", " t1", "t2", "t3"],
           keySelect: "value",
           valueSelect: "label",
           multiple: true,
@@ -122,14 +125,14 @@ const structures = ref<Array<IFormStructure>>([
         label: "День рождения",
         modelValue: "2023-08-02T21:00:00.000Z",
         beforeIcon: "CoBirthdayCake",
-        disabled: true,
+        // disabled: true,
         required: true,
         clear: true,
       },
       {
         typeComponent: "StCalendar",
         name: "birthday",
-        disabled: true,
+        // disabled: true,
         // modelValue: "2023-08-09T21:00:00.000Z",
         modelValue: { "start": "2023-08-02T21:00:00.000Z", "end": "2023-08-10T21:00:00.000Z" },
         paramsDatePicker: { isRange: true },
@@ -142,16 +145,18 @@ const structures = ref<Array<IFormStructure>>([
       {
         typeComponent: "StSwitch",
         name: "isInfo",
-        switchingType: "checkbox",
+        paramsSwitch: {
+          switchingType: "checkbox",
+          rounded: 9,
+          mode: "none"
+        },
         modelValue: false,
-        rounded: 9,
-        modeSwitch: "none",
         // iconActive: "Sun",
         // iconInactive: "Moon",
         // disabled: true,
         label: "Указать персональную информацию",
         required: true,
-        classCol: "sm:col-span-3",
+        classCol: "sm:col-span-6",
         help: "Вся информация о пользователе"
       }
     ]
@@ -168,10 +173,12 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "",
         label: "Стоимость услуги",
         required: true,
-        mask: "price",
-        lengthInteger: 6,
+        paramsInput: {
+          mask: "price",
+          lengthInteger: 6,
+          classInput: "text-right",
+        },
         clear: true,
-        classInput: "text-right",
         afterText: "рубля",
         beforeIcon: "currency_ruble"
         // classCol: "sm:col-span-3"
@@ -182,10 +189,12 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "79992397588",
         label: "Номер телевона",
         required: true,
-        mask: "phone",
-        lengthInteger: 6,
         clear: true,
-        placeholder: "+7 (000) 000-00-00",
+        paramsInput: {
+          placeholder: "+7 (000) 000-00-00",
+          mask: "phone",
+          lengthInteger: 6,
+        },
         rules: {
           phone: "Не верный формат номера телефона"
         },
@@ -202,7 +211,10 @@ const structures = ref<Array<IFormStructure>>([
           email: "Не верный формат почты"
         },
         clear: true,
-        placeholder: "test@gmail.com",
+        
+        paramsInput: {
+          placeholder: "test@gmail.com",
+        },
         // classCol: "sm:col-span-3"
         beforeIcon: "Envelope"
       },
@@ -213,7 +225,9 @@ const structures = ref<Array<IFormStructure>>([
         label: "Возраст",
         // required: true,
         clear: true,
-        classInput: "text-right",
+        paramsInput: {
+          classInput: "text-right",
+        },
         // beforeIcon: "counter_1",
         beforeIcon: "ai-hal",
         help: "Поле должно состоять только из числа",
@@ -260,7 +274,9 @@ const structures = ref<Array<IFormStructure>>([
         name: "password",
         modelValue: "",
         label: "Пароль",
-        type: "password",
+        paramsInput: {
+          type: "password",
+        },
         required: true,
         clear: true,
         beforeIcon: "FingerPrint",
@@ -296,7 +312,9 @@ const structures = ref<Array<IFormStructure>>([
         name: "verificationPassword",
         modelValue: "",
         label: "Пароль для проерки",
-        type: "password",
+        paramsInput: {
+          type: "password",
+        },
         // required: true,
         clear: true,
         beforeIcon: "FingerPrint",
@@ -319,20 +337,20 @@ const structures = ref<Array<IFormStructure>>([
     ]
   },
 ])
-setTimeout(()=>{
-  formTest.value?.setFieldValue("phone", "7999999")
-  formTest.value?.setFieldParam("age", "beforeIcon", "Fire")
-  formTest.value?.setFieldParam("age", "isHidden", true)
-},3000)
-setTimeout(()=>{
-  formTest.value?.setStructureParam(1, "isHidden", true)
-  formTest.value?.setFieldParam("age", "isHidden", false)
-},4000)
-setTimeout(()=>{
-  console.log(form.value)
-  formTest.value?.setFieldParam("age", "disabled", true)
-  formTest.value?.setStructureParam(1, "isHidden", false)
-},5000)
+// setTimeout(()=>{
+//   formTest.value?.setFieldValue("phone", "7999999")
+//   formTest.value?.setFieldParam("age", "beforeIcon", "Fire")
+//   formTest.value?.setFieldParam("age", "isHidden", true)
+// },3000)
+// setTimeout(()=>{
+//   formTest.value?.setStructureParam(1, "isHidden", true)
+//   formTest.value?.setFieldParam("age", "isHidden", false)
+// },4000)
+// setTimeout(()=>{
+//   console.log(form.value)
+//   formTest.value?.setFieldParam("age", "disabled", true)
+//   formTest.value?.setStructureParam(1, "isHidden", false)
+// },5000)
 watch(form, ()=>{
   formTest.value?.setStructureParam(1, "isHidden", !form.value["isInfo"])
 }, {deep:true})
@@ -344,7 +362,7 @@ watch(form, ()=>{
     <StForm
       ref="formTest"
       :structure="structures"
-      mode-style="filled"
+      mode-style="outlined"
       mode-label="offsetDynamic"
       mode-validate="onChange"
       submit-button="Сохранить"

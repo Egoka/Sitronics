@@ -49,7 +49,7 @@ const form = ref({
       label-mode="vanishing"
       required
       :params-select="{
-        dataSelect: roles,
+        dataSelect: test,
         keySelect: 'value',
       }"
       help="Test field"
@@ -58,21 +58,21 @@ const form = ref({
         <Icons type="Sun"/>
       </template>
     </Select>
-    <Select
-      v-model="formFields.isInfo"
-      mode="underlined"
-      label="Профессия"
-      label-mode="vanishing"
-      required
-      :params-select="{
-        dataSelect: roles,
-        keySelect: 'value',
-      }"
-      help="Test field"
-      clear>
-      <template #before>
-        <Icons type="Sun"/>
-      </template>
-    </Select>
+<!--    <Select-->
+<!--      v-model="formFields.isInfo"-->
+<!--      mode="underlined"-->
+<!--      label="Профессия"-->
+<!--      label-mode="vanishing"-->
+<!--      required-->
+<!--      :params-select="{-->
+<!--        dataSelect: roles,-->
+<!--        keySelect: 'value',-->
+<!--      }"-->
+<!--      help="Test field"-->
+<!--      clear>-->
+<!--      <template #before>-->
+<!--        <Icons type="Sun"/>-->
+<!--      </template>-->
+<!--    </Select>-->
   </ComponentViews>
 </template>

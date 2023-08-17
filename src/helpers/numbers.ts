@@ -13,7 +13,7 @@ const strReg = arrPhone.map(p =>
   `(${p.codeCity.join('|') + (p.codeCity.length > 0 ? '|' : '')}\\d{1,3})` +
   `(\\d{0,${p.mask.join('})(\\d{0,') || 16}})`).join('|')
 const phoneRegular = RegExp(`${strReg + (strReg.length > 0 ? '|' : '')}^(\\d{1,18})`, '')
-export const convertToPhone = (value: string) => {
+export const convertToPhone = (value: string):string => {
   if (!value) { return value }
   if (!value.match(/^[\d+]/m)) { return value.replace(/\D/g, '') }
   const x:any = value.replace(/\D/g, '').match(phoneRegular) || []

@@ -1,3 +1,4 @@
+export type BaseDataItem = string|number|IDataItem
 export interface IDataItem {
   [key:string]: any
 }
@@ -12,14 +13,14 @@ class DataStore {
   private key: IDataStore["key"] = null
   private data: IDataStore["data"] = new Set()
   readonly multiple: IDataStore["multiple"]
-  protected constructor(value:IDataStore["value"], key:IDataStore["key"], data:Array<IDataItem>, multiple:IDataStore["multiple"]=false) {
+  constructor(value:any, key:IDataStore["key"], data:Array<BaseDataItem>, multiple:IDataStore["multiple"]=false) {
     this.multiple = multiple
     this.setData(data)
     this.setValue(value)
     this.setKey(key)
   }
   // ---------------------------------------
-  public setData (data:Array<IDataItem>){
+  public setData (data:Array<BaseDataItem>){
     data?.map(item=>
       typeof item === "object"
         ? this.data.add(item)
@@ -60,9 +61,9 @@ class DataStore {
       } else { this.key = Object.keys(this.getData()[0])[0] }
     } else { this.key = null }
   }
-  public getKey (value?:any):IDataStore["key"]|number {
+  public getKey ():string {
     if (this.key) { return this.key
-    } else{ return null }
+    } else{ return "uuid" }
   }
   public clearKey () { this.key = null }
   // ---------------------------------------

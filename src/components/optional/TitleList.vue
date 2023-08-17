@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { type IPropsIconsType} from "@/components/functional/Icons.vue";
 export interface IPropsTitleListLi {
   name:string
   data?: string|number
-  nameIcon?:IPropsIconsType
+  nameIcon?:any
   ul?:Array<IPropsTitleListLi>
 }
 defineProps<{

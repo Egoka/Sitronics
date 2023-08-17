@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import {computed, onMounted, reactive, ref, watch} from "vue";
+import {computed, onMounted, reactive, watch} from "vue";
 import Icons from "@/components/functional/Icons.vue";
 import StInput, {type IInput} from "@/components/form/StInput.vue";
 import StSelect, {type ISelect} from "@/components/form/StSelect.vue";
 import StSwitch, {type ISwitch} from "@/components/form/StSwitch.vue";
 import type {ILabelMode} from "@/components/functional/Label.vue";
-import {getValidate, getAsyncValidate, type Rules, IRequiredRule} from "@/helpers/rules";
+import {getValidate, getAsyncValidate, type Rules} from "@/helpers/rules";
 import {getParamsStructure} from "@/helpers/object";
-import StCalendar, {ICalendar} from "@/components/form/StCalendar.vue";
+import StCalendar, {type ICalendar} from "@/components/form/StCalendar.vue";
 // ---------------------------------------
-export type IMode = 'outlined'|'underlined'|'filled'
-type classCol = "col-span-full"|'sm:col-span-3'|'sm:col-span-4'|'sm:col-span-5'|'sm:col-span-6'|string
+export type IMode = "outlined"|"underlined"|"filled"
+type classCol = "col-span-full"|"sm:col-span-3"|"sm:col-span-4"|"sm:col-span-5"|"sm:col-span-6"|string
 // ---------------------------------------
 export interface IRulesInput extends Rules {}
 export interface IRulesSelect extends Omit<Rules, "email"|"phone"|"numeric"|"regular"> {}
@@ -22,8 +22,8 @@ interface IFields {
 }
 interface IFormFields {[key:string]:any}
 // ---------------------------------------
-const calculatedFieldsInput = ['typeComponent', 'classCol', 'modelValue', 'isInvalid', 'name', 'rules',
-  'beforeIcon', 'beforeText', 'afterIcon', 'afterText']
+const calculatedFieldsInput = ["typeComponent", "classCol", "modelValue", "isInvalid", "name", "rules",
+  "beforeIcon", "beforeText", "afterIcon", "afterText"]
 export interface IFieldsInput extends IFields, IInput {
   typeComponent: "StInput"
   rules?: IRulesInput
@@ -53,7 +53,7 @@ export interface IFieldsSwitch extends IFields, ISwitch {
 }
 export type IFieldsTypeKeys = keyof IFieldsInput|keyof IFieldsSelect|keyof IFieldsCalendar|keyof IFieldsSwitch
 export type IFieldsType = IFieldsInput|IFieldsSelect|IFieldsCalendar|IFieldsSwitch
-export type IFieldsIS = IFieldsInput|IFieldsSelect
+export type IFieldsIS = IFieldsInput|IFieldsSelect|IFieldsCalendar
 // ---------------------------------------
 export interface IFormStructure {
   isHidden?: boolean
@@ -66,7 +66,7 @@ export interface IForm {
   structure: Array<IFormStructure>
   modeStyle?: IMode
   modeLabel?: ILabelMode
-  modeValidate?: 'onSubmit'|'onChange'|'onInput'
+  modeValidate?: "onSubmit"|"onChange"|"onInput"
   submitButton?: string
   structureClass?: "border-b border-gray-900/10 pb-12" | string
   structureClassGrid?: "grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 mt-10" | string
@@ -127,7 +127,7 @@ function getField(fieldName:string):IFieldsType|null {
   return field
 }
 function setStructureParam(indexStructure:number, param:keyof IFormStructure, value: any) {
-  formStructure.value.map((structure,index:number)=>{
+  formStructure.value.map((_,index:number)=>{
     if (index === indexStructure) {
       (formStructure.value[index] as any)[param] = value
     }
@@ -198,7 +198,7 @@ async function validateField (field: IFieldsType) {
 }
 function validateAllField() {
   props.structure?.map(item=>item.fields?.map(field=> {
-    if (!formInvalidFields[field.name] || formInvalidFields[field.name] === undefined){
+    if (!formInvalidFields[field.name]){
       validateField(field)
     }
   }))

@@ -1,9 +1,6 @@
 <script setup lang="ts">
 
-import {ref, onMounted, watch, VueElement, onRenderTriggered} from 'vue'
-import Controller from "@/classes/Controller";
-import type {IController, IStructure} from "@/classes/Controller.interface";
-import {viewComponent} from "@/components/views";
+import {ref} from 'vue'
 import {ArrowsRightLeftIcon, CubeIcon, CurrencyYenIcon, PhoneIcon, UserGroupIcon} from "@heroicons/vue/24/outline";
 import ComponentViews from "@/components/ComponentViews.vue";
 import StInput from "@/components/form/StInput.vue";

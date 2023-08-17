@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import {convertToCamelCase, convertToDashCase, convertToSnakeCase} from "@/helpers/string";
 
-export type IPropsIconsType = "currency_ruble_FILL1_wght300_GRAD0_opsz20"|"Sitronics"|string
-  // |"Copy"|"Avatar"|"Search"|"Documentation"|"Components"|"Templates"|"Screencasts"|"Playground"|"Resources"|"Community"|"Sitronics"|"Print"
 export interface IIcon {
-  type: IPropsIconsType
+  type: string
   class?: "h-5 w-5 text-gray-400 dark:text-gray-600"|string|Array<string|boolean>
   style?: string
 }
@@ -14,20 +12,15 @@ const heroIcons:any = HeroIcons
 // ---------------------------------------
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import * as Icons from "oh-vue-icons/icons";
-const AllIcons = Object.values({ ...Icons });
-const ohIcons:any = new Set(AllIcons.map(icon=>icon.name))
+import type {CustomizeIconType} from "oh-vue-icons/types/icons";
+const AllIcons = <Array<CustomizeIconType>>Object.values({ ...Icons });
+const ohIcons:any = new Set(AllIcons.map(icon=>icon?.name))
 addIcons(...AllIcons);
 // ---------------------------------------
 const props = defineProps<IIcon>()
 </script>
-<script lang="ts">
-export const IconValues  = ()=>["currency_ruble_FILL1_wght300_GRAD0_opsz20","Sitronics"]
-</script>
 
 <template>
-  <svg v-if="props.type ==='currency_ruble_FILL1_wght300_GRAD0_opsz20'" :class="props.class" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20">
-    <path d="M319.987-140.001q-12.756 0-22.371-9.625-9.615-9.625-9.615-22.375v-82.154H242q-12.75 0-22.374-9.629-9.625-9.628-9.625-22.384 0-12.755 9.625-22.37 9.624-9.616 22.374-9.616h46.001v-88.616H242q-12.75 0-22.374-9.629-9.625-9.628-9.625-22.384 0-12.755 9.625-22.37 9.624-9.616 22.374-9.616h46.001v-311.076q0-15.365 11.394-26.759 11.394-11.395 26.759-11.395h217.231q88.769 0 147.692 58.923 58.922 58.923 58.922 147.692t-58.922 147.691q-58.923 58.923-147.692 58.923H351.999v88.616H478q12.75 0 22.374 9.629 9.625 9.629 9.625 22.384 0 12.756-9.625 22.371-9.624 9.615-22.374 9.615H351.999v82.154q0 12.75-9.628 22.375-9.629 9.625-22.384 9.625Zm32.012-330.768h191.386q61.231 0 101.923-40.692 40.693-40.692 40.693-101.923t-40.693-101.924Q604.616-756 543.385-756H351.999v285.231Z"/>
-  </svg>
   <svg v-if="props.type ==='Sitronics'" :class="props.class" width="145" height="29" viewBox="0 0 145 29" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g>
       <path d="M65.0108 5.42792L63.2967 8.3912C62.9325 8.95082 62.9354 9.28561 62.9411 9.94891C62.9418 10.0341 62.9426 10.1251 62.9426 10.223L62.9395 18.3501L66.0299 18.3513L66.034 7.87215L73.3131 7.87501L73.3143 4.78466L66.2873 4.78076C65.9268 4.78065 65.4027 4.84665 65.0108 5.42792Z" fill="white"></path>

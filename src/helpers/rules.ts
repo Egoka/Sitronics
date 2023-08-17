@@ -1,5 +1,3 @@
-import {type IFieldsType} from "@/components/form/StForm.vue";
-
 type message = string
 interface IResultCallback {
   isInvalid:boolean

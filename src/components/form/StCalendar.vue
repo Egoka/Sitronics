@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DatePicker } from 'v-calendar';
+import { DatePicker } from "v-calendar";
 import 'v-calendar/style.css';
 // ---------------------------------------
 import {computed, getCurrentInstance, onMounted, reactive, ref, watch} from "vue";
@@ -7,12 +7,15 @@ import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue
 import type {MoveOptions, MoveTarget} from "v-calendar/dist/types/src/use/calendar";
 import type {UpdateOptions, ValueTarget} from "v-calendar/dist/types/src/use/datePicker";
 import type {CalendarDay} from "v-calendar/dist/types/src/utils/page";
-import type {PopoverOptions} from "v-calendar/dist/types/src/utils/popovers";
-import type {DateRepeatConfig} from "v-calendar/dist/types/src/utils/date/repeat";
-import type {DateParts, DatePartsRules} from "v-calendar/dist/types/src/utils/date/helpers";
-import type {AttributeConfig} from "v-calendar/src/utils/attribute";
+import type {PopoverEventHandlers, PopoverOptions} from "v-calendar/dist/types/src/utils/popovers";
 import type {DateRangeSource, SimpleDateRange} from "v-calendar/src/utils/date/range";
+import type {DateParts, DatePartsRules} from "v-calendar/dist/types/src/utils/date/helpers";
+import type {DateRepeatConfig} from "v-calendar/dist/types/src/utils/date/repeat";
+import type {AttributeConfig} from "v-calendar/src/utils/attribute";
 import type {LocaleConfig} from "v-calendar/src/utils/locale";
+import type {DateRange} from "v-calendar/dist/types/src/utils/date/range";
+import type {Attribute} from "v-calendar/dist/types/src/utils/attribute";
+import type {Theme} from "v-calendar/dist/types/src/utils/theme";
 import Icons from "@/components/functional/Icons.vue";
 // ---------------------------------------
 import {getParamsStructure} from "@/helpers/object";
@@ -25,20 +28,20 @@ export interface IRangeDate {
   end: string;
 }
 export interface ICalendarPicker {
-  showCalendar: import("vue").Ref<boolean>;
-  datePickerPopoverId: import("vue").Ref<string>;
+  showCalendar: boolean
+  datePickerPopoverId: string
   popoverRef: any;
-  popoverEvents: import("vue").ComputedRef<Partial<import("v-calendar/dist/types/src/utils/popovers").PopoverEventHandlers>>;
+  popoverEvents: Partial<PopoverEventHandlers>
   calendarRef: any;
-  isRange: import("vue").ComputedRef<boolean>;
-  isTimeMode: import("vue").ComputedRef<boolean>;
-  isDateTimeMode: import("vue").ComputedRef<boolean>;
-  is24hr: import("vue").Ref<boolean>;
-  hideTimeHeader: import("vue").Ref<boolean>;
-  timeAccuracy: import("vue").Ref<number>;
-  isDragging: import("vue").ComputedRef<boolean>;
+  isRange: boolean
+  isTimeMode: boolean
+  isDateTimeMode: boolean
+  is24hr: boolean
+  hideTimeHeader: boolean
+  timeAccuracy: number
+  isDragging: boolean
   inputValue: string | IRangeDate
-  inputEvents: import("vue").ComputedRef<{
+  inputEvents: {
     click?: ((e: MouseEvent) => void) | undefined;
     mousemove?: ((e: MouseEvent) => void) | undefined;
     mouseleave?: ((e: MouseEvent) => void) | undefined;
@@ -68,10 +71,10 @@ export interface ICalendarPicker {
       change: (e: InputEvent) => void;
       keyup: (e: KeyboardEvent) => void;
     };
-  }>;
+  };
   dateParts: (DateParts | null)[]
-  attributes: import("vue").ComputedRef<any[]>;
-  rules: import("vue").ComputedRef<DatePartsRules[]>;
+  attributes: any[]
+  rules: DatePartsRules[]
   move: (target: MoveTarget, opts?: Partial<MoveOptions>) => Promise<any>;
   moveBy: (pages: number, opts?: Partial<MoveOptions>) => Promise<any>;
   moveToValue: (target: ValueTarget, opts?: Partial<MoveOptions>) => Promise<any>;
@@ -89,14 +92,14 @@ export interface ICalendarPicker {
   onPopoverAfterShow: (el: HTMLElement) => void;
   onPopoverBeforeHide: (el: HTMLElement) => void;
   onPopoverAfterHide: (el: HTMLElement) => void;
-  color: import("vue").ComputedRef<string>;
-  isDark: import("vue").ComputedRef<boolean | "system" | import("vue-screen-utils").DarkModeClassConfig>;
-  displayMode: import("vue").ComputedRef<"light" | "dark">;
-  theme: import("vue").ComputedRef<import("v-calendar/dist/types/src/utils/theme").Theme>;
+  color: string
+  isDark: boolean | "system" | import("vue-screen-utils").DarkModeClassConfig
+  displayMode: "light" | "dark"
+  theme: Theme
   locale: import("vue").ComputedRef<import("v-calendar/dist/types/src/utils/locale")>;
-  masks: import("vue").ComputedRef<any>;
-  disabledDates: import("vue").ComputedRef<import("v-calendar/dist/types/src/utils/date/range").DateRange[]>;
-  disabledAttribute: import("vue").ComputedRef<import("v-calendar/dist/types/src/utils/attribute").Attribute>;
+  masks: any
+  disabledDates: DateRange[]
+  disabledAttribute: Attribute
 }
 
 export  interface IMasksDate {
@@ -147,11 +150,11 @@ export interface IDatePicker {
   rules: 'auto' | DatePartsRules
   locale: string | Partial<LocaleConfig>
   timezone: 'UTC'| string
+  placeholder: string
 }
 export interface ICalendar extends Omit<ILayout, "value">{
   id?: string
   modelValue?: DateValueCalendar | Partial<IRangeValue>
-  placeholder?: string
   paramsDatePicker?: Partial<IDatePicker>
 }
 // ---------------------------------------
@@ -193,13 +196,17 @@ const isValue = computed<boolean>(()=> {
     return !!value.value || isOpenPicker.value
   }
 })
-const mode = computed<ILayout["mode"]>(()=> props.mode || "outlined")
-const placeholder = computed<ICalendar["placeholder"]> (()=> String(props.placeholder || ""))
-const isLoading = computed<ILayout["loading"]>(()=> props.loading || false)
-const isDisabled = computed<ILayout["disabled"]>(()=> props.disabled || false)
-const isInvalid = computed<ILayout["isInvalid"]>(()=> !isDisabled.value ? props.isInvalid : false)
-const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid || "")
+const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode || "outlined")
+const placeholder = computed<IDatePicker["placeholder"]> (()=> String(props.paramsDatePicker?.placeholder || ""))
+const isLoading = computed<NonNullable<ILayout["loading"]>>(()=> props.loading || false)
+const isDisabled = computed<NonNullable<ILayout["disabled"]>>(()=> props.disabled || false)
+const isInvalid = computed<NonNullable<ILayout["isInvalid"]>>(()=> !isDisabled.value ? props.isInvalid : false)
+const messageInvalid = computed<NonNullable<ILayout["messageInvalid"]>>(()=> props.messageInvalid || "")
 const visibleDate = ref<ICalendarPicker["inputValue"]>()
+const valueLayout = computed<string>(()=>datePicker.value?.isRange
+    ? (visibleDate.value as IRangeDate)?.start && (visibleDate.value as IRangeDate)?.end
+        ? `${(visibleDate.value as IRangeDate)?.start} > ${(visibleDate.value as IRangeDate)?.end}` : ''
+    : !!visibleDate.value ? String(visibleDate.value) : '')
 const baseDate = computed<Date|SimpleDateRange|null>(()=>{
   if (calendar.value && calendar.value?.dateParts && calendar.value?.dateParts.length) {
     const dates = <Array<Date>>calendar.value?.dateParts.map(item=>item?.date)
@@ -214,47 +221,43 @@ const inputLayout = reactive({value: visibleDate.value, isValue: isValue, mode: 
   classBody: props.classBody, class: props.class})
 // ---------------------------------------
 onMounted(()=>{
-  setTimeout(()=>{
-    visibleDate.value = <ICalendarPicker["inputValue"]>(calendar.value?.inputValue as ICalendarPicker["inputValue"])
-    inputLayout.value = datePicker.value?.isRange
-      ? `${(visibleDate.value as IRangeDate)?.start} > ${(visibleDate.value as IRangeDate)?.end}`
-      : visibleDate.value
-  },10)
+  visibleDate.value = <ICalendarPicker["inputValue"]>(calendar.value?.inputValue as ICalendarPicker["inputValue"])
   const dataPicker = document.getElementById(`dataPicker${id.value}`)
   const picker = document.getElementById(`picker${id.value}`)
   document.addEventListener( 'click', (e) => {
-    if (isOpenPicker.value) {
+    if (isOpenPicker.value && dataPicker && picker) {
       isOpenPicker.value = e.composedPath().includes(dataPicker) || e.composedPath().includes(picker)
     }
   })
 })
 // ---------------------------------------
+watch(value, ()=>{
+  inputLayout.value = valueLayout.value
+})
 watch(()=>props.modelValue, (modelValue)=>{
   value.value = modelValue
 },{deep: true})
 watch(calendar, ()=>{
   emit('getCalendar', (calendar.value as ICalendarPicker))
 },{deep: true})
-watch(isInvalid, (value)=>{
+watch(isInvalid, ()=>{
   inputLayout.isInvalid = props.isInvalid
 })
-watch(messageInvalid, (value)=>{
+watch(messageInvalid, ()=>{
   inputLayout.messageInvalid = props.messageInvalid
 })
 watch(isOpenPicker, (value)=>{
   if (value) {
     document.onkeydown = function(evt) {
-      evt = <KeyboardEvent>(evt || window.event)
       let isEscape = false;
-      if ("key" in evt) { isEscape = (evt.key === "Escape" || evt.key === "Esc")
-      } else { isEscape = (evt.keyCode === 27) }
+      if ("key" in evt) { isEscape = (evt.key === "Escape" || evt.key === "Esc") }
       if (isEscape) { isOpenPicker.value = false }
     }
   }
   inputLayout.class = props.class+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
 })
 // ---------------------------------------
-function changeDate (date) {
+function changeDate (date:ICalendarPicker["inputValue"]) {
   visibleDate.value = date
   isOpenPicker.value=false
   emit('update:isInvalid', false)
@@ -289,7 +292,6 @@ function clear () {
         ref="input"
         :name="id"
         type="text"
-        disabled
         :value="visibleDate"
         :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '']"
         class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6 transition-all"
