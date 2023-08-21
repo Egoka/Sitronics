@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import {reactive, computed, getCurrentInstance, ref, watch, onMounted} from "vue";
+import {reactive, computed, getCurrentInstance, ref, watch} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
 import {convertToNumber, convertToPhone, onkeydown, toNumber, toPhone} from "@/helpers/numbers";
 import {EyeIcon, EyeSlashIcon} from "@heroicons/vue/20/solid";
-// ---------------------------------------
 // ---------------------------------------
 const arrayInputType:Array<IInputType> = ['text','number','email','password']
 export type IInputType = 'text'|'number'|'email'|'password'
@@ -31,7 +30,6 @@ const emit = defineEmits<{
 }>();
 // ---------------------------------------
 const isActiveInput = ref<boolean>(false)
-const input = ref<HTMLElement|undefined>()
 // ---------------------------------------
 const id = ref<NonNullable<IInput["id"]>>(String(props.id||getCurrentInstance()?.uid))
 const type = ref<IDataInput["type"]>(props.paramsInput?.type && arrayInputType.includes(props.paramsInput.type) ? props.paramsInput?.type : "text")
@@ -62,18 +60,17 @@ function toMask(value:string|number):string {
   } else { return String(value) }
 }
 // ---------------------------------------
-onMounted(()=>{
-  document.addEventListener( 'click', (e) => {
-    if (isActiveInput.value) {
-      isActiveInput.value = e.composedPath().includes((input.value as HTMLElement))
-    }
-  })
-})
 watch(value, (value)=>{
   inputLayout.value = value
 })
+watch(isInvalid, ()=>{
+  inputLayout.isInvalid = isInvalid.value
+})
+watch(messageInvalid, ()=>{
+  inputLayout.messageInvalid = messageInvalid.value
+})
 watch(isActiveInput, (value)=>{
-  inputLayout.class = props.class+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
+  inputLayout.class = (props.class||"")+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
 })
 // ---------------------------------------
 function inputEvent ($event:any) {
@@ -83,6 +80,7 @@ function inputEvent ($event:any) {
   inputModelValue(($event.target as HTMLInputElement).value)
 }
 function inputModelValue(value:any) {
+  inputLayout.value = value
   emit('update:isInvalid', false)
   emit('update:modelValue', value)
 }
@@ -92,6 +90,7 @@ function changeModelValue(value:any) {
 function clear() {
   isActiveInput.value = false
   inputModelValue('')
+  changeModelValue('')
 }
 </script>
 
@@ -99,7 +98,6 @@ function clear() {
   <InputLayout v-bind="inputLayout" @clear="clear">
     <input
       :id="id"
-      ref="input"
       :name="id"
       :type="type"
       :disabled="isDisabled"
@@ -113,6 +111,7 @@ function clear() {
       [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
       focus:outline-0 focus:ring-0"
       @focus="isActiveInput = true"
+      @blur="isActiveInput = false"
       @input="inputEvent($event)"
       @keydown="onkeydown($event)"
       @change="changeModelValue(($event.target as HTMLInputElement).value)"

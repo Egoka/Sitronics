@@ -83,16 +83,17 @@ async function copy() {
 
 <template>
   <div ref="inputBody" :class="['relative', props.classBody||'mb-6 rounded-md']">
-    <div ref="beforeInput" class="absolute inset-y-0 left-0 flex items-center pl-3 pr-1">
+    <div ref="beforeInput" class="absolute inset-y-0 left-0 flex items-center h-[38px] pl-3 pr-1">
       <slot name="before"/>
     </div>
-    <div ref="input" class="block peer w-full min-h-[38px] max-h-20 overflow-auto rounded-md text-gray-900 dark:text-gray-100 ring-0 ring-inset ring-gray-300 transition-all sm:text-sm sm:leading-6"
-         :class="[!isInvalid||'is-invalid ring-2 ring-red-500 scroll-mt-10',
-         !isDisabled||'bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
-      !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
-      !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950',
-      !(mode === 'filled')||`border-0 bg-stone-100 dark:bg-stone-900 ${!isDisabled||'border-dotted border-2 border-slate-200'}`,
-      props.class]"
+    <div ref="input"
+         :class="[props.class,
+           !isInvalid||'is-invalid ring-2 ring-red-500 scroll-mt-10',
+           !isDisabled||'bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
+           !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
+           !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950',
+           !(mode === 'filled')||`border-0 bg-stone-100 dark:bg-stone-900 ${!isDisabled||'border-dotted border-2 border-slate-200'}`]"
+         class="block peer w-full min-h-[38px] max-h-20 overflow-auto rounded-md text-gray-900 dark:text-gray-100 ring-0 ring-inset ring-gray-300 transition-all sm:text-sm sm:leading-6"
          :style="`padding-left: ${beforeWidth||10}px; padding-right: ${afterWidth||10}px; scroll-margin-top: ${headerHeight + 10}px;`"
     ><slot/></div><slot name="body"/>
     <Label :title="label"
@@ -102,7 +103,7 @@ async function copy() {
            :is-disabled="isDisabled"
            :translate-x="beforeWidth||10"
            :max-width="input?.['offsetWidth']"/>
-    <span ref="afterInput" class="absolute inset-y-0 right-0 flex items-center">
+    <span ref="afterInput" class="absolute inset-y-0 right-0 flex items-center h-[38px]">
       <slot name="after"/>
       <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                   enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">

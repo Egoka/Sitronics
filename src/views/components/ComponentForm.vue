@@ -40,6 +40,12 @@ const structures = ref<Array<IFormStructure>>([
         paramsInput: {
           placeholder: "Bonda",
         },
+        rules: {
+          length: {
+            min: 5,
+            message: "Текст должен быть длиннее 5 символов"
+          }
+        },
         // disabled: true,
         label:"Фамилия",
         required: true,
@@ -83,6 +89,7 @@ const structures = ref<Array<IFormStructure>>([
         clear: true,
         required: true,
         rules: {
+          
           length: {
             message: "Максимальная длина 2",
             max: 3,
@@ -95,7 +102,7 @@ const structures = ref<Array<IFormStructure>>([
         name: "professionType1",
         label: "Профессия",
         beforeIcon: "BookOpen",
-        disabled: true,
+        // disabled: true,
         modelValue: ["apple"],
         paramsSelect: {
           dataSelect: ["apple", "banana", "cherry", "apple", "cherry"],
@@ -114,7 +121,7 @@ const structures = ref<Array<IFormStructure>>([
         rules: {
           length: {
             message: "Максимальная длина 2",
-            max: 3,
+            max: 4,
             min: 3
           },
         },
@@ -124,7 +131,12 @@ const structures = ref<Array<IFormStructure>>([
         name: "birthday1",
         label: "День рождения",
         modelValue: "2023-08-02T21:00:00.000Z",
+        afterIcon: "CoBirthdayCake",
         beforeIcon: "CoBirthdayCake",
+        afterText: "Text",
+        paramsDatePicker: {
+          minDate: new Date('2023-08-01T21:00:00.000Z'),
+        },
         // disabled: true,
         required: true,
         clear: true,
@@ -141,6 +153,26 @@ const structures = ref<Array<IFormStructure>>([
         help: "Dates",
         required: true,
         clear: true
+      },
+      {
+        typeComponent: "StAria",
+        name: "about",
+        label: "About",
+        beforeIcon: "BiChatLeftQuote",
+        modelValue: "",
+        required: true,
+        clear: true,
+        paramsAria:{
+          maxLength: 30,
+          rows: 2
+        },
+        rules: {
+          length: {
+            min: 5,
+            message: "Текст должен быть длиннее 5 символов"
+          }
+        },
+        // disabled: true
       },
       {
         typeComponent: "StSwitch",

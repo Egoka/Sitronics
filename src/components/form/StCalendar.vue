@@ -135,8 +135,8 @@ export interface IDatePicker {
   rows: number
   columns: number
   step: number
-  minDate: Date|null
-  maxDate: Date|null
+  minDate: Date|string|null
+  maxDate: Date|string|null
   popover: Partial<PopoverOptions>
   attributes: Partial<IAttributeConfig>[]
   ///DatePicker//////////////////////
@@ -191,9 +191,9 @@ const value = ref<ICalendar["modelValue"]>(
   : !props.paramsDatePicker?.isRange ? props.modelValue||"" : {start: null, end: null} )
 const isValue = computed<boolean>(()=> {
   if (props.paramsDatePicker?.isRange) {
-    return !!(value.value as Partial<IRangeValue>)?.start && !!(value.value as Partial<IRangeValue>)?.end || isOpenPicker.value
+    return !!(visibleDate.value as Partial<IRangeValue>)?.start && !!(visibleDate.value as Partial<IRangeValue>)?.end || isOpenPicker.value
   } else {
-    return !!value.value || isOpenPicker.value
+    return !!visibleDate.value || isOpenPicker.value
   }
 })
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode || "outlined")
@@ -254,7 +254,7 @@ watch(isOpenPicker, (value)=>{
       if (isEscape) { isOpenPicker.value = false }
     }
   }
-  inputLayout.class = props.class+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
+  inputLayout.class = (props.class||"")+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
 })
 // ---------------------------------------
 function changeDate (date:ICalendarPicker["inputValue"]) {

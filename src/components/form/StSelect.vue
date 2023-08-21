@@ -27,6 +27,7 @@ const props = defineProps<ISelect>()
 const emit = defineEmits<{
   (event: 'update:isInvalid', payload: ISelect["isInvalid"]): void;
   (event: 'update:modelValue', payload: ISelect["modelValue"]): void;
+  (event: 'change:modelValue', payload: ISelect["modelValue"]): void;
 }>()
 // ---------------------------------------
 const query = ref<string>("")
@@ -82,6 +83,9 @@ onMounted(()=>{
   document.addEventListener( 'click', (e) => {
     if (isOpenList.value && select && list) {
       isOpenList.value = e.composedPath().includes(select) || e.composedPath().includes(list)
+      if (isOpenList.value === false) {
+        emit('change:modelValue', dataStore.value.getKeyValue().length ? dataStore.value.getKeyValue() : null)
+      }
     }
   })
 })
@@ -105,7 +109,7 @@ watch(isOpenList, (value)=>{
       }
     }
   }
-  inputLayout.class = props.class+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
+  inputLayout.class = (props.class||"")+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
 })
 watch(()=>props.paramsSelect?.dataSelect, ()=>{
   dataStore.value.setData(dataSelect.value)
@@ -218,8 +222,7 @@ function open() {
             !(mode === 'outlined')||'from-white dark:from-black via-white dark:via-black',
             !(mode === 'underlined')||'from-stone-50 dark:from-stone-950 via-stone-50 dark:via-stone-950',
             !(mode === 'filled')||'from-stone-100 dark:from-stone-900 via-stone-100 dark:via-stone-900'
-          ]"
-          />
+          ]"/>
           <StInput
             :id="`search${id}`"
             v-if="isQuery"

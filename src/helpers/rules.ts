@@ -87,7 +87,8 @@ function regular(value:string, regular:IRegularRule["regular"]) {
     ? !(value.match(new RegExp(regular))?.[0])
     : !(value.match(regular)?.[0])
 }
-function range(value:string, min:IRangeRule["min"], max:IRangeRule["max"] ) {
+function range(value:string|any, min:IRangeRule["min"], max:IRangeRule["max"] ) {
+  if (typeof value !== "string") { return false }
   if (emptyData.includes(value)) { return false }
   if (!(value.match(/^\d+$/)?.[0])) return true
   if (min && +value < min) return true

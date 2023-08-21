@@ -2,6 +2,7 @@
 import {computed, onMounted, reactive, watch} from "vue";
 import Icons from "@/components/functional/Icons.vue";
 import StInput, {type IInput} from "@/components/form/StInput.vue";
+import StAria, {type IAria} from "@/components/form/StAria.vue";
 import StSelect, {type ISelect} from "@/components/form/StSelect.vue";
 import StSwitch, {type ISwitch} from "@/components/form/StSwitch.vue";
 import type {ILabelMode} from "@/components/functional/Label.vue";
@@ -32,6 +33,14 @@ export interface IFieldsInput extends IFields, IInput {
   afterIcon?: string
   afterText?: string
 }
+export interface IFieldsAria extends IFields, IAria {
+  typeComponent: "StAria"
+  rules?: IRulesInput
+  beforeIcon?: string
+  beforeText?: string
+  afterIcon?: string
+  afterText?: string
+}
 export interface IFieldsSelect extends IFields, ISelect {
   typeComponent: "StSelect"
   rules?: IRulesSelect
@@ -51,9 +60,9 @@ export interface IFieldsCalendar extends IFields, ICalendar {
 export interface IFieldsSwitch extends IFields, ISwitch {
   typeComponent: "StSwitch"
 }
-export type IFieldsTypeKeys = keyof IFieldsInput|keyof IFieldsSelect|keyof IFieldsCalendar|keyof IFieldsSwitch
-export type IFieldsType = IFieldsInput|IFieldsSelect|IFieldsCalendar|IFieldsSwitch
-export type IFieldsIS = IFieldsInput|IFieldsSelect|IFieldsCalendar
+export type IFieldsTypeKeys = keyof IFieldsInput|keyof IFieldsAria|keyof IFieldsSelect|keyof IFieldsCalendar|keyof IFieldsSwitch
+export type IFieldsType = IFieldsInput|IFieldsAria|IFieldsSelect|IFieldsCalendar|IFieldsSwitch
+export type IFieldsIS = IFieldsInput|IFieldsAria|IFieldsSelect|IFieldsCalendar
 // ---------------------------------------
 export interface IFormStructure {
   isHidden?: boolean
@@ -79,12 +88,12 @@ const emit = defineEmits<{
   (event: 'update:formFields', payload: IFormFields): void;
 }>()
 // ---------------------------------------
-const arrayFieldsValidate = ["StInput", "StSelect", "StCalendar"]
+const arrayFieldsValidate = ["StInput", "StAria", "StSelect", "StCalendar"]
 // ---------------------------------------
 const modeStyle = computed<IMode|undefined>(()=>props.modeStyle || undefined)
 const modeLabel = computed<ILabelMode>(()=>props.modeLabel || "offsetDynamic")
 const isDisabled = computed<boolean>(()=>props.disabled || false)
-const modeValidate = computed(()=>props.modeValidate || "onSubmit")
+const modeValidate = computed(()=>props.modeValidate || "onChange")
 // ---------------------------------------
 const formFields = reactive<IFormFields>({})
 const formInvalidFields = reactive<{[key:string]: boolean}>({})
@@ -212,6 +221,7 @@ function inputField(field:any) {
   }
 }
 function changeField(field:any) {
+  console.log("changeField")
   if (modeValidate.value === "onChange") {
     validateField(field)
   }
@@ -240,8 +250,7 @@ function submit(){
                     v-model:is-invalid="formInvalidFields[field.name]"
                     v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
                     @update:model-value="inputField(field)"
-                    @change:model-value="changeField(field)"
-                  >
+                    @change:model-value="changeField(field)">
                     <template #before>
                       <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
                       <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
@@ -251,13 +260,32 @@ function submit(){
                       <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
                     </template>
                   </StInput>
+                  <!-- Aria -->
+                  <StAria
+                    v-if="field.typeComponent === 'StAria'"
+                    v-model:model-value="formFields[field.name]"
+                    v-model:is-invalid="formInvalidFields[field.name]"
+                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                    @update:model-value="inputField(field)"
+                    @change:model-value="changeField(field)">
+                    <template #before>
+                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
+                      <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
+                    </template>
+                    <template #after>
+                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                      <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                    </template>
+                  </StAria>
                   <!-- Select -->
                   <StSelect
                     v-if="field.typeComponent === 'StSelect'"
                     v-model:model-value="formFields[field.name]"
                     v-model:is-invalid="formInvalidFields[field.name]"
                     :data-select="field?.paramsSelect?.dataSelect"
-                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}">
+                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                    @update:model-value="inputField(field)"
+                    @change:model-value="changeField(field)">
                     <template #default="{selected, key}">
                       <div v-if="field.paramsSelect?.multiple" class="m-[2px] bg-stone-200 dark:bg-stone-800 h-4 leading-4 px-1 rounded-[2px]">{{selected[key]}}</div>
                       <div v-else>{{selected[key]}}</div>
@@ -280,7 +308,9 @@ function submit(){
                     v-if="field.typeComponent === 'StCalendar'"
                     v-model:model-value="formFields[field.name]"
                     v-model:is-invalid="formInvalidFields[field.name]"
-                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}">
+                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                    @update:model-value="inputField(field)"
+                    @change:model-value="changeField(field)">
                     <template #footerPicker></template>
                     <template v-if="field.beforeIcon || field.beforeText" #before>
                       <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>

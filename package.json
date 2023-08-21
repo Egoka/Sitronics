@@ -15,6 +15,7 @@
     "@heroicons/vue": "^2.0.18",
     "@popperjs/core": "^2.11.8",
     "@tailwindcss/forms": "^0.5.3",
+    "@vueup/vue-quill": "^1.2.0",
     "gsap": "^3.12.2",
     "oh-vue-icons": "^1.0.0-rc3",
     "pinia": "^2.0.36",

@@ -57,6 +57,16 @@ const items = ref([
     href: baseUrl+'/switch',
     imageSrc: 'https://horizon-ui.com/components/static/media/switch.f617ef9b0d24894e1002ce0bda81758e.svg',
   },
+  {
+    name: 'Aria',
+    href: baseUrl+'/aria',
+    imageSrc: 'https://horizon-ui.com/components/static/media/cards.0850c03325941f4fdff0c016aee796dd.svg',
+  },
+  {
+    name: 'Text editor',
+    href: baseUrl+'/text-editor',
+    imageSrc: 'https://horizon-ui.com/components/static/media/quill.b64c9e63505fef0603aba10791c099c8.svg',
+  },
 ])
 </script>
 <template>

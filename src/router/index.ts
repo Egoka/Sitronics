@@ -61,6 +61,22 @@ const router = createRouter({
       component: () => import('../views/components/ComponentCalendar.vue')
     },
     {
+      path: '/components/aria',
+      name: 'aira',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentAria.vue')
+    },
+    {
+      path: '/components/text-editor',
+      name: 'textEditor',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentTextEditor.vue')
+    },
+    {
       path: '/components/all',
       name: 'componentsAll',
       meta: {
