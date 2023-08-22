@@ -4,20 +4,20 @@ import {ref} from 'vue'
 import {ArrowsRightLeftIcon, CubeIcon, CurrencyYenIcon, PhoneIcon, UserGroupIcon} from "@heroicons/vue/24/outline";
 import ComponentViews from "@/components/ComponentViews.vue";
 import StInput from "@/components/form/StInput.vue";
-import SInput from "@/components/form/SInput.vue";
-const value = ref("50")
+// import SInput from "@/components/form/SInput.vue";
+// const value = ref("50")
 const isInvalid = ref(false)
 const messageValid = ref("")
-const country = ref("RU")
-const currency = ref("₽")
-const password = ref("")
-const phone = ref("")
-const price = ref("")
-const count = ref("")
-const length = ref("12234234.34")
+// const country = ref("RU")
+// const currency = ref("₽")
+// const password = ref("")
+// const phone = ref("")
+// const price = ref("")
+// const count = ref("")
+// const length = ref("12234234.34")
 const dimension = ref("")
-const isInvalidDimension = ref(false)
-const messageValidDimension = ref("")
+// const isInvalidDimension = ref(false)
+// const messageValidDimension = ref("")
 /*
 const inputView = <IController>new Controller(<Array<IStructure>>[
   viewComponent("Input",[
@@ -289,12 +289,12 @@ const inputView = <IController>new Controller(<Array<IStructure>>[
 ], {UserGroupIcon, PhoneIcon, CurrencyYenIcon, ArrowsRightLeftIcon, CubeIcon})
 */
 
-function valid() {
-  isInvalid.value = true
-  isInvalidDimension.value = true
-  messageValid.value = "Обязательное поле"
-  messageValidDimension.value = "Обязательное поле"
-}
+// function valid() {
+//   isInvalid.value = true
+//   isInvalidDimension.value = true
+//   messageValid.value = "Обязательное поле"
+//   messageValidDimension.value = "Обязательное поле"
+// }
 // onMounted(()=>{
 //   console.log(inputView)
 // })
@@ -302,7 +302,7 @@ function valid() {
 
 <template>
   <ComponentViews>
-    <template #title>Calendar</template>
+    <template #title>Input</template>
 <!--  <StInput
     v-model.trim="value"
     label="Первое поле"
@@ -435,9 +435,10 @@ function valid() {
     <StInput
       v-model.trim="dimension"
       label="Степень негабаритности"
-      placeholder="H0000"
-      type="text"
-      mask="number"
+      :params-input="{
+        placeholder: 'H0000',
+        type: 'text',
+      }"
       mode="filled"
       help="Вспомогательный текст"
       clear
@@ -452,20 +453,20 @@ function valid() {
         <p v-if="dimension" class="ml-1 mr-3 text-gray-400 select-none">степень</p>
       </template>
     </StInput>
-    <SInput v-model="value"
-            mode="filled"
-            label="Степень негабаритности"
-            :params-input="{type:'text', mask: 'number', classInput:'text-right', placeholder:'H0000'}"
-            clear
-            help="Вспомогательный текст"
-            v-model:is-invalid="isInvalid"
-            :message-valid="messageValid">
-      <template #before>
-        <CubeIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-      </template>
-      <template #after>
-        <p v-if="value" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">руб</p>
-      </template>
-    </SInput>
+<!--    <SInput v-model="value"-->
+<!--            mode="filled"-->
+<!--            label="Степень негабаритности"-->
+<!--            :params-input="{type:'text', mask: 'number', classInput:'text-right', placeholder:'H0000'}"-->
+<!--            clear-->
+<!--            help="Вспомогательный текст"-->
+<!--            v-model:is-invalid="isInvalid"-->
+<!--            :message-valid="messageValid">-->
+<!--      <template #before>-->
+<!--        <CubeIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />-->
+<!--      </template>-->
+<!--      <template #after>-->
+<!--        <p v-if="value" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">руб</p>-->
+<!--      </template>-->
+<!--    </SInput>-->
   </ComponentViews>
 </template>

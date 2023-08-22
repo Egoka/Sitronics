@@ -90,11 +90,11 @@ const structures = ref<Array<IFormStructure>>([
         required: true,
         rules: {
           
-          length: {
-            message: "Максимальная длина 2",
-            max: 3,
-            min: 3
-          },
+          // length: {
+          //   message: "Максимальная длина 2",
+          //   max: 3,
+          //   min: 3
+          // },
         },
       },
       {
@@ -147,7 +147,7 @@ const structures = ref<Array<IFormStructure>>([
         // disabled: true,
         // modelValue: "2023-08-09T21:00:00.000Z",
         modelValue: { "start": "2023-08-02T21:00:00.000Z", "end": "2023-08-10T21:00:00.000Z" },
-        paramsDatePicker: { isRange: true },
+        paramsDatePicker: { isRange: true, columns: 3 },
         label: "День рождения",
         beforeIcon: "CoBirthdayCake",
         help: "Dates",
@@ -173,6 +173,14 @@ const structures = ref<Array<IFormStructure>>([
           }
         },
         // disabled: true
+      },
+      {
+        typeComponent: "StTextEditor",
+        name: "text",
+        modelValue: "<h1><span style=\"color: rgb(161, 0, 0);\">Тестовый</span> </h1><pre class=\"ql-syntax\" spellcheck=\"false\">текст с описанием </pre><p><span style=\"color: rgb(107, 36, 178);\">Этот текст тоже должен быть скопирован</span></p>",
+        label: "Приложенные правила",
+        disabled: true,
+        beforeIcon: "attach_file"
       },
       {
         typeComponent: "StSwitch",

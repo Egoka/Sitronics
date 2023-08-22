@@ -150,7 +150,7 @@ function clear() {
     </template>
     <template #before><slot name="before"/></template>
     <template #after>
-      <div class="relative flex text-left h-[36px]" @click.stop="theme = 'snow'">
+      <div class="relative flex text-left h-[36px]" @click="theme = 'snow'">
         <div class="group inline-flex justify-center items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 hover:dark:text-gray-100">
           <ArrowsPointingOutIcon aria-hidden="true" class="h-5 w-5 mx-2 text-gray-400 dark:text-gray-600"/>
         </div>

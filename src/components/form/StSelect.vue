@@ -136,9 +136,7 @@ const dataList = computed<IDataItem>(()=> {
     return (dataStore.value.getData() as Array<IDataItem>)
       .filter(item => {
         const valueSelectSting = String(valueSelect.value ? item[valueSelect.value] : item[dataStore.value.getKey()])
-        return valueSelectSting.toLowerCase().includes(query.value) ||
-          valueSelectSting.toUpperCase().includes(query.value) ||
-          valueSelectSting.includes(query.value)
+        return valueSelectSting.toLowerCase().includes(query.value.toLowerCase())
       })
       .map(item => {
         const valueSelectSting = String(valueSelect.value ? item[valueSelect.value] : item[dataStore.value.getKey()])
@@ -212,13 +210,13 @@ function open() {
                   enter-active-class="transition ease-in-out duration-200" enter-from-class="opacity-0 -translate-y-5" enter-to-class="opacity-100 translate-y-0">
         <div v-show="isOpenList"
              :id="`list${id}`"
-             :class="['overflow-auto absolute z-50 mt-1 w-full max-h-60 text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-lg focus:outline-none sm:text-sm',
+             :class="['overflow-auto absolute z-50 mt-1 w-full max-h-60 text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm',
                  !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
-                 !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950',
+                 !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
                  !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900'
                  ]">
           <div :class="[
-            'sticky top-[218px] w-full h-5 z-20 bg-gradient-to-t to-transparent',
+            'sticky top-[220px] w-full h-5 z-20 bg-gradient-to-t to-transparent',
             !(mode === 'outlined')||'from-white dark:from-black via-white dark:via-black',
             !(mode === 'underlined')||'from-stone-50 dark:from-stone-950 via-stone-50 dark:via-stone-950',
             !(mode === 'filled')||'from-stone-100 dark:from-stone-900 via-stone-100 dark:via-stone-900'
@@ -232,8 +230,8 @@ function open() {
             label-mode="vanishing"
             :class-body="`m-2 mb-5 sticky top-1 z-20 rounded-md ring-4 ${
               (mode === 'outlined') ? 'ring-white dark:ring-black' :
-              (mode === 'underlined') ? 'ring-stone-50 dark:ring-stone-950' ?
-              (mode === 'filled') ? ' ring-stone-100 dark:ring-stone-900': '' : '' : ''}`"
+              (mode === 'underlined') ? 'ring-stone-50 dark:ring-stone-950' :
+              (mode === 'filled') ? 'ring-stone-100 dark:ring-stone-900': '' }`"
             clear>
             <template #before>
               <MagnifyingGlassIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>

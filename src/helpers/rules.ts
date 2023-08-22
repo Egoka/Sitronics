@@ -176,6 +176,4 @@ export async function getAsyncValidate (value: any, field:any) {
   }
   return {isInvalid, message}
 }
-//https://webdevnerdstuff.github.io/vue3-code-block/#add-lang-examples
-//https://github.com/Leecason/element-tiptap/tree/alpha
 //https://ui.shadcn.com/
