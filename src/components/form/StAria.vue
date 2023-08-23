@@ -66,7 +66,7 @@ watch(messageInvalid, ()=>{
 })
 watch(isActiveAria, (value)=>{
   inputLayout.class = (props.class||"")+(value
-    ? ` outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400 ${additionalStyles.value}`
+    ? ` border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`
     : " " + additionalStyles.value)
 })
 // ---------------------------------------

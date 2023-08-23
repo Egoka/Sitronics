@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Link from "@/components/functional/Link.vue";
+import Button from "@/components/functional/Button.vue";
 </script>
 
 <template>
@@ -17,11 +18,12 @@ import Link from "@/components/functional/Link.vue";
         <h1 class="font-extrabold text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-tr from-fuchsia-500 to-sky-500">Разработка для Sitronics</h1>
         <p class="mt-6 text-lg leading-8 text-gray-600">Демонстрация готовых компонентов с примерами их работы</p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
-          <Link link="/components" class="rounded-md bg-[#587cec] px-3.5 py-2.5 text-sm font-semibold text-white dark:text-black shadow-sm transition-all hover:bg-fuchsia-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+          <Button link="/components" class="bg-[#587cec] dark:bg-[#587cec] hover:bg-[#587cec]/80 dark:hover:bg-[#587cec]/80 px-3.5 py-2.5 h-max font-semibold">
             Попробовать
-          </Link>
-          <a href="#" class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-300">
-            Узнать больше<span aria-hidden="true" class="ml-1">→</span></a>
+          </Button>
+          <Button link="/components" mode="text" class="text-sm leading-6 text-gray-900 dark:text-gray-300">
+            Узнать больше<span aria-hidden="true" class="ml-1">→</span>
+          </Button>
         </div>
       </div>
     </div>

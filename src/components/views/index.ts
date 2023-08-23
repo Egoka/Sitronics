@@ -1,6 +1,6 @@
 import type {IStructure} from "@/classes/Controller.interface";
 
-export const viewComponent = (title?:string, content?:Array<IStructure>|IStructure):IStructure=>{
+export const viewComponent = (title?:string, content?:Array<IStructure>|IStructure|any):IStructure=>{
   return {
     component: "main",
     props: {

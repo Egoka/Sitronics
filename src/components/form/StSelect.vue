@@ -13,7 +13,7 @@ export interface IDateSelect {
   multiple?:boolean
   noData?: string
   noQuery?: boolean
-  classMaskQuery?: "font-bold text-indigo-700 dark:text-indigo-300"|string
+  classMaskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
 }
 
 export interface ISelect extends Omit<ILayout, "value">{
@@ -67,7 +67,7 @@ const isValue = computed<boolean>(()=> Boolean(isMultiple.value ? value.value ? 
 const isMultiple = computed<NonNullable<IDateSelect["multiple"]>>(()=> props.paramsSelect?.multiple || false)
 const noData = computed<NonNullable<IDateSelect["noData"]>>(()=> props.paramsSelect?.noData || "Нет данных")
 const isQuery = computed<NonNullable<IDateSelect["noQuery"]>>(()=> !props.paramsSelect?.noQuery)
-const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery||"font-bold text-indigo-700 dark:text-indigo-300")
+const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery||"font-bold text-primary-700 dark:text-primary-300")
 // ---------------------------------------
 const dataStore = ref(new DataStore(value.value, keySelect.value, dataSelect.value, isMultiple.value))
 const valueLayout = computed<string>(()=>dataStore.value.getValue()?.map((item: any) => item[dataStore.value.getKey()])?.join(", "))
@@ -109,7 +109,7 @@ watch(isOpenList, (value)=>{
       }
     }
   }
-  inputLayout.class = (props.class||"")+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
+  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700": "")
 })
 watch(()=>props.paramsSelect?.dataSelect, ()=>{
   dataStore.value.setData(dataSelect.value)
@@ -189,9 +189,9 @@ function open() {
         <template v-if="isMultiple">
           <transition-group leave-active-class="transition ease-in-out duration-300" leave-from-class="opacity-100 translate-x-0" leave-to-class="opacity-0 -translate-x-5"
                             enter-active-class="transition ease-in-out duration-300" enter-from-class="opacity-0 -translate-x-5" enter-to-class="opacity-100 translate-x-0">
-            <div v-for="item in dataStore.getValue()" :key="item[dataStore.getKey()]">
+            <div v-for="item in dataStore.getValue()" :key="item[dataStore.getKey()]" class="z-10">
               <slot :selected="item" :key="valueSelect ? valueSelect : dataStore.getKey()">
-                <div class="m-[2px] bg-stone-200 dark:bg-indigo-900 h-4 leading-4 px-1 rounded-[2px]">{{valueSelect? item[valueSelect] : item[dataStore.getKey()]}}</div>
+                <div class="m-[2px] bg-stone-200 dark:bg-primary-900 h-4 leading-4 px-1 rounded-[2px]">{{valueSelect? item[valueSelect] : item[dataStore.getKey()]}}</div>
               </slot>
             </div>
           </transition-group>
@@ -248,14 +248,14 @@ function open() {
                 <li v-for="(item, index) in dataList"
                     :key="dataStore.getKey() !== 'uuid'? item[dataStore.getKey()]: item[dataStore.getKey()]+index"
                     :data-index="index"
-                    class="text-gray-900 dark:text-gray-100 relative cursor-default select-none flex items-center h-9 mx-2 pl-8 pr-4 last:mb-5"
-                    :class="['hover:bg-indigo-100 hover:dark:bg-indigo-900', ['outlined','filled'].includes(mode) ? 'rounded-md': '']"
+                    class="group text-gray-900 dark:text-gray-100 relative cursor-default select-none flex items-center h-9 mx-2 pl-8 pr-4 last:mb-5 transition-colors duration-75"
+                    :class="['hover:bg-primary-200 hover:dark:bg-primary-900', ['outlined','filled'].includes(mode) ? 'rounded-md': '']"
                     @click="select(item)">
                   <slot name="item" :item="item">
-                    <div v-if="isQuery && item.marker" v-html="item.marker" class="text-gray-600 dark:text-gray-400"/>
+                    <div v-if="isQuery && item.marker" v-html="item.marker" class="text-primary-600 dark:text-primary-400"/>
                     <div v-else class="text-gray-500">{{valueSelect? item[valueSelect] : item}}</div>
                   </slot>
-                  <span v-if="dataStore.isValue(item)" class="flex absolute inset-y-0 left-0 items-center pl-2 text-indigo-600">
+                  <span v-if="dataStore.isValue(item)" class="flex absolute inset-y-0 left-0 items-center pl-2 text-primary-700 dark:text-primary-400">
                     <CheckIcon aria-hidden="true" class="w-5 h-5"/>
                   </span>
                 </li>

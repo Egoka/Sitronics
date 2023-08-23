@@ -28,6 +28,8 @@ export interface ISwitch {
 // ---------------------------------------
 const props = defineProps<ISwitch>()
 // ---------------------------------------
+const isActiveSwitch = ref<boolean>(false)
+// ---------------------------------------
 const id = ref(props.id||getCurrentInstance()?.uid)
 const value = computed<boolean>(()=> Boolean(props.modelValue||false))
 const switchingType = computed<IDataSwitch["switchingType"]>(()=> props.paramsSwitch?.switchingType||"checkbox")
@@ -59,28 +61,31 @@ function changeModelValue(value:any) {
 </script>
 
 <template>
-  <SwitchGroup v-if="switchingType === 'switch'" as="div" :class="['relative flex gap-x-3 my-4 py-[6px] px-2 rounded-md',
+  <SwitchGroup v-if="switchingType === 'switch'" as="div" :class="[props.class,
+   'relative flex gap-x-3 my-4 py-[6px] px-2 rounded-md transition-all',
    !(mode === 'outlined')||`border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black ${!isDisabled||'bg-slate-50 dark:bg-stone-950 border-dashed'}`,
    !(mode === 'underlined')||`rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950 ${!isDisabled||'border-dashed'}`,
-   !(mode === 'filled')||` bg-stone-100 dark:bg-stone-900 ${!isDisabled||'border-2 border-dotted'}`,
-   props.class
-  ]">
+   !(mode === 'filled')||`bg-stone-100 dark:bg-stone-900 ${!isDisabled||'border-2 border-dotted'}`,
+   !isActiveSwitch || mode === 'none'||'border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700'
+  ].filter(item=>typeof item === 'string')">
     <div class="flex h-6 items-center">
       <Switch v-model="value" @update:model-value="inputEvent"
-              :class="[!isDisabled||`pointer-events-none border-dotted border-2 w-9 ${value ? 'bg-gray-600 dark:bg-gray-400' : 'bg-gray-200 dark:bg-gray-800'}`, value ? 'bg-indigo-600 dark:bg-indigo-400' : 'bg-gray-200 dark:bg-gray-800',
-              ' flex w-8 flex-none cursor-pointer p-px ring-2 ring-inset ring-gray-900/5 transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600']"
-              :style="`border-radius: ${rounded}px`">
+              :class="[!isDisabled||`pointer-events-none border-dotted border-2 border-transparent w-9 ${value ? 'bg-gray-600 dark:bg-gray-400' : 'bg-gray-200 dark:bg-gray-800'}`, value ? 'bg-primary-600 dark:bg-primary-400' : 'bg-gray-200 dark:bg-gray-800',
+              ' flex w-8 flex-none cursor-pointer p-px ring-2 ring-inset ring-gray-900/5 transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600']"
+              :style="`border-radius: ${rounded}px`"
+              @focus="isActiveSwitch = true"
+              @blur="isActiveSwitch = false">
         <Icons v-if="iconActive && iconInactive"
                :type="value ? iconActive : iconInactive"
-               :class="[value ? 'translate-x-3.5' : 'translate-x-0', 'h-4 w-4 transform bg-white dark:bg-stone-950 shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out text-gray-400 dark:text-gray-600']"
+               :class="[value ? 'translate-x-3.5 bg-primary-100 dark:bg-primary-900' : 'translate-x-0 bg-gray-100 dark:bg-gray-950', 'h-4 w-4 transform shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out text-gray-400 dark:text-gray-600']"
                :style="`border-radius: ${rounded-1}px`"/>
-        <span v-else aria-hidden="true" :class="[value ? 'translate-x-3.5' : 'translate-x-0', 'h-4 w-4 transform bg-white dark:bg-stone-950 shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out']"
+        <span v-else aria-hidden="true" :class="[value ? 'translate-x-3.5 bg-primary-100 dark:bg-primary-900' : 'translate-x-0 bg-gray-100 dark:bg-gray-950', 'h-4 w-4 transform shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out']"
               :style="`border-radius: ${rounded-1}px`"/>
       </Switch>
     </div>
     <SwitchLabel
       :class="[
-        `font-medium text-sm text-gray-900 dark:text-gray-100`,
+        `font-medium text-sm leading-6 text-gray-900 dark:text-gray-100`,
         !isDisabled||'pointer-events-none text-slate-800 dark:text-slate-200',
         !isRequired||`after:content-['*'] after:text-red-500 after:ml-1`]">
       {{ label }}
@@ -106,9 +111,11 @@ function changeModelValue(value:any) {
         v-model="value"
         :disabled="isDisabled"
         type="checkbox"
-        class="h-4 w-4 bg-stone-50 dark:bg-stone-950 border-gray-300 dark:border-gray-700 text-indigo-500 border-[1px] focus:ring-offset-0 focus:ring-indigo-200 focus:dark:ring-indigo-800 transition
+        class="h-4 w-4 bg-stone-50 dark:bg-stone-950 border-gray-300 dark:border-gray-700 text-primary-500 dark:text-primary-700 border-[1px] focus:ring-offset-0 focus:ring-primary-200 focus:dark:ring-primary-800 transition
         disabled:bg-slate-500 disabled:text-slate-500 disabled:accent-slate-500"
         :style="`border-radius: ${rounded-1}px`"
+        @focus="isActiveSwitch = true"
+        @blur="isActiveSwitch = false"
         @input="inputEvent(($event.target as HTMLInputElement).checked)"
         @change="changeModelValue(($event.target as HTMLInputElement).checked)"
       />

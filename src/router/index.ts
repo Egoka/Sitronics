@@ -77,6 +77,14 @@ const router = createRouter({
       component: () => import('../views/components/ComponentTextEditor.vue')
     },
     {
+      path: '/components/buttons',
+      name: 'buttons',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentButtons.vue')
+    },
+    {
       path: '/components/all',
       name: 'componentsAll',
       meta: {

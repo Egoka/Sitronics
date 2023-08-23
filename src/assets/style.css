@@ -4,5 +4,5 @@
 .router-link-active{
     /*@apply bg-indigo-600 rounded p-1 decoration-amber-100;*/
     /*@apply bg-slate-200 rounded m-1 p-1;*/
-    @apply bg-slate-200 lg:bg-transparent lg:border-b-indigo-600 lg:border-b-2 ;
+    @apply bg-slate-200 lg:bg-transparent lg:border-b-primary-600 lg:border-b-2 ;
 }

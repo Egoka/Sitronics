@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import {computed, getCurrentInstance, onMounted, reactive, ref, watch} from "vue";
+// ---------------------------------------
+import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
+import Icons from "@/components/functional/Icons.vue";
 import { DatePicker } from "v-calendar";
 import 'v-calendar/style.css';
 // ---------------------------------------
-import {computed, getCurrentInstance, onMounted, reactive, ref, watch} from "vue";
-import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
 import type {MoveOptions, MoveTarget} from "v-calendar/dist/types/src/use/calendar";
 import type {UpdateOptions, ValueTarget} from "v-calendar/dist/types/src/use/datePicker";
 import type {CalendarDay} from "v-calendar/dist/types/src/utils/page";
@@ -16,12 +18,12 @@ import type {LocaleConfig} from "v-calendar/src/utils/locale";
 import type {DateRange} from "v-calendar/dist/types/src/utils/date/range";
 import type {Attribute} from "v-calendar/dist/types/src/utils/attribute";
 import type {Theme} from "v-calendar/dist/types/src/utils/theme";
-import Icons from "@/components/functional/Icons.vue";
 // ---------------------------------------
 import {getParamsStructure} from "@/helpers/object";
 // ---------------------------------------
+
 type DateValueCalendar = Date | number | string | null
-export type ColorCalendarPicker = "gray"|"red"|"orange"|"yellow"|"green"|"teal"|"blue"|"indigo"|"purple"|"pink"
+export type ColorCalendarPicker = "primary"|"gray"|"red"|"orange"|"yellow"|"green"|"teal"|"blue"|"indigo"|"purple"|"pink"
 
 export interface IRangeDate {
   start: string;
@@ -171,7 +173,7 @@ const isOpenPicker = ref(false)
 const datePicker = computed<Partial<IDatePicker>>(()=>{return {
   borderless: true,
   transparent: true,
-  color: "indigo",
+  color: "primary",
   isDark: "system",
   expanded: true,
   trimWeeks: true,
@@ -254,7 +256,7 @@ watch(isOpenPicker, (value)=>{
       if (isEscape) { isOpenPicker.value = false }
     }
   }
-  inputLayout.class = (props.class||"")+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
+  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700": "")
 })
 // ---------------------------------------
 function changeDate (date:ICalendarPicker["inputValue"]) {
@@ -272,6 +274,25 @@ function clear () {
   emit('update:isInvalid', false)
   emit('update:modelValue', null)
 }
+// ---------------------------------------
+import config from '@/theme'
+const primary = config.theme.colors["primary"]
+const style = <HTMLElement>document.createElement('style');
+style["type"] = 'text/css';
+style.innerHTML = `
+.vc-primary {
+  --vc-accent-50: ${primary["50"]};
+  --vc-accent-100: ${primary["100"]};
+  --vc-accent-200: ${primary["200"]};
+  --vc-accent-300: ${primary["300"]};
+  --vc-accent-400: ${primary["400"]};
+  --vc-accent-500: ${primary["500"]};
+  --vc-accent-600: ${primary["600"]};
+  --vc-accent-700: ${primary["700"]};
+  --vc-accent-800: ${primary["800"]};
+  --vc-accent-900: ${primary["900"]};
+}`;
+document.getElementsByTagName('head')[0].appendChild(style);
 </script>
 
 <template>

@@ -146,13 +146,13 @@ onMounted(()=>{
       class="block peer w-full rounded-md py-1.5 text-gray-900 dark:text-gray-100 ring-0 ring-inset
       transition-all
       placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600
-      focus:outline-none focus:ring-inset focus:ring-indigo-600 focus:dark:ring-indigo-400
+      focus:outline-none focus:ring-inset focus:ring-primary-600 focus:dark:ring-primary-400
       sm:text-sm sm:leading-6
       [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
       disabled:bg-slate-50 disabled:dark:bg-slate-950 disabled:text-slate-500 disabled:border-slate-200 disabled:dark:border-slate-800 disabled:border-dashed disabled:shadow-none"
       :class="[!isInvalid||'is-invalid ring-2 ring-red-500 scroll-mt-10',
       !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black focus:ring-2 focus:border-transparent',
-      !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950 focus:border-b-[1px] focus:border-indigo-400 focus:dark:border-indigo-600 focus:ring-0',
+      !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950 focus:border-b-[1px] focus:border-primary-400 focus:dark:border-primary-600 focus:ring-0',
       !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900 focus:ring-2 disabled:bg-stone-100 disabled:dark:bg-stone-900 disabled:border-dotted disabled:border-2 disabled:border-slate-200',
       props.classInput]"
       :style="`padding-left: ${beforeWidth||10}px; padding-right: ${afterWidth||10}px; scroll-margin-top: ${headerHeight + 10}px;`"

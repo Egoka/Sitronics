@@ -19,8 +19,9 @@ const button = ref({
 
 const items = ref([
   {
-    name: 'Все',
+    name: 'All',
     href: baseUrl+'/all',
+    imageSrc: 'https://upload.wikimedia.org/wikipedia/commons/c/c5/SITRONICS_group_logo_horisontal.png',
   },
   {
     name: 'Form',
@@ -79,7 +80,7 @@ const items = ref([
       <GridImage :grid-image="gridImages">
         <template #default="{item}">
           <div class="h-24 w-24 sm:h-44 sm:w-44 overflow-hidden rounded-lg lg:opacity-100">
-            <img :src="item" alt="" class="max-h-full w-full object-cover object-center" />
+            <img :src="item" alt="" class="max-h-full w-full object-cover object-center dark:invert-[.9]" />
           </div>
         </template>
       </GridImage>
@@ -87,8 +88,9 @@ const items = ref([
   </WithImageTiles>
   <CardList id="components" :items="items">
     <template #default="{item}">
-      <img :src="item.imageSrc" :alt="item.imageAlt" class="h-28 m-auto object-cover object-center group-hover:opacity-75" />
-      <h3 class="m-4 mt-0 text-2xl font-medium text-gray-700">{{ item.name }}</h3>
+      <div v-if="item.name === 'All'" class="h-28 bg-center bg-cover" :style="`background-image: url(${item.imageSrc})`"/>
+      <img v-else :src="item.imageSrc" :alt="item.imageAlt" class="h-28 m-auto object-cover object-center group-hover:opacity-75 dark:invert-[.9]" />
+      <h3 class="m-4 mt-0 text-2xl font-medium text-gray-700 dark:text-gray-500">{{ item.name }}</h3>
     </template>
   </CardList>
 </template>

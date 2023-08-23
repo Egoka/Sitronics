@@ -177,9 +177,9 @@ const structures = ref<Array<IFormStructure>>([
       {
         typeComponent: "StTextEditor",
         name: "text",
-        modelValue: "<h1><span style=\"color: rgb(161, 0, 0);\">Тестовый</span> </h1><pre class=\"ql-syntax\" spellcheck=\"false\">текст с описанием </pre><p><span style=\"color: rgb(107, 36, 178);\">Этот текст тоже должен быть скопирован</span></p>",
+        modelValue: "<h2>Тестовый </h2><p>текст с описанием </p><p>Этот текст тоже должен быть скопирован</p>",
         label: "Приложенные правила",
-        disabled: true,
+        // disabled: true,
         beforeIcon: "attach_file"
       },
       {
@@ -402,7 +402,7 @@ watch(form, ()=>{
     <StForm
       ref="formTest"
       :structure="structures"
-      mode-style="outlined"
+      mode-style="filled"
       mode-label="offsetDynamic"
       mode-validate="onChange"
       submit-button="Сохранить"

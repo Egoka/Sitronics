@@ -70,7 +70,7 @@ watch(messageInvalid, ()=>{
   inputLayout.messageInvalid = messageInvalid.value
 })
 watch(isActiveInput, (value)=>{
-  inputLayout.class = (props.class||"")+(value ? " outline-none ring-2 ring-inset ring-indigo-600 dark:ring-indigo-400": "")
+  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700": "")
 })
 // ---------------------------------------
 function inputEvent ($event:any) {
