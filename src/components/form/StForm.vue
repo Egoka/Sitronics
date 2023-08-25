@@ -316,7 +316,7 @@ function submit(){
                     v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
                     @update:model-value="inputField(field)"
                     @change:model-value="changeField(field)">
-                    <template #default="{selected, key}">
+                    <template #values="{selected, key}">
                       <Badge class="mx-1">{{selected[key]}}</Badge>
                     </template>
                     <template #item="{item}">

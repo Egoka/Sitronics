@@ -256,7 +256,7 @@ watch(isOpenPicker, (value)=>{
       if (isEscape) { isOpenPicker.value = false }
     }
   }
-  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700": "")
+  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
 })
 // ---------------------------------------
 function changeDate (date:ICalendarPicker["inputValue"]) {
@@ -334,6 +334,7 @@ document.getElementsByTagName('head')[0].appendChild(style);
           <DatePicker v-else v-model.string="value" v-bind="getParamsStructure(datePicker, ['isRange'])" ref="calendar" @update:modelValue="changeDate"><template #footer><slot name="footerPicker"/></template></DatePicker>
         </div>
       </transition>
+      <slot/>
     </template>
     <template #before><slot name="before"/></template>
     <template #after><slot name="after"/></template>

@@ -5,6 +5,7 @@ import {QuestionMarkCircleIcon} from "@heroicons/vue/20/solid";
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
 import Dropdown from "../functional/Dropdown.vue";
 import Icons, {type IIcon} from "@/components/functional/Icons.vue";
+import Tooltip from "@/components/functional/Tooltip.vue";
 type IModeSwitch = IMode|'none'
 
 export interface IDataSwitch {
@@ -66,7 +67,7 @@ function changeModelValue(value:any) {
    !(mode === 'outlined')||`border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black ${!isDisabled||'bg-slate-50 dark:bg-stone-950 border-dashed'}`,
    !(mode === 'underlined')||`rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950 ${!isDisabled||'border-dashed'}`,
    !(mode === 'filled')||`bg-stone-100 dark:bg-stone-900 ${!isDisabled||'border-2 border-dotted'}`,
-   !isActiveSwitch || mode === 'none'||'border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700'
+   !isActiveSwitch || mode === 'none'||'border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700'
   ].filter(item=>typeof item === 'string')">
     <div class="flex h-6 items-center">
       <Switch v-model="value" @update:model-value="inputEvent"
@@ -90,6 +91,7 @@ function changeModelValue(value:any) {
         !isRequired||`after:content-['*'] after:text-red-500 after:ml-1`]">
       {{ label }}
     </SwitchLabel>
+    <slot/>
     <div class="absolute inset-y-0 right-0 flex items-center pl-1">
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
@@ -128,10 +130,12 @@ function changeModelValue(value:any) {
         {{ label }}
       </label>
     </div>
+    <slot/>
     <div class="absolute inset-y-0 right-0 flex items-center pl-1">
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
           <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition" aria-hidden="true" />
+          <Tooltip>Дополнителная информация</Tooltip>
         </template>
       </Dropdown>
     </div>

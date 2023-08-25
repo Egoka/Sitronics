@@ -4,6 +4,7 @@ import {reactive, ref, watch} from "vue";
 import ComponentViews from "@/components/ComponentViews.vue";
 import StCalendar, {type ICalendarPicker} from "@/components/form/StCalendar.vue";
 import Icons from "@/components/functional/Icons.vue";
+import Tooltip from "@/components/functional/Tooltip.vue";
 const formFields = reactive({isInfo:
   // null
     "2023-08-09T21:00:00.000Z"
@@ -118,6 +119,7 @@ const range = ref({
       <template #before>
         <Icons  type="CoBirthdayCake"/>
       </template>
+      <Tooltip>Test</Tooltip>
     </StCalendar>
 <!--    {{customer.birthday}}-->
 <!--    <DatePicker v-model.string="customer.birthday" :masks="masks" />-->

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, useSlots} from "vue";
 import type {IMode} from "@/components/form/StForm.vue";
 import Label, {type ILabelMode} from "@/components/functional/Label.vue";
 import {getLabelType} from "@/helpers/label";
@@ -10,6 +10,7 @@ import {
   QuestionMarkCircleIcon,
   XCircleIcon
 } from "@heroicons/vue/20/solid";
+import Tooltip from "@/components/functional/Tooltip.vue";
 // ---------------------------------------
 export interface ILayout {
   value: any
@@ -49,6 +50,7 @@ const beforeInput = ref<HTMLElement|undefined>()
 const afterInput = ref<HTMLElement|undefined>()
 // ---------------------------------------
 const emit = defineEmits(["clear"]);
+const slots = useSlots()
 // ---------------------------------------
 const beforeWidth = ref<number|null>(null)
 const afterWidth = ref<number|null>(null)
@@ -91,11 +93,12 @@ async function copy() {
            !isInvalid||'border-red-500 ring-1 ring-inset ring-red-500 scroll-mt-10',
            !isDisabled||'bg-neutral-50 dark:bg-neutral-950 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
            !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
-           !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950',
+           !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
            !(mode === 'filled')||`border-0 bg-stone-100 dark:bg-stone-900 ${!isDisabled||'border-dotted border-2 border-slate-200'}`]"
-         class="block peer w-full min-h-[38px] max-h-20 overflow-auto rounded-md text-gray-900 dark:text-gray-100 transition-all sm:text-sm sm:leading-6"
+         class="block peer w-full min-h-[38px] max-h-20 overflow-auto rounded-md text-gray-900 dark:text-gray-100 transition-all duration-500 sm:text-sm sm:leading-6"
          :style="`padding-left: ${beforeWidth||10}px; padding-right: ${afterWidth||10}px;`"
-    ><slot/></div><slot name="body"/>
+    ><slot/></div>
+    <slot name="body"/>
     <Label :title="label"
            :type="labelType"
            :mode="mode"
@@ -104,7 +107,9 @@ async function copy() {
            :translate-x="beforeWidth||10"
            :max-width="input?.['offsetWidth']"/>
     <span ref="afterInput" class="absolute inset-y-0 right-0 flex items-center h-[38px]">
-      <slot name="after"/>
+      <div v-if="slots.after" class="flex pr-2">
+        <slot name="after"/>
+      </div>
       <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                   enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
         <div v-if="isLoading" class="relative mx-2">
@@ -115,26 +120,34 @@ async function copy() {
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
           <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition" aria-hidden="true" />
+          <Tooltip>Дополнителная информация</Tooltip>
         </template>
       </Dropdown>
       <template v-if="!isDisabled">
-        <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                    enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
+        <transition leave-active-class="transition ease-in duration-1000" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                    enter-active-class="transition ease-in duration-1000" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <div>
             <Dropdown v-if="isInvalid&&messageInvalid" :content="messageInvalid">
               <template #head>
                 <ExclamationCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-red-500" aria-hidden="true" />
+                <Tooltip class="text-red-500">{{ messageInvalid }}</Tooltip>
               </template>
             </Dropdown>
           </div>
         </transition>
         <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-          <XCircleIcon v-if="clear && (value?.length||value>0)" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition" aria-hidden="true" @click.stop="emit('clear')" />
+          <div v-if="clear && (value?.length||value>0)" class="h-5 w-5 mr-2">
+            <XCircleIcon class="h-5 w-5 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition-all duration-300" aria-hidden="true" @click.stop="emit('clear')" />
+            <Tooltip>Очисить</Tooltip>
+          </div>
         </transition>
       </template>
       <template v-else-if="value?.length">
-        <DocumentDuplicateIcon v-if="!isCopy" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-gray-600 hover:dark:text-gray-400 transition" aria-hidden="true" @click="copy" />
+        <div v-if="!isCopy" class="flex items-center h-[38px]">
+          <DocumentDuplicateIcon  class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-gray-600 hover:dark:text-gray-400 transition" aria-hidden="true" @click="copy"/>
+          <Tooltip>Копировать</Tooltip>
+        </div>
         <CheckIcon v-else class="h-5 w-5 mr-2 text-emerald-400 dark:text-emerald-600" aria-hidden="true" />
       </template>
     </span>

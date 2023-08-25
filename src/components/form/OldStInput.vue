@@ -169,6 +169,7 @@ onMounted(()=>{
            :translate-x="beforeWidth||10"
            :max-width="input?.['offsetWidth']"
     />
+    <slot/>
     <div ref="afterInput" class="absolute inset-y-0 right-0 flex items-center pl-1">
       <slot name="after"/>
       <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"

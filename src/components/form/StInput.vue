@@ -70,7 +70,7 @@ watch(messageInvalid, ()=>{
   inputLayout.messageInvalid = messageInvalid.value
 })
 watch(isActiveInput, (value)=>{
-  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700": "")
+  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
 })
 // ---------------------------------------
 function inputEvent ($event:any) {
@@ -116,6 +116,7 @@ function clear() {
       @keydown="onkeydown($event)"
       @change="changeModelValue(($event.target as HTMLInputElement).value)"
     />
+    <template #body><slot/></template>
     <template #before><slot name="before"/></template>
     <template #after>
       <slot name="after"/>

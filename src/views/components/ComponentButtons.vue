@@ -1,10 +1,98 @@
 <script setup lang="ts">
 import ComponentViews from "@/components/ComponentViews.vue";
-// import Button from "@/components/functional/Button.vue";
-// import {Bars3Icon, CheckIcon, LinkIcon, PencilIcon, XMarkIcon} from "@heroicons/vue/24/outline";
 import Icons from "@/components/functional/Icons.vue";
 import Button from "@/components/functional/Button.vue";
 import Badge from "@/components/functional/Badge.vue";
+import Tooltip from "@/components/functional/Tooltip.vue";
+import {ref} from "vue";
+// ---------------------------------------
+const theme = ref<"atom-one-light"|"atom-one-dark">(window.matchMedia('(prefers-color-scheme: light)')?.matches ? "atom-one-light" : "atom-one-dark")
+const colorSchemeQueryList = window.matchMedia('(prefers-color-scheme: dark)');
+const setColorScheme = e => {
+  if (e.matches) {
+    theme.value = "atom-one-dark"
+  } else {
+    theme.value = "atom-one-light"
+  }
+}
+setColorScheme(colorSchemeQueryList);
+colorSchemeQueryList.addEventListener('change', setColorScheme);
+// ---------------------------------------
+const myCode1 =
+`<Button class="m-1" @click="click">Primary</Button>
+<Button mode="secondary" class="m-1">Secondary</Button>
+<Button mode="creative" class="m-1">Creative</Button>
+<Button mode="destructive" class="m-1">Destructive</Button>
+<Button mode="outline" class="m-1">Outline</Button>
+<Button mode="ghost" class="m-1">Ghost</Button>
+<Button mode="link" class="m-1">Link</Button>
+<Button mode="text" class="m-1">Text</Button>`
+const myCode2 =
+`<Button class="m-1">
+  <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Primary
+</Button>
+<Button mode="secondary" class="m-1">
+  Secondary
+  <Icons type="FcGoogle" class="ml-2 -mr-0.5 h-4 w-4"/>
+</Button>
+<Button mode="creative" class="m-1">
+  <Icons type="CoMathworks" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Creative
+</Button>
+<Button mode="destructive" class="m-1">
+  <Icons type="CoMathworks" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Destructive
+</Button>
+<Button mode="outline" class="m-1">
+  <Icons type="CoSoundcloud" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Outline
+</Button>
+<Button mode="ghost" class="m-1">
+  <Icons type="HiSolidLink" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Ghost
+</Button>
+<Button mode="link" class="m-1">
+  <Icons type="CoTelegramPlane" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Link  🍇
+</Button>
+<Button mode="text" class="m-1">
+  <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Text  🍈
+</Button>`
+const myCode3 =
+`<Button  disabled class="m-1">
+  <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Primary
+</Button>
+<Button mode="secondary" disabled class="m-1">
+  Secondary
+  <Icons type="FcGoogle" class="ml-2 -mr-0.5 h-4 w-4"/>
+</Button>
+<Button mode="creative" disabled class="m-1">
+  <Icons type="CoMathworks" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Creative
+</Button>
+<Button mode="destructive" disabled class="m-1">
+  <Icons type="CoMathworks" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Destructive
+</Button>
+<Button mode="outline" disabled class="m-1">
+  <Icons type="CoSoundcloud" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Outline
+</Button>
+<Button mode="ghost" disabled class="m-1">
+  <Icons type="HiSolidLink" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Ghost
+</Button>
+<Button mode="link" disabled class="m-1">
+  <Icons type="CoTelegramPlane" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Link  🍇
+</Button>
+<Button mode="text" disabled class="m-1">
+  <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
+  Text  🍈
+</Button>`
 function click(e) {
   console.log(e)
 }
@@ -15,8 +103,7 @@ function click(e) {
     <template #title>Buttons</template>
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Базовое использование</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-      Тут продиманстированны все варианты параметра <Badge>mode</Badge></p>
-    <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><Badge>Primary</Badge> по умолчанию</p>
+      Тут продиманстированны все варианты параметра <Badge class="mr-4">mode</Badge><Badge>Primary</Badge> по умолчанию</p>
     <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
       <Button class="m-1" @click="click">Primary</Button>
       <Button mode="secondary" class="m-1">Secondary</Button>
@@ -26,6 +113,16 @@ function click(e) {
       <Button mode="ghost" class="m-1">Ghost</Button>
       <Button mode="link" class="m-1">Link</Button>
       <Button mode="text" class="m-1">Text</Button>
+    <div class="w-full max-h-full rounded">
+      <CodeBlock
+        highlightjs
+        :theme="theme"
+        :code="myCode1"
+        lang="html"
+        class="mb-5"
+        style="margin: 0.75rem 0 0 0!important;"
+      />
+    </div>
     </div>
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">С иконками</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
@@ -63,6 +160,16 @@ function click(e) {
         <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
         Text  🍈
       </Button>
+      <div class="w-full max-h-full rounded">
+        <CodeBlock
+          highlightjs
+          :theme="theme"
+          :code="myCode2"
+          lang="html"
+          class="mb-5"
+          style="margin: 0.75rem 0 0 0!important;"
+        />
+      </div>
     </div>
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Не активные</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
@@ -100,18 +207,74 @@ function click(e) {
         <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
         Text  🍈
       </Button>
+      <div class="w-full max-h-full rounded">
+        <CodeBlock
+          highlightjs
+          :theme="theme"
+          :code="myCode3"
+          lang="html"
+          class="mb-5"
+          style="margin: 0.75rem 0 0 0!important;"
+        />
+      </div>
+    </div>
+    <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Подсказка</h2>
+    <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
+      Всплывающее окно, отображающее информацию, связанную с элементом, когда элемент получает фокус клавиатуры или наводится на него курсором мыши.
+    </p>
+    <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
+      <Button class="m-1">
+        <Tooltip position="left">Кнопка Primary</Tooltip>
+        <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
+        Primary Test
+      </Button>
+      <Button mode="secondary" class="m-1">
+        Secondary
+        <Icons type="FcGoogle" class="ml-2 -mr-0.5 h-4 w-4"/>
+        <Tooltip position="right">Кнопка Secondary</Tooltip>
+      </Button>
+      <Button mode="creative" class="m-1">
+        <Icons type="CoMathworks" class="mr-2 -ml-0.5 h-4 w-4"/>
+        Creative
+        <Tooltip>Кнопка Creative</Tooltip>
+      </Button>
+      <Button mode="destructive" class="m-1">
+        <Icons type="CoMathworks" class="mr-2 -ml-0.5 h-4 w-4"/>
+        Destructive
+        <Tooltip>Кнопка Destructive</Tooltip>
+      </Button>
+      <Button mode="outline" class="m-1">
+        <Icons type="CoSoundcloud" class="mr-2 -ml-0.5 h-4 w-4"/>
+        Outline
+        <Tooltip>Кнопка Outline</Tooltip>
+      </Button>
+      <Button mode="ghost" class="m-1">
+        <Icons type="HiSolidLink" class="mr-2 -ml-0.5 h-4 w-4"/>
+        Ghost
+        <Tooltip position="right">Кнопка Ghost</Tooltip>
+      </Button>
+      <Button mode="link" class="m-1">
+        <Icons type="CoTelegramPlane" class="mr-2 -ml-0.5 h-4 w-4"/>
+        Link
+        <Tooltip>Кнопка Link</Tooltip>
+      </Button>
+      <Button mode="text" class="m-1">
+        <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
+        Text
+        <Tooltip>Кнопка Text</Tooltip>
+      </Button>
     </div>
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Только иконки</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-      Конпка может быть вовсе без текста. Для ровноси иконки необходимо добавить классы <Badge>h-9 w-9 py-2</Badge></p>
+      Конпка может быть вовсе без текста. Для ровноси иконки необходимо добавить классы <Badge>px-0</Badge></p>
     <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
-      <Button class="rounded-full m-1 h-9 w-9 py-2">
+      <Button class="rounded-full m-1 h-9 w-9 px-2">
         <Icons type="Pencil" class="h-4 w-4"/>
       </Button>
-      <Button mode="secondary" class="rounded-md m-1 h-9 w-9 py-2">
+      <Button mode="secondary" class="rounded-md m-1 h-9 w-9 px-2">
         <Icons type="FcGoogle" class="h-4 w-4"/>
       </Button>
-      <Button mode="creative" class="rounded-md m-1 h-9 w-9 py-2">
+      <Button mode="creative" class="rounded-md m-1 h-9 w-9 pyx2">
         <Icons type="CoMathworks" class="h-4 w-4"/>
       </Button>
       <Button mode="destructive" class="rounded-md m-1 h-9 w-9 px-2">
@@ -120,13 +283,13 @@ function click(e) {
       <Button mode="outline" class="rounded-lg m-1 h-9 w-9 p-0">
         <Icons type="CoSoundcloud" class="fill-[#ff7d03] dark:fill-[#ff7d03] h-4 w-4"/>
       </Button>
-      <Button mode="ghost" class="rounded-full m-1 h-9 w-9 py-2">
+      <Button mode="ghost" class="rounded-full m-1 h-9 w-9 px-2">
         <Icons type="HiSolidLink" class="h-4 w-4"/>
       </Button>
-      <Button mode="link" class="rounded-full m-1 h-9 w-9 py-2 ">
+      <Button mode="link" class="rounded-full m-1 h-9 w-9 px-2 ">
         <Icons type="CoTelegramPlane" class="fill-[#23a2df] dark:fill-[#23a2df] h-4 w-4"/>
       </Button>
-      <Button mode="text" class="rounded-full m-1 h-9 w-9 py-2">
+      <Button mode="text" class="rounded-full m-1 h-9 w-9 px-2">
         <Icons type="Pencil" class="h-4 w-4"/>
       </Button>
     </div>
@@ -147,28 +310,28 @@ function click(e) {
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       Так же как конпки, ссылки можно использовать без текста, оставив только иконку</p>
     <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
-      <Button link="1" class="rounded-full m-1 h-9 w-9 py-2">
+      <Button link="1" class="rounded-full m-1 h-9 w-9 px-0">
         <Icons type="Pencil" class="h-4 w-4"/>
       </Button>
-      <Button link="/1" mode="secondary" class="rounded-md m-1 h-9 w-9 py-2">
+      <Button link="/1" mode="secondary" class="rounded-md m-1 h-9 w-9 px-2">
         <Icons type="FcGoogle" class="h-7 w-7"/>
       </Button>
-      <Button link="/components" mode="creative" class="rounded-md m-1 h-9 w-9 py-2">
+      <Button link="/components" mode="creative" class="rounded-md m-1 h-9 w-9 py-0">
         <Icons type="CoMathworks" class="h-4 w-4"/>
       </Button>
-      <Button link="/components" mode="destructive" class="rounded-md m-1 h-9 w-9 px-2">
+      <Button link="/components" mode="destructive" class="rounded-md m-1 h-9 w-9 px-0">
         <Icons type="CoMathworks" class="h-4 w-4"/>
       </Button>
       <Button link="/components" mode="outline" class="rounded-lg m-1 h-9 w-9 p-0">
         <Icons type="CoSoundcloud" class="fill-[#ff7d03] dark:fill-[#ff7d03] h-7 w-7"/>
       </Button>
-      <Button link="/components" mode="ghost" class="rounded-full m-1 h-9 w-9 py-2">
+      <Button link="/components" mode="ghost" class="rounded-full m-1 h-9 w-9 px-0">
         <Icons type="HiSolidLink" class="h-4 w-4"/>
       </Button>
-      <Button link="/components" mode="link" class="rounded-full m-1 h-9 w-9 py-2 ">
+      <Button link="/components" mode="link" class="rounded-full m-1 h-9 w-9 px-2 ">
         <Icons type="CoTelegramPlane" class="fill-[#23a2df] dark:fill-[#23a2df] h-7 w-7"/>
       </Button>
-      <Button link="/components" mode="text" class="rounded-full m-1 h-9 w-9 py-2">
+      <Button link="/components" mode="text" class="rounded-full m-1 h-9 w-9 px-2">
         <Icons type="Pencil" class="h-4 w-4"/>
       </Button>
     </div>
@@ -191,7 +354,7 @@ function click(e) {
           <span class="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
         </span>
       </span>
-      <Button  mode="ghost" class="m-1 rounded-full h-9 w-9 py-2">
+      <Button  mode="ghost" class="m-1 rounded-full h-9 w-9 px-2">
         <Icons type="BiHeart" class="h-6 w-6"/>
       </Button>
       <Button link="/components" mode="link" class="m-1 w-">Link</Button>

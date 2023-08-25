@@ -66,7 +66,7 @@ watch(messageInvalid, ()=>{
 })
 watch(isActiveAria, (value)=>{
   inputLayout.class = (props.class||"")+(value
-    ? ` border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`
+    ? ` border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`
     : " " + additionalStyles.value)
 })
 // ---------------------------------------
@@ -107,6 +107,7 @@ function clear() {
                 @input="inputEvent($event)"
                 @keydown="onkeydown($event)"
                 @change="changeModelValue(($event.target as HTMLInputElement).value)"/>
+    <template #body><slot/></template>
     <template #before><slot name="before"/></template>
     <template #after><slot name="after"/></template>
   </InputLayout>

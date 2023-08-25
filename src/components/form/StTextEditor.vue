@@ -96,7 +96,7 @@ watch(theme, (theme)=>{
 })
 watch(isActiveTextEditor, (value)=>{
   inputLayout.class = (props.class||"")+(value
-    ? ` border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`
+    ? ` border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`
     : " " + additionalStyles.value)
 })
 // ---------------------------------------
@@ -168,7 +168,7 @@ document.getElementsByTagName('head')[0].appendChild(style);
                   !(mode === 'filled')||'bg-stone-100 dark:bg-stone-900']">
                     <QuillEditor v-if="theme ==='snow'" theme="snow" v-bind="getParamsStructure(paramsQuillEditor, ['theme'])" @update:content="inputModelValue"/>
                     <div class="absolute top-[5px] right-[5px]" @click="theme = 'bubble'">
-                      <Button mode="outline" class="group h-9 w-9 py-2 border-neutral-500 dark:border-neutral-500 hover:bg-transparent hover:dark:bg-transparent">
+                      <Button mode="outline" class="group h-9 w-9 px-0 border-neutral-500 dark:border-neutral-500 hover:bg-transparent hover:dark:bg-transparent">
                         <ArrowsPointingInIcon aria-hidden="true" class="h-5 w-5 mx-2 transition-all fill-neutral-500 dark:fill-neutral-500 group-hover:fill-primary-600 dark:group-hover:fill-primary-600"/>
                       </Button>
                     </div>
@@ -179,6 +179,7 @@ document.getElementsByTagName('head')[0].appendChild(style);
           </div>
         </Dialog>
       </TransitionRoot>
+      <slot/>
     </template>
     <template #before><slot name="before"/></template>
     <template #after>
@@ -193,7 +194,6 @@ document.getElementsByTagName('head')[0].appendChild(style);
 <style>
 @media (prefers-color-scheme: light) {
   :root{
-    --active-color-quill-editor: #cc0030;
     --border-quill-editor: #f2f2f2;
     --placeholder-quill-editor: #00000099;
     --background-quill-editor: #f6f3f4;
@@ -202,7 +202,6 @@ document.getElementsByTagName('head')[0].appendChild(style);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --active-color-quill-editor: #cc0030;
     --border-quill-editor: #212121;
     --placeholder-quill-editor: #ffffff99;
     --background-quill-editor: #212121;

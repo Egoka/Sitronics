@@ -109,7 +109,7 @@ watch(isOpenList, (value)=>{
       }
     }
   }
-  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-1 ring-inset ring-primary-600 dark:ring-primary-700": "")
+  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
 })
 watch(()=>props.paramsSelect?.dataSelect, ()=>{
   dataStore.value.setData(dataSelect.value)
@@ -190,7 +190,7 @@ function open() {
           <transition-group leave-active-class="transition ease-in-out duration-300" leave-from-class="opacity-100 translate-x-0" leave-to-class="opacity-0 -translate-x-5"
                             enter-active-class="transition ease-in-out duration-300" enter-from-class="opacity-0 -translate-x-5" enter-to-class="opacity-100 translate-x-0">
             <div v-for="item in dataStore.getValue()" :key="item[dataStore.getKey()]" class="z-10">
-              <slot :selected="item" :key="valueSelect ? valueSelect : dataStore.getKey()">
+              <slot name="values" :selected="item" :key="valueSelect ? valueSelect : dataStore.getKey()">
                 <div class="m-[2px] bg-stone-200 dark:bg-primary-900 h-4 leading-4 px-1 rounded-[2px]">{{valueSelect? item[valueSelect] : item[dataStore.getKey()]}}</div>
               </slot>
             </div>
@@ -265,6 +265,7 @@ function open() {
           </TransitionGroup>
         </div>
       </transition>
+      <slot/>
     </template>
     <template #before><slot name="before"/></template>
     <template #after><slot name="after"/></template>
