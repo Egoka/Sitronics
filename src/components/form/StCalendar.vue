@@ -23,6 +23,20 @@ import {getParamsStructure} from "@/helpers/object";
 // ---------------------------------------
 
 type DateValueCalendar = Date | number | string | null
+// https://vcalendar.io/i18n/masks.html
+export type CalendarMask =
+  "M"|"MM"|"MMM"|"MMMM"| //Month
+  "D"|"DD"|"Do"| //Month Day
+  "d"|"dd"| "W"|"WW"|"WWW"|"WWWW"| //Week Day
+  "YY"|"YYYY"| //Year
+  "h"|"hh"|"H"|"HH"| //Hour
+  "m"|"mm"| //Minute
+  "s"|"ss"| //Second
+  "S"|"SS"|"SSS"| //Fractional Second
+  "A"|"a"| //AM/PM
+  "ZZ"|"ZZZ"|"ZZZZ"| //Timezone
+  "L"| //Localized Date
+  "DD MMMM YYYY"|"DD.MM.YYYY"|string
 export type ColorCalendarPicker = "primary"|"gray"|"red"|"orange"|"yellow"|"green"|"teal"|"blue"|"indigo"|"purple"|"pink"
 
 export interface IRangeDate {
@@ -110,8 +124,8 @@ export  interface IMasksDate {
   navMonths?: string
   dayPopover?: string
   data?: Array<string>
-  modelValue?: string
-  input?:  Array<string>
+  modelValue?: CalendarMask
+  input?:  Array<CalendarMask>
 }
 interface IAttributeConfig extends Omit<Partial<AttributeConfig>, "dates">  {
   dates: DateRangeSource|DateRangeSource[]
@@ -276,7 +290,8 @@ function clear () {
 }
 // ---------------------------------------
 import config from '@/theme'
-const primary = config.theme.colors["primary"]
+import type {Config} from "tailwindcss/types/config";
+const primary = (config as Config).theme?.colors?.["primary"]
 const style = <HTMLElement>document.createElement('style');
 style["type"] = 'text/css';
 style.innerHTML = `
@@ -298,7 +313,7 @@ document.getElementsByTagName('head')[0].appendChild(style);
 <template>
   <InputLayout v-bind="inputLayout" @clear="clear">
     <div :id="`dataPicker${id}`" class="flex w-full min-h-[36px] max-h-16 overflow-auto" @click="open">
-      <div v-if="datePicker?.isRange" class="flex items-center">
+      <div v-if="datePicker?.isRange" class="flex items-center max-h-max">
         {{(visibleDate as IRangeValue)?.start}}
         <Icons v-if="(visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"
                type="arrow-long-right"
@@ -315,7 +330,7 @@ document.getElementsByTagName('head')[0].appendChild(style);
         type="text"
         :value="visibleDate"
         :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '']"
-        class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6 transition-all"
+        class="block flex-1 border-0 w-full bg-transparent py-1.5 pl-1 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6 transition-all"
         :disabled="isDisabled"
         :placeholder="placeholder"/>
     </div>

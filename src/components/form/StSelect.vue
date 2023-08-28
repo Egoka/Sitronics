@@ -61,6 +61,7 @@ const dataSelect = computed<IDateSelect["dataSelect"]>(()=>
   : props.paramsSelect?.dataSelect)|| [])
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode || "outlined")
 const isDisabled = computed<NonNullable<ILayout["disabled"]>>(()=> props.disabled || false)
+const isLoading = computed<NonNullable<ILayout["isInvalid"]>>(()=> props.loading || false)
 const isInvalid = computed<NonNullable<ILayout["isInvalid"]>>(()=> props.isInvalid || false)
 const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid)
 const isValue = computed<boolean>(()=> Boolean(isMultiple.value ? value.value ? String(value.value).length : value.value : value.value || isOpenList.value))
@@ -74,7 +75,7 @@ const valueLayout = computed<string>(()=>dataStore.value.getValue()?.map((item: 
 // ---------------------------------------
 const inputLayout = reactive({value: valueLayout.value, isValue: isValue, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
-  required: props.required, loading: props.loading, disabled: isDisabled.value, help: props.help, clear: props.clear,
+  required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
   classBody: props.classBody, class: props.class})
 // ---------------------------------------
 onMounted(()=>{
@@ -97,6 +98,9 @@ watch(isInvalid, ()=>{
 })
 watch(messageInvalid, ()=>{
   inputLayout.messageInvalid = props.messageInvalid
+})
+watch(isLoading, (value)=>{
+  inputLayout.loading = value
 })
 watch(isOpenList, (value)=>{
   if (value) {

@@ -49,13 +49,14 @@ const value = computed<string>(()=> String(props.modelValue || ""))
 const isValue = computed<boolean>(()=> Boolean(value.value ? String(value.value).length : value.value || isActiveTextEditor.value))
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode || "outlined")
 const isDisabled = computed<NonNullable<ITextEditor["disabled"]>>(()=> props.disabled || false)
+const isLoading = computed<NonNullable<ITextEditor["isInvalid"]>>(()=> props.loading || false)
 const isInvalid = computed<NonNullable<ITextEditor["isInvalid"]>>(()=> !isDisabled.value ? props.isInvalid : false)
 const messageInvalid = computed<NonNullable<ITextEditor["messageInvalid"]>>(()=> props.messageInvalid || "")
 const classLayout = computed<NonNullable<ILayout["class"]>>(()=> { return props.class ? props.class + additionalStyles.value : additionalStyles.value })
 // ---------------------------------------
 const inputLayout = reactive({value: "", isValue: isValue, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
-  required: props.required, loading: props.loading, disabled: isDisabled.value, help: props.help, clear: props.clear,
+  required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
   classBody: props.classBody, class: classLayout.value})
 // ---------------------------------------
 const paramsQuillEditor = computed<NonNullable<Partial<IDataTextEditor>>>(()=>{return {
@@ -94,6 +95,9 @@ watch(messageInvalid, ()=>{
 watch(theme, (theme)=>{
   open.value = theme === "snow" ? true : theme === "bubble" ? false : false
 })
+watch(isLoading, (value)=>{
+  inputLayout.loading = value
+})
 watch(isActiveTextEditor, (value)=>{
   inputLayout.class = (props.class||"")+(value
     ? ` border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`
@@ -118,7 +122,8 @@ function ready() {
 // ---------------------------------------
 import config from '@/theme'
 import Button from "@/components/functional/Button.vue";
-const primary = config.theme.colors["primary"]
+import type {Config} from "tailwindcss/types/config";
+const primary = (config as Config).theme?.colors?.["primary"]
 const style = <HTMLElement>document.createElement('style');
 style["type"] = 'text/css';
 style.innerHTML = `
@@ -128,7 +133,6 @@ style.innerHTML = `
 .editor .ql-snow.ql-toolbar button:hover .ql-fill, .ql-snow .ql-toolbar button:hover .ql-fill, .ql-snow.ql-toolbar button:focus .ql-fill, .ql-snow .ql-toolbar button:focus .ql-fill, .ql-snow.ql-toolbar button.ql-active .ql-fill, .ql-snow .ql-toolbar button.ql-active .ql-fill, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-fill, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-fill, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-fill, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-fill, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-fill, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-fill, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-fill, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-fill, .ql-snow.ql-toolbar button:hover .ql-stroke.ql-fill, .ql-snow .ql-toolbar button:hover .ql-stroke.ql-fill, .ql-snow.ql-toolbar button:focus .ql-stroke.ql-fill, .ql-snow .ql-toolbar button:focus .ql-stroke.ql-fill, .ql-snow.ql-toolbar button.ql-active .ql-stroke.ql-fill, .ql-snow .ql-toolbar button.ql-active .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill{
   fill: ${primary["500"]};
 }
-
 .editor .ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow .ql-toolbar button:hover .ql-stroke, .ql-snow.ql-toolbar button:focus .ql-stroke, .ql-snow .ql-toolbar button:focus .ql-stroke, .ql-snow.ql-toolbar button.ql-active .ql-stroke, .ql-snow .ql-toolbar button.ql-active .ql-stroke, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-snow.ql-toolbar button:hover .ql-stroke-miter, .ql-snow .ql-toolbar button:hover .ql-stroke-miter, .ql-snow.ql-toolbar button:focus .ql-stroke-miter, .ql-snow .ql-toolbar button:focus .ql-stroke-miter, .ql-snow.ql-toolbar button.ql-active .ql-stroke-miter, .ql-snow .ql-toolbar button.ql-active .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter{
   stroke: ${primary["500"]};
 }

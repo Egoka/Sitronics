@@ -42,12 +42,13 @@ const lengthDecimal = computed<NonNullable<IDataInput["lengthDecimal"]>>(()=> +(
 const isValue = computed<boolean>(()=> Boolean(value.value ? String(value.value).length : value.value || isActiveInput.value))
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode || "outlined")
 const isDisabled = computed<NonNullable<IInput["disabled"]>>(()=> props.disabled || false)
+const isLoading = computed<NonNullable<IInput["isInvalid"]>>(()=> props.loading || false)
 const isInvalid = computed<NonNullable<IInput["isInvalid"]>>(()=> !isDisabled.value ? props.isInvalid : false)
 const messageInvalid = computed<NonNullable<IInput["messageInvalid"]>>(()=> props.messageInvalid || "")
 // ---------------------------------------
 const inputLayout = reactive({value: value.value, isValue: isValue, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
-  required: props.required, loading: props.loading, disabled: isDisabled.value, help: props.help, clear: props.clear,
+  required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
   classBody: props.classBody, class: props.class})
 // ---------------------------------------
 function toMask(value:string|number):string {
@@ -71,6 +72,9 @@ watch(messageInvalid, ()=>{
 })
 watch(isActiveInput, (value)=>{
   inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+})
+watch(isLoading, (value)=>{
+  inputLayout.loading = value
 })
 // ---------------------------------------
 function inputEvent ($event:any) {

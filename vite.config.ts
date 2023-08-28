@@ -8,18 +8,18 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      'tailwind.config.js': path.resolve(__dirname, 'tailwind.config.js'),
+      'tailwind.config.ts': path.resolve(__dirname, 'tailwind.config.ts'),
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
   optimizeDeps: {
     include: [
-      'tailwind.config.js',
+      'tailwind.config.ts',
     ]
   },
   build: {
     commonjsOptions: {
-      include: ['tailwind.config.js', 'node_modules/**'],
+      include: ['tailwind.config.ts', 'node_modules/**'],
     },
   },
 })

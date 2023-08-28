@@ -147,7 +147,7 @@ const structures = ref<Array<IFormStructure>>([
         // disabled: true,
         // modelValue: "2023-08-09T21:00:00.000Z",
         modelValue: { "start": "2023-08-02T21:00:00.000Z", "end": "2023-08-10T21:00:00.000Z" },
-        paramsDatePicker: { isRange: true, columns: 3 },
+        paramsDatePicker: { isRange: true, masks: {modelValue :"DD.MM.YYYY"} },
         label: "День рождения",
         beforeIcon: "CoBirthdayCake",
         help: "Dates",
