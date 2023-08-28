@@ -168,7 +168,7 @@ export interface IDatePicker {
   timezone: 'UTC'| string
   placeholder: string
 }
-export interface ICalendar extends Omit<ILayout, "value">{
+export interface ICalendar extends Omit<ILayout, "value"|"isValue">{
   id?: string
   modelValue?: DateValueCalendar | Partial<IRangeValue>
   paramsDatePicker?: Partial<IDatePicker>

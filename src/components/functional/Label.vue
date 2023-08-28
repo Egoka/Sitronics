@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed} from "vue";
 import type {IMode} from "@/components/form/StForm.vue";
-export type ILabelMode = "static"|"offsetDynamic"|"offsetStatic"|"dynamic"|"vanishing"|"none"
+export type ILabelMode = "offsetDynamic"|"offsetStatic"|"dynamic"|"static"|"vanishing"|"none"
 const props = defineProps<{
   title?: string
   isRequired?: boolean
@@ -32,7 +32,7 @@ const translateX = computed(()=> {
 const maxWidth = computed(()=> props.maxWidth || null)
 const background = computed(()=> {
   if (mode.value === 'outlined'){
-    return `${isDisabled.value ? 'from-slate-50 dark:from-slate-950' : 'from-white dark:from-black'} from-50% to-transparent to-55%`
+    return 'from-white dark:from-neutral-950 from-50% to-transparent to-55%'
   }
   if (mode.value === 'underlined'){
     return 'from-stone-50 dark:from-stone-950 from-50% to-transparent to-55%'
@@ -54,7 +54,6 @@ const background = computed(()=> {
   !isRequired||`after:content-['*'] after:text-red-500 after:dark:text-red-800 after:ml-1` ]">
     <span
       class="block text-sm font-medium text-gray-400 dark:text-gray-500 truncate"
-      :class="[!(type === 'static')||'text-gray-900 dark:text-gray-100']"
       :style="`max-width: ${maxWidth-35}px`">
       {{ title }}
     </span>

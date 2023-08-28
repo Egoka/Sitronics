@@ -25,7 +25,7 @@ export interface IDataTextEditor {
   options: any
   globalOptions: any;
 }
-export interface ITextEditor extends Omit<ILayout, "value">{
+export interface ITextEditor extends Omit<ILayout, "value"|"isValue">{
   id?: string
   modelValue?: string|number|null|undefined,
   paramsTextEditor?: Partial<IDataTextEditor>
@@ -97,6 +97,9 @@ watch(theme, (theme)=>{
 })
 watch(isLoading, (value)=>{
   inputLayout.loading = value
+})
+watch(isDisabled, (value)=>{
+  inputLayout.disabled = value
 })
 watch(isActiveTextEditor, (value)=>{
   inputLayout.class = (props.class||"")+(value

@@ -10,7 +10,7 @@ export interface IDataAria {
   rows?: number
   maxLength?: number
 }
-export interface IAria extends Omit<ILayout, "value">{
+export interface IAria extends Omit<ILayout, "value"|"isValue">{
   id?: string
   modelValue?: string|number|null|undefined,
   paramsAria?: Partial<IDataAria>
@@ -72,6 +72,9 @@ watch(isActiveAria, (value)=>{
 })
 watch(isLoading, (value)=>{
   inputLayout.loading = value
+})
+watch(isDisabled, (value)=>{
+  inputLayout.disabled = value
 })
 // ---------------------------------------
 function inputEvent ($event:any) {

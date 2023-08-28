@@ -16,7 +16,7 @@ export interface IDataInput {
   lengthDecimal?: number
   classInput?: string
 }
-export interface IInput extends Omit<ILayout, "value">{
+export interface IInput extends Omit<ILayout, "value"|"isValue">{
   id?: string
   modelValue?: string|number|null|undefined,
   paramsInput?: Partial<IDataInput>
@@ -75,6 +75,9 @@ watch(isActiveInput, (value)=>{
 })
 watch(isLoading, (value)=>{
   inputLayout.loading = value
+})
+watch(isDisabled, (value)=>{
+  inputLayout.disabled = value
 })
 // ---------------------------------------
 function inputEvent ($event:any) {

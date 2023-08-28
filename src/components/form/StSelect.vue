@@ -16,7 +16,7 @@ export interface IDateSelect {
   classMaskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
 }
 
-export interface ISelect extends Omit<ILayout, "value">{
+export interface ISelect extends Omit<ILayout, "value"|"isValue">{
   id?: string
   modelValue?: number|string|{}|[]|null
   paramsSelect?: IDateSelect
@@ -101,6 +101,9 @@ watch(messageInvalid, ()=>{
 })
 watch(isLoading, (value)=>{
   inputLayout.loading = value
+})
+watch(isDisabled, (value)=>{
+  inputLayout.disabled = value
 })
 watch(isOpenList, (value)=>{
   if (value) {

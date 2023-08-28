@@ -92,9 +92,9 @@ async function copy() {
          :class="[props.class,
            !isInvalid||'border-red-500 ring-1 ring-inset ring-red-500 scroll-mt-10',
            !isDisabled||'bg-neutral-50 dark:bg-neutral-950 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
-           !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
+           !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-neutral-950',
            !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
-           !(mode === 'filled')||`border-0 bg-stone-100 dark:bg-stone-900 ${!isDisabled||'border-dotted border-2 border-slate-200'}`]"
+           !(mode === 'filled')||`${isDisabled ? 'border-dotted border-2 border-slate-200' : 'border-0 border-transparent'} bg-stone-100 dark:bg-stone-900`]"
          class="block peer w-full min-h-[38px] max-h-20 overflow-auto rounded-md text-gray-900 dark:text-gray-100 transition-all duration-500 sm:text-sm sm:leading-6"
          :style="`padding-left: ${beforeWidth||10}px; padding-right: ${afterWidth||10}px;`"
     ><slot/></div>

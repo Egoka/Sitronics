@@ -266,12 +266,12 @@ function submit(){
                     @update:model-value="inputField(field)"
                     @change:model-value="changeField(field)">
                     <template #before>
-                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
+                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                       <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
                     </template>
                     <template #after>
-                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                       <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                     </template>
                   </StInput>
                   <!-- Aria -->
@@ -283,12 +283,12 @@ function submit(){
                     @update:model-value="inputField(field)"
                     @change:model-value="changeField(field)">
                     <template #before>
-                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
+                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon" />
                       <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
                     </template>
                     <template #after>
-                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                       <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                     </template>
                   </StAria>
                   <!-- Text Editor -->
@@ -300,12 +300,12 @@ function submit(){
                     @update:model-value="inputField(field)"
                     @change:model-value="changeField(field)">
                     <template v-if="field.beforeIcon || field.beforeText" #before>
-                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
+                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                       <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
                     </template>
                     <template v-if="field.afterIcon || field.afterText" #after>
-                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                       <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                     </template>
                   </StTextEditor>
                   <!-- Select -->
@@ -324,13 +324,13 @@ function submit(){
                            class="text-gray-600 dark:text-gray-300 group-hover:text-primary-700 dark:group-hover:text-primary-400"/>
                       <div v-else class="text-gray-500">{{field.paramsSelect?.valueSelect ? item[field.paramsSelect.valueSelect] : item}}</div>
                     </template>
-                    <template v-if="field.beforeIcon || field.beforeText" #before>
-                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
+                    <template #before>
+                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                       <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
                     </template>
-                    <template v-if="field.afterIcon || field.afterText" #after>
-                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                    <template #after>
                       <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                     </template>
                   </StSelect>
                   <!-- Calendar -->
@@ -342,13 +342,13 @@ function submit(){
                     @update:model-value="inputField(field)"
                     @change:model-value="changeField(field)">
                     <template #footerPicker></template>
-                    <template v-if="field.beforeIcon || field.beforeText" #before>
-                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon"/>
+                    <template #before>
+                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                       <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
                     </template>
-                    <template v-if="field.afterIcon || field.afterText" #after>
-                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                    <template #after>
                       <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                     </template>
                   </StCalendar>
                   <!-- Switch -->
@@ -368,9 +368,11 @@ function submit(){
     </template>
     <div class="mt-6 flex items-center justify-end gap-x-6">
       <slot name="footer"></slot>
-      <Button type="submit" class="">
-        {{ props.submitButton||'Save' }}
-      </Button>
+      <slot name="submit">
+        <Button v-if="props.submitButton" type="submit">
+          {{ props.submitButton||'Save' }}
+        </Button>
+      </slot>
     </div>
   </form>
 </template>
