@@ -85,6 +85,14 @@ const router = createRouter({
       component: () => import('../views/components/ComponentButtons.vue')
     },
     {
+      path: '/components/dialog',
+      name: 'dialog',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentDialog.vue')
+    },
+    {
       path: '/components/all',
       name: 'componentsAll',
       meta: {

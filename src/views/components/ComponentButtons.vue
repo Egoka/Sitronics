@@ -110,6 +110,7 @@ function click(e) {
       <Button mode="creative" class="m-1">Creative</Button>
       <Button mode="destructive" class="m-1">Destructive</Button>
       <Button mode="outline" class="m-1">Outline</Button>
+      <Button mode="contour" class="m-1">Contour</Button>
       <Button mode="ghost" class="m-1">Ghost</Button>
       <Button mode="link" class="m-1">Link</Button>
       <Button mode="text" class="m-1">Text</Button>

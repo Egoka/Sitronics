@@ -68,6 +68,11 @@ const items = ref([
     href: baseUrl+'/text-editor',
     imageSrc: 'https://horizon-ui.com/components/static/media/quill.b64c9e63505fef0603aba10791c099c8.svg',
   },
+  {
+    name: 'Dialog',
+    href: baseUrl+'/dialog',
+    imageSrc: 'https://horizon-ui.com/components/static/media/modal.ef64b9f4cfc045fea9d07b2519b77dd6.svg',
+  },
 ])
 </script>
 <template>
