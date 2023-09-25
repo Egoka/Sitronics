@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
-import {computed, getCurrentInstance, onMounted, reactive, ref, watch} from "vue";
+import {computed, getCurrentInstance, reactive, ref, watch} from "vue";
 import {onkeydown} from "@/helpers/numbers";
 // ---------------------------------------
 export interface IDataAria {
@@ -49,13 +49,6 @@ const inputLayout = reactive({value: value.value, isValue: isValue, mode: mode.v
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
   classBody: props.classBody, class: classLayout.value})
 // ---------------------------------------
-onMounted(()=>{
-  document.addEventListener( 'click', (e) => {
-    if (isActiveAria.value) {
-      isActiveAria.value = e.composedPath().includes((inputAria.value as HTMLElement))
-    }
-  })
-})
 watch(value, (value)=>{
   inputLayout.value = value
 })
@@ -66,6 +59,11 @@ watch(messageInvalid, ()=>{
   inputLayout.messageInvalid = messageInvalid.value
 })
 watch(isActiveAria, (value)=>{
+  if (value) {
+    document.addEventListener("click", closeAria)
+  } else {
+    document.removeEventListener("click", closeAria)
+  }
   inputLayout.class = (props.class||"")+(value
     ? ` border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`
     : " " + additionalStyles.value)
@@ -76,6 +74,10 @@ watch(isLoading, (value)=>{
 watch(isDisabled, (value)=>{
   inputLayout.disabled = value
 })
+// ---------------------------------------
+function closeAria(evt:MouseEvent) {
+  isActiveAria.value = evt.composedPath().includes((inputAria.value as HTMLElement))
+}
 // ---------------------------------------
 function inputEvent ($event:any) {
   inputModelValue(($event.target as HTMLInputElement).value)

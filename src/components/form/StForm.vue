@@ -85,6 +85,7 @@ export interface IFormStructure {
 export interface IForm {
   name?: string
   structure: Array<IFormStructure>
+  class?: string | Array<string>
   modeStyle?: IMode
   modeLabel?: ILabelMode
   modeValidate?: "onSubmit"|"onChange"|"onInput"
@@ -247,128 +248,129 @@ function submit(){
 
 <template>
   <form :name="name" :autocomplete="autocomplete" @submit.prevent="submit">
-    <template v-for="(structure, key) in formStructure" :key="key">
-      <transition leave-active-class="transition ease-in-out duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                  enter-active-class="transition ease-in-out duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <div v-if="!structure.isHidden" :class="structure.class">
-          <slot name="itemTitle" :structure="getParamsStructure(structure, ['class', 'classGrid', 'fields'])"/>
-          <div class="grid transition" :class="structure.classGrid">
-            <div v-for="(field, itemKey) in structure.fields" :key="itemKey" :class="field.classCol">
-              <transition leave-active-class="transition ease-in-out duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                          enter-active-class="transition ease-in-out duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
-                <div v-if="!field.isHidden">
-                  <!-- Input -->
-                  <StInput
-                    v-if="field.typeComponent === 'StInput'"
-                    v-model:model-value="formFields[field.name]"
-                    v-model:is-invalid="formInvalidFields[field.name]"
-                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
-                    @update:model-value="inputField(field)"
-                    @change:model-value="changeField(field)">
-                    <template #before>
-                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
-                      <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
-                    </template>
-                    <template #after>
-                      <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
-                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
-                    </template>
-                  </StInput>
-                  <!-- Aria -->
-                  <StAria
-                    v-if="field.typeComponent === 'StAria'"
-                    v-model:model-value="formFields[field.name]"
-                    v-model:is-invalid="formInvalidFields[field.name]"
-                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
-                    @update:model-value="inputField(field)"
-                    @change:model-value="changeField(field)">
-                    <template #before>
-                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon" />
-                      <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
-                    </template>
-                    <template #after>
-                      <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
-                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
-                    </template>
-                  </StAria>
-                  <!-- Text Editor -->
-                  <StTextEditor
-                    v-if="field.typeComponent === 'StTextEditor'"
-                    v-model:model-value="formFields[field.name]"
-                    v-model:is-invalid="formInvalidFields[field.name]"
-                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
-                    @update:model-value="inputField(field)"
-                    @change:model-value="changeField(field)">
-                    <template v-if="field.beforeIcon || field.beforeText" #before>
-                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
-                      <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
-                    </template>
-                    <template v-if="field.afterIcon || field.afterText" #after>
-                      <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
-                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
-                    </template>
-                  </StTextEditor>
-                  <!-- Select -->
-                  <StSelect
-                    v-if="field.typeComponent === 'StSelect'"
-                    v-model:model-value="formFields[field.name]"
-                    v-model:is-invalid="formInvalidFields[field.name]"
-                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
-                    @update:model-value="inputField(field)"
-                    @change:model-value="changeField(field)">
-                    <template #values="{selected, key}">
-                      <Badge class="mx-1">{{selected[key]}}</Badge>
-                    </template>
-                    <template #item="{item}">
-                      <div v-if="!field.paramsSelect?.noQuery" v-html="item?.marker"
-                           class="text-gray-600 dark:text-gray-300 group-hover:text-primary-700 dark:group-hover:text-primary-400"/>
-                      <div v-else class="text-gray-500">{{field.paramsSelect?.valueSelect ? item[field.paramsSelect.valueSelect] : item}}</div>
-                    </template>
-                    <template #before>
-                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
-                      <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
-                    </template>
-                    <template #after>
-                      <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
-                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
-                    </template>
-                  </StSelect>
-                  <!-- Calendar -->
-                  <StCalendar
-                    v-if="field.typeComponent === 'StCalendar'"
-                    v-model:model-value="formFields[field.name]"
-                    v-model:is-invalid="formInvalidFields[field.name]"
-                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
-                    @update:model-value="inputField(field)"
-                    @change:model-value="changeField(field)">
-                    <template #footerPicker></template>
-                    <template #before>
-                      <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
-                      <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
-                    </template>
-                    <template #after>
-                      <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
-                      <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
-                    </template>
-                  </StCalendar>
-                  <!-- Switch -->
-                  <StSwitch
-                    v-if="field.typeComponent === 'StSwitch'"
-                    v-model:model-value="formFields[field.name]"
-                    v-model:is-invalid="formInvalidFields[field.name]"
-                    v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
-                    @update:model-value="inputField(field)"
-                    @change:model-value="changeField(field)"/>
-                </div>
-              </transition>
+    <div :class="props?.class">
+      <template v-for="(structure, key) in formStructure" :key="key">
+        <transition leave-active-class="transition ease-in-out duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                    enter-active-class="transition ease-in-out duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
+          <div v-if="!structure.isHidden" :class="structure.class">
+            <slot name="itemTitle" :structure="getParamsStructure(structure, ['class', 'classGrid', 'fields'])"/>
+            <div class="grid transition" :class="structure.classGrid">
+              <div v-for="(field, itemKey) in structure.fields" :key="itemKey" :class="field.classCol">
+                <transition leave-active-class="transition ease-in-out duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                            enter-active-class="transition ease-in-out duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
+                  <div v-if="!field.isHidden">
+                    <!-- Input -->
+                    <StInput
+                      v-if="field.typeComponent === 'StInput'"
+                      v-model:model-value="formFields[field.name]"
+                      v-model:is-invalid="formInvalidFields[field.name]"
+                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      @update:model-value="inputField(field)"
+                      @change:model-value="changeField(field)">
+                      <template #before>
+                        <Icons v-if="field.beforeIcon" :type="field.beforeIcon" />
+                        <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
+                      </template>
+                      <template #after>
+                        <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                        <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                      </template>
+                    </StInput>
+                    <!-- Aria -->
+                    <StAria
+                      v-if="field.typeComponent === 'StAria'"
+                      v-model:model-value="formFields[field.name]"
+                      v-model:is-invalid="formInvalidFields[field.name]"
+                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      @update:model-value="inputField(field)"
+                      @change:model-value="changeField(field)">
+                      <template #before>
+                        <Icons v-if="field.beforeIcon" :type="field.beforeIcon" />
+                        <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
+                      </template>
+                      <template #after>
+                        <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                        <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                      </template>
+                    </StAria>
+                    <!-- Text Editor -->
+                    <StTextEditor
+                      v-if="field.typeComponent === 'StTextEditor'"
+                      v-model:model-value="formFields[field.name]"
+                      v-model:is-invalid="formInvalidFields[field.name]"
+                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      @update:model-value="inputField(field)"
+                      @change:model-value="changeField(field)">
+                      <template v-if="field.beforeIcon || field.beforeText" #before>
+                        <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
+                        <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
+                      </template>
+                      <template v-if="field.afterIcon || field.afterText" #after>
+                        <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                        <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                      </template>
+                    </StTextEditor>
+                    <!-- Select -->
+                    <StSelect
+                      v-if="field.typeComponent === 'StSelect'"
+                      v-model:model-value="formFields[field.name]"
+                      v-model:is-invalid="formInvalidFields[field.name]"
+                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      @update:model-value="inputField(field)"
+                      @change:model-value="changeField(field)">
+                      <template #values="{selected, key}">
+                        <Badge class="mx-1">{{selected[key]}}</Badge>
+                      </template>
+                      <template #item="{item}">
+                        <div v-if="!field.paramsSelect?.noQuery" v-html="item?.marker"
+                             class="text-gray-600 dark:text-gray-300 group-hover:text-primary-700 dark:group-hover:text-primary-400"/>
+                        <div v-else class="text-gray-500">{{field.paramsSelect?.valueSelect ? item[field.paramsSelect.valueSelect] : item}}</div>
+                      </template>
+                      <template #before>
+                        <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
+                        <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
+                      </template>
+                      <template #after>
+                        <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                        <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                      </template>
+                    </StSelect>
+                    <!-- Calendar -->
+                    <StCalendar
+                      v-if="field.typeComponent === 'StCalendar'"
+                      v-model:model-value="formFields[field.name]"
+                      v-model:is-invalid="formInvalidFields[field.name]"
+                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      @update:model-value="inputField(field)"
+                      @change:model-value="changeField(field)">
+                      <template #footerPicker></template>
+                      <template #before>
+                        <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
+                        <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
+                      </template>
+                      <template #after>
+                        <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
+                        <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                      </template>
+                    </StCalendar>
+                    <!-- Switch -->
+                    <StSwitch
+                      v-if="field.typeComponent === 'StSwitch'"
+                      v-model:model-value="formFields[field.name]"
+                      v-model:is-invalid="formInvalidFields[field.name]"
+                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      @update:model-value="inputField(field)"
+                      @change:model-value="changeField(field)"/>
+                  </div>
+                </transition>
+              </div>
             </div>
           </div>
-        </div>
-      </transition>
-    </template>
+        </transition>
+      </template>
+    </div>
     <div class="mt-6 flex items-center justify-end gap-x-6">
-      <slot name="footer"></slot>
-      <slot name="submit">
+      <slot name="footer">
         <Button v-if="props.submitButton" type="submit">
           {{ props.submitButton||'Save' }}
         </Button>

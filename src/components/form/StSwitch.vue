@@ -70,9 +70,9 @@ function changeModelValue(value:any) {
    !isActiveSwitch || mode === 'none'||'border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700'
   ].filter(item=>typeof item === 'string')">
     <div class="flex h-6 items-center">
-      <Switch v-model="value" @update:model-value="inputEvent"
+      <Switch :modelValue="value" @update:model-value="inputEvent"
               :class="[!isDisabled||`pointer-events-none border-dotted border-2 border-transparent w-9 ${value ? 'bg-gray-600 dark:bg-gray-400' : 'bg-gray-200 dark:bg-gray-800'}`, value ? 'bg-primary-600 dark:bg-primary-400' : 'bg-gray-200 dark:bg-gray-800',
-              ' flex w-8 flex-none cursor-pointer p-px ring-2 ring-inset ring-gray-900/5 transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600']"
+              'flex w-8 flex-none cursor-pointer p-px ring-2 ring-inset ring-gray-900/5 transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600']"
               :style="`border-radius: ${rounded}px`"
               @focus="isActiveSwitch = true"
               @blur="isActiveSwitch = false">
@@ -110,7 +110,7 @@ function changeModelValue(value:any) {
       <input
         :id="id"
         :name="id"
-        v-model="value"
+        :checked="value"
         :disabled="isDisabled"
         type="checkbox"
         class="h-4 w-4 bg-stone-50 dark:bg-stone-950 border-gray-300 dark:border-gray-700 text-primary-500 dark:text-primary-700 border-[1px] focus:ring-offset-0 focus:ring-primary-200 focus:dark:ring-primary-800 transition
@@ -122,7 +122,7 @@ function changeModelValue(value:any) {
         @change="changeModelValue(($event.target as HTMLInputElement).checked)"
       />
     </div>
-    <div class="text-sm leading-6">
+    <div class="text-sm leading-6" @click="inputEvent(!value)">
       <label :for="id" :class="[
         `font-medium text-gray-600 dark:text-gray-400`,
         !isDisabled||'text-slate-800 dark:text-slate-200',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, ref, reactive, onMounted, watch} from "vue";
+import {computed, getCurrentInstance, ref, reactive, watch} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
 import {CheckIcon, MagnifyingGlassIcon} from "@heroicons/vue/20/solid";
 import StInput from "@/components/form/StInput.vue";
@@ -78,18 +78,6 @@ const inputLayout = reactive({value: valueLayout.value, isValue: isValue, mode: 
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
   classBody: props.classBody, class: props.class})
 // ---------------------------------------
-onMounted(()=>{
-  const select = document.getElementById(`select${id.value}`)
-  const list = document.getElementById(`list${id.value}`)
-  document.addEventListener( 'click', (e) => {
-    if (isOpenList.value && select && list) {
-      isOpenList.value = e.composedPath().includes(select) || e.composedPath().includes(list)
-      if (isOpenList.value === false) {
-        emit('change:modelValue', dataStore.value.getKeyValue().length ? dataStore.value.getKeyValue() : null)
-      }
-    }
-  })
-})
 watch(value, ()=>{
   inputLayout.value = valueLayout.value
 })
@@ -107,14 +95,11 @@ watch(isDisabled, (value)=>{
 })
 watch(isOpenList, (value)=>{
   if (value) {
-    document.onkeydown = function(evt:KeyboardEvent) {
-      let isEscape = false;
-      if ("key" in evt) { isEscape = (evt.key === "Escape" || evt.key === "Esc") }
-      if (isEscape) { isOpenList.value = false
-      } else {
-        document.getElementById(`search${id.value}`)?.focus()
-      }
-    }
+    document.addEventListener("click", closeSelect)
+    document.addEventListener("keydown", keydownSelect)
+  } else {
+    document.removeEventListener("click", closeSelect);
+    document.removeEventListener("keydown", keydownSelect)
   }
   inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
 })
@@ -129,6 +114,25 @@ watch(value, (value:ISelect["modelValue"])=>{
         .filter(item=> (value as Array<string|number>).includes(item[dataStore.value.getKey()])))
   }
 })
+// ---------------------------------------
+function keydownSelect(evt:KeyboardEvent){
+  let isEscape = false;
+  if ("key" in evt) { isEscape = (evt.key === "Escape" || evt.key === "Esc") }
+  if (isEscape) { isOpenList.value = false
+  } else {
+    document.getElementById(`search${id.value}`)?.focus()
+  }
+}
+function closeSelect(evt:MouseEvent) {
+  const select = document.getElementById(`select${id.value}`)
+  const list = document.getElementById(`list${id.value}`)
+  if (isOpenList.value && select && list) {
+    isOpenList.value = evt.composedPath().includes(select) || evt.composedPath().includes(list)
+    if (isOpenList.value === false) {
+      emit('change:modelValue', dataStore.value.getKeyValue().length ? dataStore.value.getKeyValue() : null)
+    }
+  }
+}
 // ---------------------------------------
 function select(item:BaseDataItem|null) {
   if (item) {

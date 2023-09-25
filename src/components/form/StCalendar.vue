@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, onMounted, reactive, ref, watch} from "vue";
+import {computed, getCurrentInstance, reactive, ref, watch} from "vue";
 // ---------------------------------------
 import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
 import Icons from "@/components/functional/Icons.vue";
@@ -236,17 +236,6 @@ const inputLayout = reactive({value: visibleDate.value, isValue: isValue, mode: 
   required: props.required, loading: isLoading, disabled: props.disabled, help: props.help, clear: props.clear,
   classBody: props.classBody, class: props.class})
 // ---------------------------------------
-onMounted(()=>{
-  visibleDate.value = <ICalendarPicker["inputValue"]>(calendar.value?.inputValue as ICalendarPicker["inputValue"])
-  const dataPicker = document.getElementById(`dataPicker${id.value}`)
-  const picker = document.getElementById(`picker${id.value}`)
-  document.addEventListener( 'click', (e) => {
-    if (isOpenPicker.value && dataPicker && picker) {
-      isOpenPicker.value = e.composedPath().includes(dataPicker) || e.composedPath().includes(picker)
-    }
-  })
-})
-// ---------------------------------------
 watch(value, ()=>{
   inputLayout.value = valueLayout.value
 })
@@ -264,14 +253,28 @@ watch(messageInvalid, ()=>{
 })
 watch(isOpenPicker, (value)=>{
   if (value) {
-    document.onkeydown = function(evt) {
-      let isEscape = false;
-      if ("key" in evt) { isEscape = (evt.key === "Escape" || evt.key === "Esc") }
-      if (isEscape) { isOpenPicker.value = false }
-    }
+    document.addEventListener("click", closeCalendar)
+    document.addEventListener("keydown", keydownCalendar)
+  } else {
+    document.removeEventListener("click", closeCalendar);
+    document.removeEventListener("keydown", keydownCalendar)
   }
   inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
 })
+// ---------------------------------------
+function keydownCalendar(evt:KeyboardEvent){
+  let isEscape = false;
+  if ("key" in evt) { isEscape = (evt.key === "Escape" || evt.key === "Esc") }
+  if (isEscape) { isOpenPicker.value = false }
+}
+function closeCalendar(evt:MouseEvent) {
+  visibleDate.value = <ICalendarPicker["inputValue"]>(calendar.value?.inputValue as ICalendarPicker["inputValue"])
+  const dataPicker = document.getElementById(`dataPicker${id.value}`)
+  const picker = document.getElementById(`picker${id.value}`)
+  if (isOpenPicker.value && dataPicker && picker) {
+    isOpenPicker.value = evt.composedPath().includes(dataPicker) || evt.composedPath().includes(picker)
+  }
+}
 // ---------------------------------------
 function changeDate (date:ICalendarPicker["inputValue"]) {
   visibleDate.value = date
@@ -288,26 +291,6 @@ function clear () {
   emit('update:isInvalid', false)
   emit('update:modelValue', null)
 }
-// ---------------------------------------
-import config from '@/theme'
-import type {Config} from "tailwindcss/types/config";
-const primary = (config as Config).theme?.colors?.["primary"]
-const style = <HTMLElement>document.createElement('style');
-style["type"] = 'text/css';
-style.innerHTML = `
-.vc-primary {
-  --vc-accent-50: ${primary["50"]};
-  --vc-accent-100: ${primary["100"]};
-  --vc-accent-200: ${primary["200"]};
-  --vc-accent-300: ${primary["300"]};
-  --vc-accent-400: ${primary["400"]};
-  --vc-accent-500: ${primary["500"]};
-  --vc-accent-600: ${primary["600"]};
-  --vc-accent-700: ${primary["700"]};
-  --vc-accent-800: ${primary["800"]};
-  --vc-accent-900: ${primary["900"]};
-}`;
-document.getElementsByTagName('head')[0].appendChild(style);
 </script>
 
 <template>
@@ -355,3 +338,17 @@ document.getElementsByTagName('head')[0].appendChild(style);
     <template #after><slot name="after"/></template>
   </InputLayout>
 </template>
+<style>
+.vc-primary {
+  --vc-accent-50: theme("colors.primary.50");
+  --vc-accent-100: theme("colors.primary.100");
+  --vc-accent-200: theme("colors.primary.200");
+  --vc-accent-300: theme("colors.primary.300");
+  --vc-accent-400: theme("colors.primary.400");
+  --vc-accent-500: theme("colors.primary.500");
+  --vc-accent-600: theme("colors.primary.600");
+  --vc-accent-700: theme("colors.primary.700");
+  --vc-accent-800: theme("colors.primary.800");
+  --vc-accent-900: theme("colors.primary.900");
+}
+</style>

@@ -349,5 +349,26 @@ watch(form, ()=>{
         <p v-if="dimension" class="ml-1 mr-3 text-gray-400 select-none">степень</p>
       </template>
     </StInput>
+    <StInput
+      v-model.trim="dimension"
+      label="Степень негабаритности"
+      :params-input="{
+        placeholder: 'H0000',
+        type: 'text',
+      }"
+      mode="outlined"
+      help="Вспомогательный текст"
+      clear
+      class="text-right mb-5"
+      v-model:is-invalid="isInvalid"
+      :message-valid="messageValid"
+    >
+      <template #before>
+        <CubeIcon class="h-5 w-5 text-primary-500" aria-hidden="true" />
+      </template>
+      <template #after>
+        <p v-if="dimension" class="ml-1 mr-3 text-gray-400 select-none">степень</p>
+      </template>
+    </StInput>
   </ComponentViews>
 </template>

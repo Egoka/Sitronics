@@ -109,8 +109,8 @@ function click(e) {
       <Button mode="secondary" class="m-1">Secondary</Button>
       <Button mode="creative" class="m-1">Creative</Button>
       <Button mode="destructive" class="m-1">Destructive</Button>
+      <Button mode="neutral" class="m-1">Neutral</Button>
       <Button mode="outline" class="m-1">Outline</Button>
-      <Button mode="contour" class="m-1">Contour</Button>
       <Button mode="ghost" class="m-1">Ghost</Button>
       <Button mode="link" class="m-1">Link</Button>
       <Button mode="text" class="m-1">Text</Button>
@@ -275,7 +275,7 @@ function click(e) {
       <Button mode="secondary" class="rounded-md m-1 h-9 w-9 px-2">
         <Icons type="FcGoogle" class="h-4 w-4"/>
       </Button>
-      <Button mode="creative" class="rounded-md m-1 h-9 w-9 pyx2">
+      <Button mode="creative" class="rounded-md m-1 h-9 w-9 px-2">
         <Icons type="CoMathworks" class="h-4 w-4"/>
       </Button>
       <Button mode="destructive" class="rounded-md m-1 h-9 w-9 px-2">
