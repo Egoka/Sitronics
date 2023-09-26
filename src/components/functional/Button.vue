@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ---------------------------------------
-import {computed, getCurrentInstance, ref} from "vue";
-import Button from "@/components/functional/Button.vue";
+import {computed} from "vue";
 
 export interface IButton {
   type?: "button" | "reset" | "submit"
@@ -40,7 +39,7 @@ const classButton = computed<Array<string>>(()=> {
   arrayClasses.push("inline-flex items-center justify-center")
   arrayClasses.push("transition-colors duration-300 focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50")
   !(mode.value === "primary") || arrayClasses.push("shadow bg-primary-600 text-primary-100 hover:bg-primary-600/90 dark:bg-primary-700 dark:text-primary-100 dark:hover:bg-primary-700/90 focus-visible:ring-primary-400 dark:focus-visible:ring-primary-500")
-  !(mode.value === "secondary") || arrayClasses.push("border border-transparent bg-primary-100 text-primary-900 dark:bg-primary-950 dark:text-primary-100 hover:bg-primary-200 dark:hover:bg-primary-900 focus-visible:ring-primary-500 dark:focus-visible:ring-primary-600")
+  !(mode.value === "secondary") || arrayClasses.push("bg-primary-100 text-primary-900 dark:bg-primary-950 dark:text-primary-100 hover:bg-primary-200 dark:hover:bg-primary-900 focus-visible:ring-primary-500 dark:focus-visible:ring-primary-600")
   !(mode.value === "neutral") || arrayClasses.push("shadow-sm bg-neutral-200 text-neutral-700 hover:bg-neutral-200/80 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-800/80 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500")
   !(mode.value === "creative") ||arrayClasses.push( "shadow-sm bg-green-500 text-green-100 hover:bg-green-500/90 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-900/90 focus-visible:ring-green-300 dark:focus-visible:ring-green-700")
   !(mode.value === "destructive") || arrayClasses.push("shadow-sm bg-red-600 text-red-100 hover:bg-red-600/90 dark:bg-red-700 dark:text-rad-100 dark:hover:bg-red-700/90 focus-visible:ring-red-300 dark:focus-visible:ring-red-700")

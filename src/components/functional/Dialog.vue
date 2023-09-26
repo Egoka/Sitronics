@@ -91,7 +91,7 @@ function closeModal() {
         <div :class="classDialog">
           <slot :closeDialog="closeModal"></slot>
         <Button v-if="isCloseButton" mode="ghost" class="absolute top-2 right-2 px-[5px] m-1 h-9 w-9" @click="closeModal">
-          <XMarkIcon aria-hidden="true" class="h-5 w-5 transition-all fill-neutral-500 dark:fill-neutral-500 group-hover:fill-primary-600 dark:group-hover:fill-primary-600"/>
+          <XMarkIcon aria-hidden="true" class="h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>
         </Button>
         </div>
       </div>

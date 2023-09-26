@@ -7,6 +7,7 @@ import StForm, {IFormExpose, IFormStructure} from "@/components/form/StForm.vue"
 import {IResultCallback} from "@/helpers/rules";
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import Icons from "@/components/functional/Icons.vue";
+import Badge from "@/components/functional/Badge.vue";
 const form = ref<any>(null)
 const formTest = ref<IFormExpose|null>(null)
 const structures = ref<Array<IFormStructure>>([
@@ -412,16 +413,14 @@ watch(form, ()=>{
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Расположение</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        <p>Диалоговому окну можно задать расположение. Доступные следующие значения
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">center</span> (по умолчанию),
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">top</span>,
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">bottom</span>,
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">left</span>,
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">right</span>,
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">bottom-left</span>,
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">top-left</span>,
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">bottom-right</span>,
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">top-right</span>.
+        <p>Диалоговому окну можно задать расположение. Доступные следующие значения <Badge>center</Badge> (по умолчанию), <Badge>top</Badge>,
+          <Badge>bottom</Badge>,
+          <Badge>left</Badge>,
+          <Badge>right</Badge>,
+          <Badge>bottom-left</Badge>,
+          <Badge>top-left</Badge>,
+          <Badge>bottom-right</Badge>,
+          <Badge>top-right</Badge>.
         </p>
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5">
@@ -436,7 +435,6 @@ watch(form, ()=>{
           <Button class="m-2" @click="isOpen1 = true;positionDialog1 = 'bottom-right'">bottom-right</Button>
           <Button class="m-2" @click="isOpen1 = true;positionDialog1 = 'top-right'">top-right</Button>
         </div>
-
       </div>
     </div>
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
@@ -461,9 +459,7 @@ watch(form, ()=>{
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Закрытие только по нажатию на кнопку</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        <p>У диалогового окна есть параметр
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">notCloseBackground</span>
-          при включении которого закрытие диалогового окна будет срабатывать только по кнопкам которе настроены на закрытие.
+        <p>У диалогового окна есть параметр <Badge>notCloseBackground</Badge> при включении которого закрытие диалогового окна будет срабатывать только по кнопкам которе настроены на закрытие.
         </p>
       </p>
       <div class="col-span-full m-5">
@@ -473,10 +469,7 @@ watch(form, ()=>{
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Копка закрытия</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        <p>Указав параметр
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">closeButton</span>
-          диалоговому окну, добавится кнопка закрытия.
-        </p>
+        <p>Указав параметр <Badge>closeButton</Badge> диалоговому окну, добавится кнопка закрытия.</p>
       </p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <div class="col-span-full m-5">
@@ -487,10 +480,7 @@ watch(form, ()=>{
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Ширина</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        <p>Указав параметр
-          <span class="inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 mx-1 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10">size</span>
-          диалоговому окну, можно задать его ширину.
-        </p>
+        <p>Указав параметр <Badge>size</Badge> диалоговому окну, можно задать его ширину.</p>
       </p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <div class="col-span-full m-5">

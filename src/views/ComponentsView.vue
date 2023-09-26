@@ -26,7 +26,7 @@ const items = ref([
   {
     name: 'Form',
     href: baseUrl+'/form',
-    imageSrc: 'https://horizon-ui.com/components/static/media/badge.54c9f7e22be4cca91ae518937964fea5.svg',
+    imageSrc: 'https://horizon-ui.com/components/static/media/kanban.cf017f7bd0041d71e562eff33ca7e91a.svg',
   },
   {
     name: 'Input',
@@ -72,6 +72,11 @@ const items = ref([
     name: 'Dialog',
     href: baseUrl+'/dialog',
     imageSrc: 'https://horizon-ui.com/components/static/media/modal.ef64b9f4cfc045fea9d07b2519b77dd6.svg',
+  },
+  {
+    name: 'Badge',
+    href: baseUrl+'/badge',
+    imageSrc: 'https://horizon-ui.com/components/static/media/badge.54c9f7e22be4cca91ae518937964fea5.svg',
   },
 ])
 </script>

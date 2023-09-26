@@ -43,6 +43,7 @@ const iconActive = computed<IDataSwitch["iconActive"]>(()=> props.paramsSwitch?.
 const iconInactive = computed<IDataSwitch["iconInactive"]>(()=> props.paramsSwitch?.iconInactive||"")
 // ---------------------------------------
 function inputEvent (value:boolean) {
+  console.log("value", value)
   inputModelValue(value)
 }
 // ---------------------------------------
@@ -122,7 +123,7 @@ function changeModelValue(value:any) {
         @change="changeModelValue(($event.target as HTMLInputElement).checked)"
       />
     </div>
-    <div class="text-sm leading-6" @click="inputEvent(!value)">
+    <div class="text-sm leading-6">
       <label :for="id" :class="[
         `font-medium text-gray-600 dark:text-gray-400`,
         !isDisabled||'text-slate-800 dark:text-slate-200',

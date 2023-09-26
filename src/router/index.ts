@@ -93,6 +93,14 @@ const router = createRouter({
       component: () => import('../views/components/ComponentDialog.vue')
     },
     {
+      path: '/components/badge',
+      name: 'badge',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentBadge.vue')
+    },
+    {
       path: '/components/all',
       name: 'componentsAll',
       meta: {
