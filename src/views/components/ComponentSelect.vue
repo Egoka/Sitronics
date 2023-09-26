@@ -4,7 +4,7 @@ import StForm, {type IFormExpose, type IFormStructure} from "@/components/form/S
 import {reactive, ref, watch} from "vue";
 import StSelect from "@/components/form/StSelect.vue";
 import {CheckIcon} from "@heroicons/vue/20/solid";
-import InputLayout from "@/components/functional/inputLayout.vue";
+import InputLayout from "@/components/functional/InputLayout.vue";
 import Icons from "@/components/functional/Icons.vue";
 import Select from "@/components/form/StSelect.vue";
 const formFields = reactive({isInfo: ""})

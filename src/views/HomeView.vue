@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Link from "@/components/functional/Link.vue";
 import Button from "@/components/functional/Button.vue";
 </script>
 

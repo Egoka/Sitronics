@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, ref, reactive, watch} from "vue";
-import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
+import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import {CheckIcon, MagnifyingGlassIcon} from "@heroicons/vue/20/solid";
 import StInput from "@/components/form/StInput.vue";
 import DataStore, {type BaseDataItem, type IDataItem} from "@/helpers/dataStore";
@@ -168,7 +168,7 @@ function onBeforeEnter(el:any) {
 function onEnter(el:any, done:any) {
   gsap.to(el, {
     opacity: 1,
-    height: '36px',
+    height: '38px',
     delay: el.dataset.index * 0.01,
     onComplete: done
   })
@@ -195,13 +195,13 @@ function open() {
 </script>
 <template>
   <InputLayout v-bind="inputLayout" @clear="select(null)">
-    <div :id="`select${id}`" class="flex w-full min-h-[36px] max-h-16 overflow-auto" @click="open">
+    <div :id="`select${id}`" class="flex w-full min-h-[38px] max-h-16 overflow-auto" @click="open">
       <div class="flex items-center flex-wrap">
         <template v-if="isMultiple">
           <transition-group leave-active-class="transition ease-in-out duration-300" leave-from-class="opacity-100 translate-x-0" leave-to-class="opacity-0 -translate-x-5"
                             enter-active-class="transition ease-in-out duration-300" enter-from-class="opacity-0 -translate-x-5" enter-to-class="opacity-100 translate-x-0">
             <div v-for="item in dataStore.getValue()" :key="item[dataStore.getKey()]" class="z-10">
-              <slot name="values" :selected="item" :key="valueSelect ? valueSelect : dataStore.getKey()">
+              <slot name="values" :selected="item" :key="valueSelect ? valueSelect : dataStore.getKey()" :delete-select="select">
                 <div class="m-[2px] bg-stone-200 dark:bg-primary-900 h-4 leading-4 px-1 rounded-[2px]">{{valueSelect? item[valueSelect] : item[dataStore.getKey()]}}</div>
               </slot>
             </div>

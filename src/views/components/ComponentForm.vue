@@ -120,7 +120,7 @@ const structures = ref<Array<IFormStructure>>([
         required: true,
         rules: {
           length: {
-            message: "Максимальная длина 2",
+            message: "Выберете 3 или 4 продукта",
             max: 4,
             min: 3
           },

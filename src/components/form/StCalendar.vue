@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, reactive, ref, watch} from "vue";
 // ---------------------------------------
-import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
+import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import Icons from "@/components/functional/Icons.vue";
 import { DatePicker } from "v-calendar";
 import 'v-calendar/style.css';

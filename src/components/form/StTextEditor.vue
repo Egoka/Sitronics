@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, reactive, ref, watch} from "vue";
-import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
+import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import Button from "@/components/functional/Button.vue";
+import Dialog, {type IDialog} from "@/components/functional/Dialog.vue";
 import {ArrowsPointingOutIcon, ArrowsPointingInIcon} from "@heroicons/vue/20/solid";
-import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
+// import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {QuillEditor, type Delta} from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import '@vueup/vue-quill/dist/vue-quill.bubble.css';
@@ -137,36 +138,20 @@ function ready() {
                    @blur="isActiveTextEditor = false" @ready="ready"/>
     </div>
     <template #body>
-      <TransitionRoot as="template" :show="open">
-        <Dialog as="div" class="relative z-10" @close="theme = 'bubble'">
-          <TransitionChild as="template"
-                           enter="ease-out duration-1000" enter-from="opacity-0" enter-to="opacity-100"
-                           leave="ease-in duration-500" leave-from="opacity-100" leave-to="opacity-0">
-            <div class="fixed inset-0 bg-gray-400 bg-opacity-75 dark:bg-gray-700 dark:bg-opacity-75 transition-opacity" />
-          </TransitionChild>
-          <div class="fixed inset-0 z-10 overflow-y-auto">
-            <div class="flex min-h-full items-start justify-center p-4 text-center sm:items-center sm:p-0">
-              <TransitionChild as="template"
-                               enter="ease-in-out duration-1000" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100"
-                               leave="ease-in-out duration-500" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-                <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:m-5 sm:w-full sm:max-w-5xl sm:max-h-[40rem]">
-                  <div class="editor st-text-editor" :class="['dark:text-gray-400',
-                  !(mode === 'outlined')||'bg-white dark:bg-black',
-                  !(mode === 'underlined')||'bg-stone-50 dark:bg-stone-950',
-                  !(mode === 'filled')||'bg-stone-100 dark:bg-stone-900']">
-                    <QuillEditor v-if="theme ==='snow'" theme="snow" v-bind="getParamsStructure(paramsQuillEditor, ['theme'])" @update:content="inputModelValue"/>
-                    <div class="absolute top-[5px] right-[5px]" @click="theme = 'bubble'">
-                      <Button mode="ghost" class="group h-9 w-9 px-0 border-neutral-500 dark:border-neutral-500 hover:bg-transparent hover:dark:bg-transparent">
-                        <ArrowsPointingInIcon aria-hidden="true" class="h-5 w-5 mx-2 transition-all fill-neutral-500 dark:fill-neutral-500 group-hover:fill-primary-600 dark:group-hover:fill-primary-600"/>
-                      </Button>
-                    </div>
-                  </div>
-                </DialogPanel>
-              </TransitionChild>
-            </div>
+      <Dialog v-model="open" @update:modelValue="theme = 'bubble'"
+              class="p-0 max-w-screen-sm sm:max-w-5xl sm:m-3 sm:w-[90%] max-h-screen">
+        <div class="editor st-text-editor border-[1px] rounded-md border-neutral-200 dark:border-neutral-800" :class="['dark:text-gray-400',
+        !(mode === 'outlined')||'bg-white dark:bg-black',
+        !(mode === 'underlined')||'bg-stone-50 dark:bg-stone-950',
+        !(mode === 'filled')||'bg-stone-100 dark:bg-stone-900']">
+          <QuillEditor v-if="theme ==='snow'" theme="snow" v-bind="getParamsStructure(paramsQuillEditor, ['theme'])" @update:content="inputModelValue"/>
+          <div class="absolute top-[5px] right-[5px]" @click="theme = 'bubble'">
+            <Button mode="ghost" class="group h-9 w-9 px-0 border-neutral-500 dark:border-neutral-500 hover:bg-transparent hover:dark:bg-transparent">
+              <ArrowsPointingInIcon aria-hidden="true" class="h-5 w-5 mx-2 transition-all fill-neutral-500 dark:fill-neutral-500 group-hover:fill-primary-600 dark:group-hover:fill-primary-600"/>
+            </Button>
           </div>
-        </Dialog>
-      </TransitionRoot>
+        </div>
+      </Dialog>
       <slot/>
     </template>
     <template #before><slot name="before"/></template>
@@ -194,7 +179,8 @@ function ready() {
 }
 @media (prefers-color-scheme: light) {
   :root{
-    --border-quill-editor: #f2f2f2;
+    --background-quill-toolbar: theme("colors.neutral.50");
+    --border-quill-editor: theme("colors.neutral.200");
     --placeholder-quill-editor: #00000099;
     --background-quill-editor: #f6f3f4;
     --background-picker-options-quill-editor: #f5f5f5;
@@ -202,7 +188,8 @@ function ready() {
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --border-quill-editor: #212121;
+    --background-quill-toolbar: theme("colors.neutral.900");
+    --border-quill-editor: theme("colors.neutral.800");
     --placeholder-quill-editor: #ffffff99;
     --background-quill-editor: #212121;
     --background-picker-options-quill-editor: #131313;
@@ -215,6 +202,9 @@ function ready() {
   border: none;
   border-bottom: 1px solid var(--border-quill-editor);
   padding-right: 2rem;
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+  background:var(--background-quill-toolbar);
 }
 .editor .ql-toolbar .ql-formats{
   margin-right: 10px;

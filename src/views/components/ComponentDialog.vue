@@ -413,14 +413,14 @@ watch(form, ()=>{
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Расположение</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        <p>Диалоговому окну можно задать расположение. Доступные следующие значения <Badge>center</Badge> (по умолчанию), <Badge>top</Badge>,
-          <Badge>bottom</Badge>,
-          <Badge>left</Badge>,
-          <Badge>right</Badge>,
-          <Badge>bottom-left</Badge>,
-          <Badge>top-left</Badge>,
-          <Badge>bottom-right</Badge>,
-          <Badge>top-right</Badge>.
+        <p>Диалоговому окну можно задать расположение. Доступные следующие значения <Badge mode="outline">center</Badge> (по умолчанию), <Badge mode="outline">top</Badge>,
+          <Badge mode="outline">bottom</Badge>,
+          <Badge mode="outline">left</Badge>,
+          <Badge mode="outline">right</Badge>,
+          <Badge mode="outline">bottom-left</Badge>,
+          <Badge mode="outline">top-left</Badge>,
+          <Badge mode="outline">bottom-right</Badge>,
+          <Badge mode="outline">top-right</Badge>.
         </p>
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5">
@@ -459,7 +459,7 @@ watch(form, ()=>{
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Закрытие только по нажатию на кнопку</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        <p>У диалогового окна есть параметр <Badge>notCloseBackground</Badge> при включении которого закрытие диалогового окна будет срабатывать только по кнопкам которе настроены на закрытие.
+        <p>У диалогового окна есть параметр <Badge mode="outline">notCloseBackground</Badge> при включении которого закрытие диалогового окна будет срабатывать только по кнопкам которе настроены на закрытие.
         </p>
       </p>
       <div class="col-span-full m-5">
@@ -469,7 +469,7 @@ watch(form, ()=>{
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Копка закрытия</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        <p>Указав параметр <Badge>closeButton</Badge> диалоговому окну, добавится кнопка закрытия.</p>
+        <p>Указав параметр <Badge mode="outline">closeButton</Badge> диалоговому окну, добавится кнопка закрытия.</p>
       </p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <div class="col-span-full m-5">
@@ -480,7 +480,7 @@ watch(form, ()=>{
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Ширина</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        <p>Указав параметр <Badge>size</Badge> диалоговому окну, можно задать его ширину.</p>
+        <p>Указав параметр <Badge mode="outline">size</Badge> диалоговому окну, можно задать его ширину.</p>
       </p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <div class="col-span-full m-5">

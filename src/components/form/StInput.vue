@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {reactive, computed, getCurrentInstance, ref, watch} from "vue";
-import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
+import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import {convertToNumber, convertToPhone, onkeydown, toNumber, toPhone} from "@/helpers/numbers";
 import {EyeIcon, EyeSlashIcon} from "@heroicons/vue/20/solid";
 // ---------------------------------------

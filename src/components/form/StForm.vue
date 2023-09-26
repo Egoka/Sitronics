@@ -318,8 +318,9 @@ function submit(){
                       v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
                       @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)">
-                      <template #values="{selected, key}">
-                        <Badge class="mx-1">{{selected[key]}}</Badge>
+                      <template #values="{selected, key, deleteSelect}">
+                        <Badge mode="primary" class="mx-1 ring-1 ring-inset ring-neutral-200 dark:ring-neutral-800"
+                               close-button @delete="deleteSelect(selected)">{{selected[key]}}</Badge>
                       </template>
                       <template #item="{item}">
                         <div v-if="!field.paramsSelect?.noQuery" v-html="item?.marker"

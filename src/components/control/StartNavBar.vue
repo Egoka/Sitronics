@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import Icons from "@/components/functional/Icons.vue";
 import { ref } from 'vue'
 import { Dialog, DialogPanel } from '@headlessui/vue'
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
-import Link from "@/components/functional/Link.vue";
 import {useRoute} from "vue-router";
 import Button from "@/components/functional/Button.vue";
 const baseUrl = useRoute().fullPath?.match(/\/(\w+)/)?.[1]|| ""

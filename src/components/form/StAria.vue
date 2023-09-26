@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InputLayout, {type ILayout} from "@/components/functional/inputLayout.vue";
+import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import {computed, getCurrentInstance, reactive, ref, watch} from "vue";
 import {onkeydown} from "@/helpers/numbers";
 // ---------------------------------------
