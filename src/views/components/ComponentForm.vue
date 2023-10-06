@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ComponentViews from "@/components/ComponentViews.vue";
 import StForm, {type IFormExpose, type IFormStructure} from "@/components/form/StForm.vue";
+import Button from "@/components/functional/Button.vue";
 import {ref, watch} from "vue";
 import {type IResultCallback} from "@/helpers/rules";
 const form = ref<any>(null)
@@ -394,6 +395,9 @@ const structures = ref<Array<IFormStructure>>([
 watch(form, ()=>{
   formTest.value?.setStructureParam(1, "isHidden", !form.value["isInfo"])
 }, {deep:true})
+function valid() {
+  formTest.value?.validateFields(["nameDop", "about", "login"])
+}
 </script>
 
 <template>
@@ -420,5 +424,10 @@ watch(form, ()=>{
         {{ field }} = {{form[field]}}
       </div>
     </template>
+    <div class="flex my-4">
+      <Button @click="valid">
+        Валидация
+      </Button>
+    </div>
   </ComponentViews>
 </template>

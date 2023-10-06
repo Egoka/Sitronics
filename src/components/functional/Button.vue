@@ -17,7 +17,7 @@ const link = computed<IButton["link"]>(()=> props.link)
 const linkReplace = computed<NonNullable<IButton["linkReplace"]>>(()=> props.linkReplace||false)
 const disabled = computed<NonNullable<IButton["disabled"]>>(()=> props.disabled||false)
 const type = computed<NonNullable<IButton["type"]>>(()=> props.type|| "button")
-const mode = computed<NonNullable<IButton["mode"]>>(()=> props.mode|| "primary")
+const mode = computed<NonNullable<IButton["mode"]>>(()=> props.mode|| "neutral")
 const tag = computed<string>(()=> ['link', 'text'].includes(mode.value) ? 'button' : 'a')
 const classButton = computed<Array<string>>(()=> {
   const arrayClasses = !!props.class

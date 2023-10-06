@@ -121,6 +121,7 @@ export interface IFormExpose {
   setFieldParam(fieldName:string, param: IFieldsTypeKeys, value:any): void
   getField(fieldName:string): IFieldsType|null
   setStructureParam(indexStructure:number, param:keyof IFormStructure, value: any): void
+  validateFields(nameField?:Array<string>|string):void
 }
 defineExpose<IFormExpose>({
   formFields,
@@ -128,6 +129,7 @@ defineExpose<IFormExpose>({
   setFieldParam,
   getField,
   setStructureParam,
+  validateFields,
 })
 // ---------------------------------------
 function setFieldValue(fieldName: string, value: any) {
@@ -221,10 +223,16 @@ async function validateField (field: IFieldsType) {
     }
   }
 }
-function validateAllField() {
+function validateFields(nameField?:Array<string>|string) {
   props.structure?.map(item=>item.fields?.map(field=> {
-    if (!formInvalidFields[field.name]){
-      validateField(field)
+    if (nameField) {
+      if ([nameField].flat().find((item:string)=>item === field.name)){
+        validateField(field)
+      }
+    } else {
+      if (!formInvalidFields[field.name]){
+        validateField(field)
+      }
     }
   }))
   setTimeout(()=>document.querySelector(".is-invalid")
@@ -242,7 +250,7 @@ function changeField(field:any) {
   }
 }
 function submit(){
-  validateAllField()
+  validateFields()
 }
 </script>
 
