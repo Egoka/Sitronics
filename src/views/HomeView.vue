@@ -14,7 +14,7 @@ import Button from "@/components/functional/Button.vue";
 <!--        </div>-->
 <!--      </div>-->
       <div class="text-center">
-        <h1 class="font-extrabold text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-tr from-primary-300 to-primary-900">Разработка для Sitronics</h1>
+        <h1 class="font-extrabold text-4xl tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-tr from-primary-300 to-primary-900 dark:from-primary-900 dark:to-primary-300">Разработка для Sitronics</h1>
         <p class="mt-6 text-lg leading-8 text-gray-600">Демонстрация готовых компонентов с примерами их работы</p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
           <Button link="/components" class="bg-[#587cec] dark:bg-[#587cec] hover:bg-[#587cec]/80 dark:hover:bg-[#587cec]/80 px-3.5 py-2.5 h-max font-semibold">

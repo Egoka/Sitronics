@@ -2,7 +2,7 @@
 import {computed, getCurrentInstance, reactive, ref, watch} from "vue";
 // ---------------------------------------
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
-import Icons from "@/components/functional/Icons.vue";
+import { ArrowLongRightIcon } from '@heroicons/vue/24/outline'
 import { DatePicker } from "v-calendar";
 import 'v-calendar/style.css';
 // ---------------------------------------
@@ -296,24 +296,24 @@ function clear () {
 <template>
   <InputLayout v-bind="inputLayout" @clear="clear">
     <div :id="`dataPicker${id}`" class="flex w-full min-h-[36px] max-h-16 overflow-auto" @click="open">
-      <div v-if="datePicker?.isRange" class="flex items-center max-h-max">
+      <div v-if="datePicker?.isRange" class="flex items-center max-h-max cursor-default">
         {{(visibleDate as IRangeValue)?.start}}
-        <Icons v-if="(visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"
-               type="arrow-long-right"
-               :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '']"
-               class="h-5 w-5 text-gray-600 dark:text-gray-400 mx-2"/>
+        <ArrowLongRightIcon
+          v-if="(visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"
+          :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : 'text-gray-600 dark:text-gray-400']"
+          class="h-5 w-5 mx-2"/>
         <div v-else class="text-gray-400 dark:text-gray-600">{{placeholder}}</div>
         {{(visibleDate as IRangeValue)?.end}}
       </div>
       <input
         v-else
         :id="id"
-        ref="input"
         :name="id"
+        ref="input"
         type="text"
         :value="visibleDate"
         :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '']"
-        class="block flex-1 border-0 w-full bg-transparent py-1.5 pl-1 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6 transition-all"
+        class="block flex-1 border-0 w-full bg-transparent py-1.5 pl-1 cursor-default text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6 transition-all"
         :disabled="isDisabled"
         :placeholder="placeholder"/>
     </div>

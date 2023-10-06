@@ -93,6 +93,14 @@ const router = createRouter({
       component: () => import('../views/components/ComponentDialog.vue')
     },
     {
+      path: '/components/alert',
+      name: 'alert',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentAlert.vue')
+    },
+    {
       path: '/components/badge',
       name: 'badge',
       meta: {

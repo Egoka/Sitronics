@@ -319,8 +319,10 @@ function submit(){
                       @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)">
                       <template #values="{selected, key, deleteSelect}">
-                        <Badge mode="primary" class="mx-1 ring-1 ring-inset ring-neutral-200 dark:ring-neutral-800"
-                               close-button @delete="deleteSelect(selected)">{{selected[key]}}</Badge>
+                        <Badge mode="neutral" close-button class-content="fill-primary-500" @delete="deleteSelect(selected)"
+                               :class="['m-1 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
+                          {{selected[key]}}
+                        </Badge>
                       </template>
                       <template #item="{item}">
                         <div v-if="!field.paramsSelect?.noQuery" v-html="item?.marker"

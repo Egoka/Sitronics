@@ -108,7 +108,7 @@ function clear() {
                 :maxlength="maxLength"
                 :placeholder="placeholder"
                 :autocomplete="autocomplete"
-                class="block w-full ring-0 border-0 bg-transparent p-0 mt-2 mb-1 min-h-[24px] rounded-md text-gray-900 dark:text-gray-100
+                class="block w-full ring-0 border-0 bg-transparent p-0 mt-2 mb-1 min-h-[24px] max-h-[10rem] rounded-md text-gray-900 dark:text-gray-100
                 placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600
                 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
                 focus:outline-0 focus:ring-0"

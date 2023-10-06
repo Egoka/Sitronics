@@ -119,7 +119,7 @@ async function copy() {
       </transition>
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
-          <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition" aria-hidden="true" />
+          <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition cursor-help" aria-hidden="true" />
           <Tooltip>Дополнителная информация</Tooltip>
         </template>
       </Dropdown>
@@ -129,7 +129,7 @@ async function copy() {
           <div>
             <Dropdown v-if="isInvalid&&messageInvalid" :content="messageInvalid">
               <template #head>
-                <ExclamationCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-red-500" aria-hidden="true" />
+                <ExclamationCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-red-500 cursor-pointer" aria-hidden="true" />
                 <Tooltip class="text-red-500">{{ messageInvalid }}</Tooltip>
               </template>
             </Dropdown>
@@ -138,7 +138,7 @@ async function copy() {
         <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <div v-if="clear && (value?.length||value>0)" class="h-5 w-5 mr-2">
-            <XCircleIcon class="h-5 w-5 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition-all duration-300" aria-hidden="true" @click.stop="emit('clear')" />
+            <XCircleIcon class="h-5 w-5 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition-all duration-300 cursor-pointer" aria-hidden="true" @click.stop="emit('clear')" />
             <Tooltip>Очисить</Tooltip>
           </div>
         </transition>

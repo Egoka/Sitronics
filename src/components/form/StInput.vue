@@ -127,8 +127,8 @@ function clear() {
     <template #before><slot name="before"/></template>
     <template #after>
       <slot name="after"/>
-      <EyeSlashIcon v-if="props.paramsInput?.type === 'password' && type === 'password'" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-cyan-500 transition" aria-hidden="true" @click="type = 'text'" />
-      <EyeIcon v-if="props.paramsInput?.type === 'password' && type === 'text'" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-cyan-500 transition" aria-hidden="true" @click="type = 'password'" />
+      <EyeSlashIcon v-if="props.paramsInput?.type === 'password' && type === 'password'" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-cyan-500 transition cursor-pointer" aria-hidden="true" @click="type = 'text'" />
+      <EyeIcon v-if="props.paramsInput?.type === 'password' && type === 'text'" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-cyan-500 transition cursor-pointer" aria-hidden="true" @click="type = 'password'" />
     </template>
   </InputLayout>
 </template>

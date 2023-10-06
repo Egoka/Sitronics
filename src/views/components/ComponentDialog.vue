@@ -453,7 +453,7 @@ watch(form, ()=>{
         <p>В диалоговом окне можно добавить видео</p>
       </p>
       <div class="col-span-full m-5">
-        <Button class="m-2" @click="isOpen3 = true">Открыть</Button>
+        <Button class="m-2" @click="isOpen3 = true;positionDialog3='bottom'">Открыть</Button>
       </div>
     </div>
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
@@ -532,7 +532,7 @@ watch(form, ()=>{
       </template>
     </Dialog>
     <Dialog v-model="isOpen3" :position="positionDialog3" class="max-w-[60vw] m-5 p-0">
-      <iframe class="w-full aspect-video" src="https://www.youtube.com/embed/t2I3Yd27dGw?feature=oembed"></iframe>
+      <iframe allow="autoplay; encrypted-media" allowfullscreen class="w-full aspect-video" src="https://www.youtube.com/embed/t2I3Yd27dGw?feature=oembed&autoplay=1"></iframe>
     </Dialog>
     <Dialog v-model="isOpen4" :position="positionDialog4" not-close-background class="p-0">
       <template #default="{closeDialog}">

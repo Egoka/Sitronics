@@ -39,11 +39,6 @@ const items = ref([
     imageSrc: 'https://horizon-ui.com/components/static/media/buttons.761530616ae0046450b905904753b062.svg',
   },
   {
-    name: 'Link',
-    href: baseUrl+'/link',
-    imageSrc: 'https://horizon-ui.com/components/static/media/link.b7c188f93d1d7ea3d94ef613ed6b3b4d.svg',
-  },
-  {
     name: 'List',
     href: baseUrl+'/select',
     imageSrc: 'https://horizon-ui.com/components/static/media/list.3f5491d88bae6288e55f2d69dafd8eca.svg',
@@ -77,6 +72,11 @@ const items = ref([
     name: 'Badge',
     href: baseUrl+'/badge',
     imageSrc: 'https://horizon-ui.com/components/static/media/badge.54c9f7e22be4cca91ae518937964fea5.svg',
+  },
+  {
+    name: 'Alert',
+    href: baseUrl+'/alert',
+    imageSrc: 'https://horizon-ui.com/components/static/media/alerts.708d67af66999bb564de6ee603d4de92.svg',
   },
 ])
 </script>
