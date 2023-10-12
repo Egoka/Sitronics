@@ -2,13 +2,28 @@ export type BaseDataItem = string|number|IDataItem
 export interface IDataItem {
   [key:string]: any
 }
-export interface IDataStore {
+interface IDataStore {
   value: Set<any>
   key: string | null | undefined
   data: Set<IDataItem>
   multiple: boolean
 }
-class DataStore {
+export interface IDataStoreList {
+  setData(data:Array<BaseDataItem>):void
+  getData():Array<IDataItem>
+  clearData():void
+
+  isValue(value:any):void
+  setValue(value:any):void
+  getValue():Array<any>|any
+  getKeyValue():Array<any>|any
+  clearValue():void
+
+  setKey(key:IDataStore["key"]):void
+  getKey():string
+  clearKey():void
+}
+class DataStoreList implements IDataStoreList{
   private value: IDataStore["value"] = new Set()
   private key: IDataStore["key"] = null
   private data: IDataStore["data"] = new Set()
@@ -68,4 +83,4 @@ class DataStore {
   public clearKey () { this.key = null }
   // ---------------------------------------
 }
-export default DataStore
+export default DataStoreList

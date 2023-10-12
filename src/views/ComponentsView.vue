@@ -24,6 +24,11 @@ const items = ref([
     imageSrc: 'https://upload.wikimedia.org/wikipedia/commons/c/c5/SITRONICS_group_logo_horisontal.png',
   },
   {
+    name: 'Buttons',
+    href: baseUrl+'/buttons',
+    imageSrc: 'https://horizon-ui.com/components/static/media/buttons.761530616ae0046450b905904753b062.svg',
+  },
+  {
     name: 'Form',
     href: baseUrl+'/form',
     imageSrc: 'https://horizon-ui.com/components/static/media/kanban.cf017f7bd0041d71e562eff33ca7e91a.svg',
@@ -32,11 +37,6 @@ const items = ref([
     name: 'Input',
     href: baseUrl+'/input',
     imageSrc: 'https://horizon-ui.com/components/static/media/input.a365e415996750938744749a0d659275.svg',
-  },
-  {
-    name: 'Buttons',
-    href: baseUrl+'/buttons',
-    imageSrc: 'https://horizon-ui.com/components/static/media/buttons.761530616ae0046450b905904753b062.svg',
   },
   {
     name: 'List',
@@ -62,6 +62,11 @@ const items = ref([
     name: 'Text editor',
     href: baseUrl+'/text-editor',
     imageSrc: 'https://horizon-ui.com/components/static/media/quill.b64c9e63505fef0603aba10791c099c8.svg',
+  },
+  {
+    name: 'Table',
+    href: baseUrl+'/table',
+    imageSrc: 'https://horizon-ui.com/components/static/media/table.f3863230c647c43a196f08761e96cb78.svg',
   },
   {
     name: 'Dialog',

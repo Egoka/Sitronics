@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
-import {computed, getCurrentInstance, reactive, ref, watch} from "vue";
+import {computed, getCurrentInstance, reactive, ref, useSlots, watch} from "vue";
 import {onkeydown} from "@/helpers/numbers";
 // ---------------------------------------
 export interface IDataAria {
@@ -22,6 +22,7 @@ const emit = defineEmits<{
   (event: 'update:isInvalid', payload: boolean): void;
   (event: 'change:modelValue', payload: boolean): void;
 }>();
+const slots = useSlots()
 // ---------------------------------------
 const isActiveAria = ref<boolean>(false)
 const inputAria = ref<HTMLElement|undefined>()
@@ -117,7 +118,7 @@ function clear() {
                 @keydown="onkeydown($event)"
                 @change="changeModelValue(($event.target as HTMLInputElement).value)"/>
     <template #body><slot/></template>
-    <template #before><slot name="before"/></template>
+    <template v-if="slots.before" #before><slot name="before"/></template>
     <template #after><slot name="after"/></template>
   </InputLayout>
 </template>

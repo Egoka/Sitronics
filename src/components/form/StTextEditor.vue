@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, reactive, ref, watch} from "vue";
+import {computed, getCurrentInstance, reactive, ref, useSlots, watch} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import Button from "@/components/functional/Button.vue";
 import Dialog, {type IDialog} from "@/components/functional/Dialog.vue";
 import {ArrowsPointingOutIcon, ArrowsPointingInIcon} from "@heroicons/vue/20/solid";
-// import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {QuillEditor, type Delta} from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import '@vueup/vue-quill/dist/vue-quill.bubble.css';
@@ -39,6 +38,7 @@ const emit = defineEmits<{
   (event: 'update:isInvalid', payload: boolean): void;
   (event: 'change:modelValue', payload: boolean): void;
 }>();
+const slots = useSlots()
 // ---------------------------------------
 const open = ref(false)
 const quillEditor = ref<any>()
@@ -154,7 +154,7 @@ function ready() {
       </Dialog>
       <slot/>
     </template>
-    <template #before><slot name="before"/></template>
+    <template v-if="slots.before" #before><slot name="before"/></template>
     <template #after>
       <div class="relative flex text-left h-[36px]" @click="theme = 'snow'">
         <div class="group inline-flex justify-center items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 hover:dark:text-gray-100">

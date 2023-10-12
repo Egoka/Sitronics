@@ -91,7 +91,6 @@ const masks = ref({
 //   },
 // ]
 async function togglePopover() {
-  console.log(calendar.value)
   await (calendar.value as ICalendarPicker).moveBy(1);
 }
 const range = ref({

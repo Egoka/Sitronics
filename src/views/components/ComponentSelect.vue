@@ -7,6 +7,7 @@ import {CheckIcon} from "@heroicons/vue/20/solid";
 import InputLayout from "@/components/functional/InputLayout.vue";
 import Icons from "@/components/functional/Icons.vue";
 import Select from "@/components/form/StSelect.vue";
+import StInput from "@/components/form/StInput.vue";
 const formFields = reactive({isInfo: ""})
 
 const people = ref([
@@ -51,6 +52,8 @@ const form = ref({
       :params-select="{
         dataSelect: test,
         keySelect: 'value',
+        multiple: true,
+        maxVisible: 2
       }"
       help="Test field"
       clear>

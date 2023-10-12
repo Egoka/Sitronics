@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, reactive, ref, watch} from "vue";
+import {computed, getCurrentInstance, onMounted, reactive, ref, useSlots, watch} from "vue";
 // ---------------------------------------
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
-import { ArrowLongRightIcon } from '@heroicons/vue/24/outline'
+import { ArrowLongRightIcon, EllipsisVerticalIcon } from '@heroicons/vue/24/outline'
 import { DatePicker } from "v-calendar";
 import 'v-calendar/style.css';
 // ---------------------------------------
@@ -36,7 +36,7 @@ export type CalendarMask =
   "A"|"a"| //AM/PM
   "ZZ"|"ZZZ"|"ZZZZ"| //Timezone
   "L"| //Localized Date
-  "DD MMMM YYYY"|"DD.MM.YYYY"|string
+  "DD MMMM YYYY"|"DD.MM.YYYY"|"YYYY/MM/DD"|string
 export type ColorCalendarPicker = "primary"|"gray"|"red"|"orange"|"yellow"|"green"|"teal"|"blue"|"indigo"|"purple"|"pink"
 
 export interface IRangeDate {
@@ -118,7 +118,7 @@ export interface ICalendarPicker {
   disabledAttribute: Attribute
 }
 
-export  interface IMasksDate {
+export interface IMasksDate {
   title?: string
   weekdays?: string
   navMonths?: string
@@ -130,7 +130,7 @@ export  interface IMasksDate {
 interface IAttributeConfig extends Omit<Partial<AttributeConfig>, "dates">  {
   dates: DateRangeSource|DateRangeSource[]
 }
-interface IRangeValue {
+export interface IRangeValue {
   start: DateValueCalendar;
   end: DateValueCalendar;
   span: number;
@@ -160,6 +160,7 @@ export interface IDatePicker {
   isRange: boolean
   isRequired: boolean
   is24hr: boolean
+  mask: CalendarMask
   masks: IMasksDate
   disabledDates: DateRangeSource | DateRangeSource[]
   selectAttribute: Partial<IAttributeConfig>
@@ -167,6 +168,7 @@ export interface IDatePicker {
   locale: string | Partial<LocaleConfig>
   timezone: 'UTC'| string
   placeholder: string
+  separator: "arrow"|"points"|"none"
 }
 export interface ICalendar extends Omit<ILayout, "value"|"isValue">{
   id?: string
@@ -181,6 +183,7 @@ const emit = defineEmits<{
   (event: 'update:modelValue', payload: ICalendar["modelValue"]): void;
   (event: 'getCalendar', payload: ICalendarPicker): void;
 }>()
+const slots = useSlots()
 // ---------------------------------------
 const isOpenPicker = ref(false)
 // ---------------------------------------
@@ -192,8 +195,8 @@ const datePicker = computed<Partial<IDatePicker>>(()=>{return {
   expanded: true,
   trimWeeks: true,
   masks: {
-    modelValue: 'DD MMMM YYYY',
-    input: ['DD MMMM YYYY']
+    modelValue: props.paramsDatePicker?.mask||'DD MMMM YYYY',
+    input: [props.paramsDatePicker?.mask||'DD MMMM YYYY']
   },
   ...props.paramsDatePicker
 }})
@@ -218,6 +221,7 @@ const isLoading = computed<NonNullable<ILayout["loading"]>>(()=> props.loading |
 const isDisabled = computed<NonNullable<ILayout["disabled"]>>(()=> props.disabled || false)
 const isInvalid = computed<NonNullable<ILayout["isInvalid"]>>(()=> !isDisabled.value ? props.isInvalid : false)
 const messageInvalid = computed<NonNullable<ILayout["messageInvalid"]>>(()=> props.messageInvalid || "")
+const separator = computed<NonNullable<IDatePicker["separator"]>>(()=> props.paramsDatePicker?.separator || "arrow")
 const visibleDate = ref<ICalendarPicker["inputValue"]>()
 const valueLayout = computed<string>(()=>datePicker.value?.isRange
     ? (visibleDate.value as IRangeDate)?.start && (visibleDate.value as IRangeDate)?.end
@@ -296,12 +300,17 @@ function clear () {
 <template>
   <InputLayout v-bind="inputLayout" @clear="clear">
     <div :id="`dataPicker${id}`" class="flex w-full min-h-[36px] max-h-16 overflow-auto" @click="open">
-      <div v-if="datePicker?.isRange" class="flex items-center max-h-max cursor-default">
+      <div v-if="datePicker?.isRange" class="flex flex-wrap items-center z-10 max-h-max cursor-default">
         {{(visibleDate as IRangeValue)?.start}}
         <ArrowLongRightIcon
-          v-if="(visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"
+          v-if="separator === 'arrow' &&(visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"
           :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : 'text-gray-600 dark:text-gray-400']"
-          class="h-5 w-5 mx-2"/>
+          class="h-5 w-5 mx-1"/>
+        <EllipsisVerticalIcon
+          v-if="separator === 'points' && (visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"
+          :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : 'text-gray-600 dark:text-gray-400']"
+          class="h-5 w-5"/>
+        <div v-if="separator === 'none' && (visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end" class="h-5 w-1"/>
         <div v-else class="text-gray-400 dark:text-gray-600">{{placeholder}}</div>
         {{(visibleDate as IRangeValue)?.end}}
       </div>
@@ -334,7 +343,7 @@ function clear () {
       </transition>
       <slot/>
     </template>
-    <template #before><slot name="before"/></template>
+    <template v-if="slots.before" #before><slot name="before"/></template>
     <template #after><slot name="after"/></template>
   </InputLayout>
 </template>

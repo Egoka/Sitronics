@@ -43,7 +43,6 @@ const iconActive = computed<IDataSwitch["iconActive"]>(()=> props.paramsSwitch?.
 const iconInactive = computed<IDataSwitch["iconInactive"]>(()=> props.paramsSwitch?.iconInactive||"")
 // ---------------------------------------
 function inputEvent (value:boolean) {
-  console.log("value", value)
   inputModelValue(value)
 }
 // ---------------------------------------

@@ -1,18 +1,22 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, ref, reactive, watch} from "vue";
+import {computed, getCurrentInstance, ref, reactive, watch, useSlots} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
-import {CheckIcon, MagnifyingGlassIcon} from "@heroicons/vue/20/solid";
+import {CheckIcon, MagnifyingGlassIcon, FunnelIcon} from "@heroicons/vue/20/solid";
 import StInput from "@/components/form/StInput.vue";
-import DataStore, {type BaseDataItem, type IDataItem} from "@/helpers/dataStore";
+import DataStoreList , {type BaseDataItem, type IDataItem} from "@/helpers/dataStoreList";
 import gsap from 'gsap'
+import Badge from "@/components/functional/Badge.vue";
 // ---------------------------------------
 export interface IDateSelect {
-  dataSelect: Array<BaseDataItem>
+  dataSelect?: Array<BaseDataItem>
   keySelect?: string
   valueSelect?: string
   multiple?:boolean
+  maxVisible?:number
   noData?: string
   noQuery?: boolean
+  classSelect?: string
+  classSelectList?: string
   classMaskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
 }
 
@@ -29,6 +33,7 @@ const emit = defineEmits<{
   (event: 'update:modelValue', payload: ISelect["modelValue"]): void;
   (event: 'change:modelValue', payload: ISelect["modelValue"]): void;
 }>()
+const slots = useSlots()
 // ---------------------------------------
 const query = ref<string>("")
 const isOpenList = ref(false)
@@ -66,11 +71,12 @@ const isInvalid = computed<NonNullable<ILayout["isInvalid"]>>(()=> props.isInval
 const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid)
 const isValue = computed<boolean>(()=> Boolean(isMultiple.value ? value.value ? String(value.value).length : value.value : value.value || isOpenList.value))
 const isMultiple = computed<NonNullable<IDateSelect["multiple"]>>(()=> props.paramsSelect?.multiple || false)
+const maxVisible = computed<IDateSelect["maxVisible"]>(()=> props.paramsSelect?.maxVisible)
 const noData = computed<NonNullable<IDateSelect["noData"]>>(()=> props.paramsSelect?.noData || "Нет данных")
 const isQuery = computed<NonNullable<IDateSelect["noQuery"]>>(()=> !props.paramsSelect?.noQuery)
 const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery||"font-bold text-primary-700 dark:text-primary-300")
 // ---------------------------------------
-const dataStore = ref(new DataStore(value.value, keySelect.value, dataSelect.value, isMultiple.value))
+const dataStore = ref(new DataStoreList(value.value, keySelect.value, dataSelect.value||[], isMultiple.value))
 const valueLayout = computed<string>(()=>dataStore.value.getValue()?.map((item: any) => item[dataStore.value.getKey()])?.join(", "))
 // ---------------------------------------
 const inputLayout = reactive({value: valueLayout.value, isValue: isValue, mode: mode.value, label: props.label,
@@ -104,7 +110,7 @@ watch(isOpenList, (value)=>{
   inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
 })
 watch(()=>props.paramsSelect?.dataSelect, ()=>{
-  dataStore.value.setData(dataSelect.value)
+  dataStore.value.setData(dataSelect.value||[])
 })
 watch(value, (value:ISelect["modelValue"])=>{
   const dataStoreValue = dataStore.value.getKeyValue()
@@ -195,14 +201,25 @@ function open() {
 </script>
 <template>
   <InputLayout v-bind="inputLayout" @clear="select(null)">
-    <div :id="`select${id}`" class="flex w-full min-h-[38px] max-h-16 overflow-auto" @click="open">
+    <div :id="`select${id}`" :class="['flex w-full min-h-[38px] max-h-16 overflow-auto', props.paramsSelect?.classSelect]" @click="open">
       <div class="flex items-center flex-wrap">
         <template v-if="isMultiple">
           <transition-group leave-active-class="transition ease-in-out duration-300" leave-from-class="opacity-100 translate-x-0" leave-to-class="opacity-0 -translate-x-5"
                             enter-active-class="transition ease-in-out duration-300" enter-from-class="opacity-0 -translate-x-5" enter-to-class="opacity-100 translate-x-0">
-            <div v-for="item in dataStore.getValue()" :key="item[dataStore.getKey()]" class="z-10">
+            <div v-for="item in typeof maxVisible === 'number' ? dataStore.getValue().slice(0, maxVisible) : dataStore.getValue()" :key="item[dataStore.getKey()]" class="z-10">
               <slot name="values" :selected="item" :key="valueSelect ? valueSelect : dataStore.getKey()" :delete-select="select">
-                <div class="m-[2px] bg-stone-200 dark:bg-primary-900 h-4 leading-4 px-1 rounded-[2px]">{{valueSelect? item[valueSelect] : item[dataStore.getKey()]}}</div>
+                <Badge mode="neutral" close-button class-content="fill-primary-500" @delete="select(item)"
+                       :class="['m-1 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
+                  {{valueSelect? item[valueSelect] : item[dataStore.getKey()]}}
+                </Badge>
+              </slot>
+            </div>
+            <div v-if="dataStore.getValue().length > maxVisible" class="z-10">
+              <slot name="values" :selected="dataStore.getValue().length" :key="null" :delete-select="select">
+                <Badge mode="neutral" class-content="fill-primary-500"
+                       :class="['m-1 px-3 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
+                  <FunnelIcon aria-hidden="true" class="h-3 w-3 mr-2 text-primary-400 dark:text-primary-600"/> {{dataStore.getValue().length}}
+                </Badge>
               </slot>
             </div>
           </transition-group>
@@ -221,7 +238,8 @@ function open() {
                   enter-active-class="transition ease-in-out duration-200" enter-from-class="opacity-0 -translate-y-5" enter-to-class="opacity-100 translate-y-0">
         <div v-show="isOpenList"
              :id="`list${id}`"
-             :class="['overflow-auto absolute z-50 mt-1 w-full max-h-60 text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm',
+             :class="['overflow-auto absolute z-50 min-w-[10rem] mt-1 w-full max-h-60 text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm',
+                  props.paramsSelect?.classSelectList,
                  !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
                  !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
                  !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900'
@@ -255,15 +273,15 @@ function open() {
             @before-enter="onBeforeEnter"
             @enter="onEnter"
             @leave="onLeave">
-              <template v-if="dataSelect?.length" >
+              <template v-if="dataSelect?.length">
                 <li v-for="(item, index) in dataList"
                     :key="dataStore.getKey() !== 'uuid'? item[dataStore.getKey()]: item[dataStore.getKey()]+index"
                     :data-index="index"
-                    class="group text-gray-900 dark:text-gray-100 relative cursor-default select-none flex items-center h-9 mx-2 pl-8 pr-4 last:mb-5 transition-colors duration-75"
+                    class="group/li text-gray-900 dark:text-gray-100 relative cursor-default select-none flex items-center h-9 mx-2 pl-8 pr-4 last:mb-5 transition-colors duration-75"
                     :class="['hover:bg-primary-200 hover:dark:bg-primary-900', ['outlined','filled'].includes(mode) ? 'rounded-md': '']"
                     @click="select(item)">
                   <slot name="item" :item="item">
-                    <div v-if="isQuery && item.marker" v-html="item.marker" class="text-primary-600 dark:text-primary-400"/>
+                    <div v-if="isQuery && item.marker" v-html="item.marker" class="text-gray-600 dark:text-gray-300 group-hover/li:text-primary-700 dark:group-hover/li:text-primary-400"/>
                     <div v-else class="text-gray-500">{{valueSelect? item[valueSelect] : item}}</div>
                   </slot>
                   <span v-if="dataStore.isValue(item)" class="flex absolute inset-y-0 left-0 items-center pl-2 text-primary-700 dark:text-primary-400">
@@ -278,7 +296,7 @@ function open() {
       </transition>
       <slot/>
     </template>
-    <template #before><slot name="before"/></template>
+    <template v-if="slots.before" #before><slot name="before"/></template>
     <template #after><slot name="after"/></template>
   </InputLayout>
 </template>

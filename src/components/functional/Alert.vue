@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
+import {computed, ref, watch, useSlots} from "vue";
 import {
   CheckCircleIcon,
   InformationCircleIcon,
@@ -18,6 +18,7 @@ const props = defineProps<IAlertProps>()
 const emit = defineEmits<{
   (event: 'update:modelValue', payload: boolean): void;
 }>();
+const $slots = useSlots()
 // ---------------------------------------
 const isVisible = ref(props.modelValue)
 const type = computed<NonNullable<IAlertProps["type"]>>(()=> props.type||"success")
@@ -66,7 +67,7 @@ const style = computed<{body: string, icon: string, title: string, subtitle:stri
     case "warning": return {body: "bg-yellow-50 dark:bg-yellow-950", icon: "text-yellow-400 dark:text-yellow-600", title: "text-yellow-800 dark:text-yellow-200", subtitle: "text-yellow-700 dark:text-yellow-300", button: "hover:bg-yellow-200 dark:hover:bg-yellow-800", buttonIcon: "fill-yellow-500 dark:fill-yellow-500"}
     case "info": return {body: "bg-blue-50 dark:bg-blue-950", icon: "text-blue-400 dark:text-blue-600", title: "text-blue-800 dark:text-blue-200", subtitle: "text-blue-700 dark:text-blue-300", button: "hover:bg-blue-200 dark:hover:bg-blue-800", buttonIcon: "fill-blue-500 dark:fill-blue-500"}
     case "error": return {body: "bg-red-50 dark:bg-red-950", icon: "text-red-400 dark:text-red-600", title: "text-red-800 dark:text-red-200", subtitle: "text-red-700 dark:text-red-300", button: "hover:bg-red-200 dark:hover:bg-red-800", buttonIcon: "fill-red-500 dark:fill-red-500"}
-    case "neutral": return {body: "bg-neutral-100 dark:bg-neutral-800", icon: "text-neutral-400 dark:text-neutral-600", title: "text-neutral-600 dark:text-neutral-300", subtitle: "text-neutral-500 dark:text-neutral-400", button: "hover:bg-neutral-200 dark:hover:bg-neutral-800", buttonIcon: "fill-neutral-500 dark:fill-neutral-500"}
+    case "neutral": return {body: "bg-neutral-100 dark:bg-neutral-800", icon: "text-neutral-400 dark:text-neutral-600", title: "text-neutral-600 dark:text-neutral-300", subtitle: "text-neutral-500 dark:text-neutral-400", button: "hover:bg-neutral-200 dark:hover:bg-neutral-700", buttonIcon: "fill-neutral-500 dark:fill-neutral-500"}
   }
 })
 const icon = computed(()=>{
@@ -112,7 +113,7 @@ function close() {
         <div class="ml-3">
           <h3 v-if="title?.length" :class="['text-sm font-medium', style.title]">{{ title }}</h3>
           <div v-if="subtitle?.length" :class="['text-sm', !title?.length||'mt-2', style.subtitle]" v-html="subtitle"/>
-          <div :class="['text-sm', !title?.length||'mt-2', style.subtitle]"><slot/></div>
+          <div v-if="!!$slots?.default" :class="['text-sm', !title?.length||'mt-2', style.subtitle]"><slot/></div>
         </div>
         <div v-if="isCloseButton || displayTime === 0" class="ml-auto pl-3">
           <div class="-mx-1.5 -my-2">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {reactive, computed, getCurrentInstance, ref, watch} from "vue";
+import {reactive, computed, getCurrentInstance, ref, watch, useSlots} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import {convertToNumber, convertToPhone, onkeydown, toNumber, toPhone} from "@/helpers/numbers";
 import {EyeIcon, EyeSlashIcon} from "@heroicons/vue/20/solid";
@@ -24,10 +24,12 @@ export interface IInput extends Omit<ILayout, "value"|"isValue">{
 // ---------------------------------------
 const props = defineProps<IInput>()
 const emit = defineEmits<{
+  (event: 'clear', payload: string): void;
   (event: 'update:modelValue', payload: string): void;
   (event: 'update:isInvalid', payload: boolean): void;
   (event: 'change:modelValue', payload: boolean): void;
 }>();
+const slots = useSlots()
 // ---------------------------------------
 const isActiveInput = ref<boolean>(false)
 // ---------------------------------------
@@ -98,6 +100,7 @@ function clear() {
   isActiveInput.value = false
   inputModelValue('')
   changeModelValue('')
+  emit('clear', '')
 }
 </script>
 
@@ -124,7 +127,7 @@ function clear() {
       @change="changeModelValue(($event.target as HTMLInputElement).value)"
     />
     <template #body><slot/></template>
-    <template #before><slot name="before"/></template>
+    <template v-if="slots.before" #before><slot name="before"/></template>
     <template #after>
       <slot name="after"/>
       <EyeSlashIcon v-if="props.paramsInput?.type === 'password' && type === 'password'" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-cyan-500 transition cursor-pointer" aria-hidden="true" @click="type = 'text'" />
