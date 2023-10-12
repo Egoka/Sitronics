@@ -3,6 +3,18 @@ import ComponentViews from "@/components/ComponentViews.vue";
 import Table, {ITable} from "@/components/functional/Table.vue";
 import Button from "@/components/functional/Button.vue";
 import {ref} from "vue";
+import * as LData from "lodash";
+function generateData (size:number) {
+  return LData.times(size, (item) => {
+    return {
+      key: item,
+      name: `Car ${item+item}`,
+      age: item%25,
+      etc: `Etc ${item}`
+    };
+  });
+};
+
 const fruits = ref([
   {"name": "apple", "color": "red", "shape": "round", "taste": "sweet", "nutritional_value": "high", t1: 1225100000, t2: 3, date: '2023-10-11T19:09:01.833Z'},
   {"name": "orange", "color": "orange", "shape": "round", "taste": "sour", "nutritional_value": "high", t1: 122530000, t2: 4, date: '2023-10-13T19:09:01.833Z'},
@@ -13,6 +25,12 @@ const fruits = ref([
   {"name": "grape", "color": "purple", "shape": "round", "taste": "sweet", "nutritional_value": "high", t1: 122530000, t2: "5", date: '2023-10-15T19:09:01.833Z'},
   {"name": "grape", "color": "purple", "shape": "round", "taste": "sweet", "nutritional_value": "high", t1: 122530000, t2: "5", date: '2023-10-18T19:09:01.833Z'}
 ])
+const cars = [
+  ["Car 1", "Make 1", "Model 1", "Year 1", "Color 1"],
+  ["Car 2", "Make 2", "Model 2", "Year 2", "Color 2"],
+  ["Car 3", "Make 3", "Model 3", "Year 3", "Color 3"],
+  ["Car 1000", "Make 1000", "Model 1000", "Year 1000", "Color 1000"]
+]
 const columns = ref<ITable["columns"]>([
   {
     dataField: "color",
@@ -75,6 +93,15 @@ const columns = ref<ITable["columns"]>([
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5">
         <div class=" col-span-full m-5">
+          <Table class="my-10" :data-source="generateData(1001)" sort filter search
+                 :columns="[
+            {caption: 'Идентификатор', visible: false},
+            {caption: 'Авто', visible: true},
+            {caption: 'Номер', visible: true},
+            {caption: 'Идентификатор', visible: true}
+            ]"
+          ></Table>
+          <Table class="my-10" :data-source="cars" :columns="[{caption: 'Col 1'}, {}, {caption: 'Col 45'}]"></Table>
           <Table class="my-10" :data-source="fruits" filter sort search :columns="columns"></Table>
           <Table class="my-10" :data-source="fruits" filter></Table>
           <Table class="my-10" :data-source="fruits" sort filter :toolbar="{search: true}"></Table>

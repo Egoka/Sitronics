@@ -32,10 +32,13 @@ const emit = defineEmits<{
 const slots = useSlots()
 // ---------------------------------------
 const isActiveInput = ref<boolean>(false)
+const value = ref<string>(String(props.modelValue? toMask(props.modelValue) : ""))
+watch(()=>props.modelValue,()=>{
+  value.value = String(props.modelValue? toMask(props.modelValue) : "")
+})
 // ---------------------------------------
 const id = ref<NonNullable<IInput["id"]>>(String(props.id||getCurrentInstance()?.uid))
 const type = ref<IDataInput["type"]>(props.paramsInput?.type && arrayInputType.includes(props.paramsInput.type) ? props.paramsInput?.type : "text")
-const value = computed<string>(()=> String(props.modelValue? toMask(props.modelValue) : ""))
 const placeholder = computed<NonNullable<IDataInput["placeholder"]>>(()=> String(props.paramsInput?.placeholder || ""))
 const autocomplete = computed<NonNullable<IDataInput["autocomplete"]>>(()=> props.paramsInput?.autocomplete || "on")
 const mask = computed<IDataInput["mask"]|null>(()=> props.paramsInput?.mask||null)
@@ -88,13 +91,14 @@ function inputEvent ($event:any) {
   if (mask.value === "price"){ toNumber($event, " ", lengthInteger.value, lengthDecimal.value) }
   inputModelValue(($event.target as HTMLInputElement).value)
 }
-function inputModelValue(value:any) {
-  inputLayout.value = value
+function inputModelValue(valueResult:any) {
+  inputLayout.value = valueResult
+  value.value = valueResult
   emit('update:isInvalid', false)
-  emit('update:modelValue', value)
+  emit('update:modelValue', valueResult)
 }
-function changeModelValue(value:any) {
-  emit('change:modelValue', value)
+function changeModelValue(valueResult:any) {
+  emit('change:modelValue', valueResult)
 }
 function clear() {
   isActiveInput.value = false
