@@ -138,6 +138,7 @@ export interface IRangeValue {
   repeat: Partial<DateRepeatConfig>;
 }
 export interface IDatePicker {
+  classPicker: string|Array<string|null>
   ///Calendar//////////////////////
   borderless: boolean
   transparent: boolean
@@ -332,7 +333,7 @@ function clear () {
         <div v-show="isOpenPicker"
              :id="`picker${id}`"
              class="absolute z-50 mt-1 w-min min-w-min max-w-lg max-h-max overflow-auto text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm"
-             :class="[
+             :class="[ props.paramsDatePicker?.classPicker,
                !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
                !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
                !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900'

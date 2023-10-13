@@ -14,7 +14,7 @@ export interface IDataInput {
   mask?: IInputMask
   lengthInteger?: number
   lengthDecimal?: number
-  classInput?: string
+  classInput?: string|Array<string|null>
 }
 export interface IInput extends Omit<ILayout, "value"|"isValue">{
   id?: string
@@ -28,6 +28,7 @@ const emit = defineEmits<{
   (event: 'update:modelValue', payload: string): void;
   (event: 'update:isInvalid', payload: boolean): void;
   (event: 'change:modelValue', payload: boolean): void;
+  (event: 'isActive', payload: boolean): void;
 }>();
 const slots = useSlots()
 // ---------------------------------------
@@ -77,6 +78,7 @@ watch(messageInvalid, ()=>{
 })
 watch(isActiveInput, (value)=>{
   inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+  emit('isActive', value)
 })
 watch(isLoading, (value)=>{
   inputLayout.loading = value

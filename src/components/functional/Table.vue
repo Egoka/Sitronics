@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import {computed, onMounted, reactive, ref, watch} from "vue";
+import {computed, onMounted, onUnmounted, onUpdated, reactive, ref, watch} from "vue";
 import {
   ArrowLongUpIcon, ArrowLongDownIcon,
   BarsArrowUpIcon, BarsArrowDownIcon,
   MagnifyingGlassIcon, FunnelIcon
 } from "@heroicons/vue/20/solid";
 import * as LData from "lodash";
+import dayjs from 'dayjs'
+import Loading from "@/components/functional/Loading.vue";
 import StInput, {type IDataInput} from "@/components/form/StInput.vue";
 import StSelect, {type IDateSelect} from "@/components/form/StSelect.vue";
 import StCalendar, {type IDatePicker, type IRangeValue} from "@/components/form/StCalendar.vue";
-import gsap from "gsap";
-import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
-import type {IMode} from "@/components/form/StForm.vue";
 import {convertToNumber, convertToPhone} from "@/helpers/numbers";
-import Loading from "@/components/functional/Loading.vue";
+import type {IMode} from "@/components/form/StForm.vue";
+// ---------------------------------------
+type DataType = "string"|"number"|"select"|"date"
+// ---------------------------------------
 export interface IToolbar {
   visible?:boolean
   search?:boolean
@@ -31,7 +33,7 @@ export interface IColumn {
   dataField?:string
   name?:string
   caption?:string
-  type?:"string"|"number"|"select"|"date"
+  type?:DataType
   visible?:boolean
   width?:number
   minWidth?:number
@@ -45,7 +47,15 @@ export interface IColumn {
 }
 interface IColumnPrivate extends IColumn { id: string }
 export interface ISummary {
-  columnsSummary?: Array<any>
+  dataField?: string
+  name?: string
+  displayFormat?: string|"Sum: {0}"|"Min: {0}"|"Max: {0}"|"Avg: {0}"|"Count: {0}"
+  type?: "sum"|"min"|"max"|"avg"|"count"
+  dataType: DataType
+  customizeText?(summary:ISummary, result:string):string
+}
+interface ISummaryPrivate extends ISummary {
+  id: string
 }
 export interface IPagination {
 
@@ -58,9 +68,10 @@ export interface ITable {
   sort?: ISort|boolean
   filter?: IFilter|boolean
   isHiddenHead?:boolean
+  isSummary?:boolean
   search?:boolean
   columns?: Array<IColumn>
-  summary?: ISummary
+  summary?: Array<ISummary>
   pagination?: IPagination
   noData?:string
   noColumn?:string
@@ -72,10 +83,17 @@ const props = defineProps<ITable>()
 const emit = defineEmits<{
 }>();
 // ---------------------------------------
+
+const tableBody = ref<HTMLElement>()
+const table = ref<HTMLElement>()
+const thead = ref<HTMLElement>()
+const tbody = ref<HTMLElement>()
+const tfoot = ref<HTMLElement>()
+// ---------------------------------------
 let queryTable = ref<string>("")
 let orderColumns = reactive<object>({})
 let filterColumns = reactive<object>({})
-let dataFrame = reactive<Array<any>|null>(props.dataSource)
+let dataOriginal = reactive<Array<any>|null>(props.dataSource)
 // ---------------------------------------
 const loading = ref<boolean>(false)
 const isLoading = computed<boolean>({
@@ -88,7 +106,7 @@ const isLoading = computed<boolean>({
 const lengthData = computed(()=> dataSource.value.length)
 const countDataOnLoading = computed<ITable["countDataOnLoading"]>(()=> props.countDataOnLoading||1000)
 const dataSource = computed(()=> {
-  let data = dataFrame
+  let data = dataOriginal
   // Order
   if (data && Object.keys(orderColumns).filter(i=>orderColumns[i] !== null).length){
     const orderingNameColumns = Object.keys(orderColumns).filter(i=>orderColumns[i] !== null)
@@ -114,21 +132,24 @@ const dataSource = computed(()=> {
       .filter(item => item.visible)
       .filter(item => isEqualsValue(item, row[item.dataField], queryTable.value)).length)
   }
-  setTimeout(()=> {isLoading.value = false},100)
+  if (dataOriginal?.length > countDataOnLoading.value) {
+    isLoading.value = false
+  }
   return data || []
 })
 const dataColumns = computed<Array<IColumnPrivate>>(()=> {
-  const listFields = LData.uniq(LData.flatten(LData.map(dataFrame, LData.keys)))
+  const listFields = LData.uniq(LData.flatten(LData.map(dataOriginal, LData.keys)))
   if (props.columns){
     return <Array<IColumnPrivate>>props.columns
       .map((column, index)=>{
+        const fieldName = column.dataField||listFields[index]
         const options = <IColumnPrivate>{
-          id: `Col-${index}`,
-          dataField: column.dataField||listFields[index],
-          name: column.name||column.dataField,
+          id: `Col-${fieldName}-${index}`,
+          dataField: fieldName,
+          name: `Col-${column.name||fieldName}`,
           caption: column.caption||
-            (/^\d+$/.test(column.dataField||listFields[index]) ? `Col ${column.dataField||listFields[index]}`
-            :(column.dataField as string).charAt(0).toUpperCase() + (column.dataField as string).slice(1)),
+            (/^\d+$/.test(fieldName) ? `Col ${fieldName}`
+            :(fieldName as string).charAt(0).toUpperCase() + (fieldName as string).slice(1)),
           visible: typeof column.visible === "boolean" ? column.visible : true,
           isFilter: typeof column.isFilter === "boolean" ? column.isFilter : isFilter.value,
           isSort: typeof column.isSort === "boolean" ? column.isSort : isSort.value,
@@ -154,7 +175,7 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
             options.paramsSelect = <IDateSelect>{
               multiple: true,
               maxVisible: 0,
-              dataSelect: LData.uniq(LData.map(dataFrame, options.dataField||""))||[],
+              dataSelect: LData.compact(LData.uniq(LData.map(dataOriginal, options.dataField||"")))||[],
               ...column.paramsSelect};break
           }
           case "date": {
@@ -164,8 +185,9 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
                 highlight: {
                   fillMode: 'light',
                 },
-                dates: LData.uniq(LData.map(dataFrame, options.dataField||"")).map(item=>new Date(item))||[],
+                dates: LData.compact(LData.uniq(LData.map(dataOriginal, options.dataField||""))).map((item:string)=>new Date(item))||[],
               }],
+              classPicker: "-left-1/2",
               mask: column.paramsDatePicker?.masks?.modelValue||"DD.MM.YYYY",
               ...column.paramsDatePicker
             };
@@ -177,9 +199,9 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
   } else {
     return <Array<IColumnPrivate>>listFields.map((column:string, index)=>{
       return {
-        id: column+index,
+        id: `Col-${column}-${index}`,
         dataField: column,
-        name: column,
+        name: `Col-${column}`,
         caption: /^\d+$/.test(column) ? `Col ${column}`
           : (column.charAt(0).toUpperCase() + column.slice(1))?.replace(/_/g, ' '),
         visible: true,
@@ -190,14 +212,66 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
     })
   }
 })
+const dataSummary = computed<Array<ISummaryPrivate>>(()=> {
+  if (!isSummary.value) { return []}
+  if (props.summary){
+    return <Array<ISummaryPrivate>>props.summary.map((summary, index)=>{
+      const column = getColumn(summary.dataField, index)
+      const summaryName = summary.dataField||column.dataField
+      return {
+        id: `Sum-${summary.name||summaryName}-${index}`,
+        name: `Sum-${summary.name||summaryName}`,
+        dataField: summaryName,
+        displayFormat: summary.displayFormat||(
+                summary.type === "max" ? "Max: {0}"
+              : summary.type === "min" ? "Min: {0}"
+              : summary.type === "sum" ? "Sum: {0}"
+              : summary.type === "avg" ? "Avg: {0}"
+              : summary.type === "count"?"Count: {0}"
+              : "Count: {0}"
+          )||
+          ((["string", "date"]).includes(column.type as string) ? "Кол. {0}"
+          : (["number", "select"]).includes(column.type as string) ? "Сум. {0}"
+            : "Кол. {0}"),
+        type: summary.type||((["string", "date", "select"]).includes(column.type as string) ? "count"
+          : (["number"]).includes(column.type as string) ? "sum"
+            : "count"),
+        customizeText: summary.customizeText,
+        dataType: summary.dataType||column.type
+      }
+    })
+  } else {
+    return <Array<ISummaryPrivate>>dataColumns.value.filter(item => item.visible).map(column=>{
+      return {
+        name: `Sum-${column.name}`,
+        dataField: column.dataField,
+        displayFormat: (["string", "date"]).includes(column.type as string) ? "Кол. {0}"
+          : (["number", "select"]).includes(column.type as string) ? "Сум. {0}"
+            : "Кол. {0}",
+        type: (["string", "date"]).includes(column.type as string) ? "count"
+          : (["number", "select"]).includes(column.type as string) ? "sum"
+          : "count",
+        dataType: column.type
+      }
+    })
+  }
+})
+const summaryColumns = computed<object>(()=>{
+  if (!isSummary.value || !dataSummary.value?.length) { return {}}
+  return dataSummary.value
+    .reduce((result, summary)=> {
+      result[summary.dataField] = setSummary(summary)
+      return result
+    }, {})
+})
 const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.classMaskQuery||"font-bold text-primary-700 dark:text-primary-300")
 const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode||"filled")
 const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData || "Нет данных")
 const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn || "Нет колонок")
 const isHiddenHead = computed<ITable["isHiddenHead"]>(()=> props.isHiddenHead||false)
+const isSummary = computed<ITable["isSummary"]>(()=> props.isSummary||!!props.summary?.length||false)
 const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> props.noData || "Не найдено подходящих данных")
 const isVisibleToolbar = computed<boolean>(()=> isSearch.value || (props.toolbar as IToolbar)?.visible || (!!props.toolbar || !!(Object.keys(props.toolbar).length))||false)
-const isSearch = computed<boolean>(()=> props.search||(props?.toolbar as IToolbar)?.search||false)
 const isFilter = computed<boolean>(()=>typeof props?.filter === "object"
   ? typeof props?.filter?.visible === "boolean" ? props.filter.visible : false
   : typeof props?.filter === "boolean" ? props.filter : false )
@@ -205,6 +279,22 @@ const isSort = computed<boolean>(()=>typeof props?.sort === "object"
   ? typeof props?.sort?.visible === "boolean" ? props.sort.visible : false
   : typeof props?.sort === "boolean" ? props.sort : false )
 const iconSort = computed<ISort["icon"]>(()=>(props?.sort as ISort)?.icon||"Arrow")
+const isSearch = computed<boolean>(()=> props.search||(props?.toolbar as IToolbar)?.search||false)
+const isSearchActive = ref<boolean>()
+// ---------------------------------------
+const tableObserver = new ResizeObserver(entries => {
+  entries.forEach(() => {
+    setFooterPaddingHeight()
+    const result = tableBody.value?.clientHeight - (thead.value?.clientHeight + tbody.value?.clientHeight + tfoot.value?.clientHeight)
+    footerPaddingHeight.value = result ? result : 0
+  });
+});
+const footerPaddingHeight = ref<number>(0)
+function setFooterPaddingHeight() {
+  const result = tableBody.value?.clientHeight -
+    (thead.value?.clientHeight + tbody.value?.clientHeight + tfoot.value?.clientHeight)
+  footerPaddingHeight.value = result ? result : 0
+}
 // ---------------------------------------
 const isDark = ref<boolean>(window.matchMedia('(prefers-color-scheme: dark)')?.matches)
 const colorSchemeQueryList = window.matchMedia('(prefers-color-scheme: dark)');
@@ -213,11 +303,20 @@ setColorScheme(colorSchemeQueryList);
 colorSchemeQueryList.addEventListener('change', setColorScheme);
 // ---------------------------------------
 onMounted(()=>{
+  if (tbody.value) {
+    tableObserver.observe(tbody.value as Element);
+  }
   const result = dataColumns.value.map((column)=>[column.dataField,null])
   Object.assign(orderColumns, Object.fromEntries(new Map(result)))
   Object.assign(filterColumns, Object.fromEntries(new Map(result)))
 })
+onUnmounted(()=>{
+  tableObserver.disconnect();
+})
 // ---------------------------------------
+function getColumn(dataField:IColumn["dataField"], index?:number):IColumnPrivate {
+  return dataColumns.value.find((column, item)=>dataField ? column.dataField === dataField : item === index)
+}
 function sorting(columnName:string|undefined) {
   if (!columnName){ return }
   let timeout = lengthData.value > countDataOnLoading.value ? 800 : 10
@@ -230,7 +329,8 @@ function sorting(columnName:string|undefined) {
 }
 function filtering(columnName:string|undefined, value:any) {
   if (!columnName){ return }
-  let timeout = lengthData.value > countDataOnLoading.value||value === null||value === "" ? 800 : 10
+  let timeout = (dataOriginal?.length > countDataOnLoading.value)
+    ? lengthData.value > countDataOnLoading.value||value === null||value === "" ? 800 : 0 : 0
   if (timeout > 100){
     isLoading.value = true
   }
@@ -239,7 +339,8 @@ function filtering(columnName:string|undefined, value:any) {
   },timeout)
 }
 function searching(value:any) {
-  let timeout = lengthData.value > countDataOnLoading.value||value === null||value === "" ? 800 : 10
+  let timeout = dataOriginal?.length > countDataOnLoading.value
+    ? lengthData.value > countDataOnLoading.value||value === null||value === "" ? 800 : 0 : 0
   if (timeout > 100){
     isLoading.value = true
   }
@@ -248,6 +349,7 @@ function searching(value:any) {
   },timeout)
 }
 function isEqualsValue(column:IColumnPrivate, columnValue:any, value: any): boolean {
+  if (columnValue === null || columnValue === undefined) { return false}
   switch (column.type) {
     case "string": return String(columnValue).includes(value)
     case "number": return columnValue === Number(value)
@@ -256,11 +358,13 @@ function isEqualsValue(column:IColumnPrivate, columnValue:any, value: any): bool
       if (value instanceof Date){
         return dayjs(dayjs(columnValue).startOf('day')).isSame(dayjs(value as Date).startOf('day'))
       } else {
-        dayjs.extend(isBetween)
-        return dayjs(dayjs(columnValue).startOf('day')).isBetween(
+        if (value?.start instanceof Date && value?.end instanceof Date) {
+          dayjs.extend(isBetween)
+          return dayjs(dayjs(columnValue).startOf('day')).isBetween(
             dayjs((value as IRangeValue)?.start as Date).startOf('day'),
             dayjs((value as IRangeValue)?.end as Date).startOf('day'),
             null, "[]")
+        } else { return false }
       }
     }
   }
@@ -272,6 +376,47 @@ function columnStyle(el:"filter", column:IColumnPrivate) {
       !column.width||`width: ${column.width}rem`,
       !column.maxWidth||`max-width: ${column.maxWidth}rem`
     ]
+  }
+}
+function setSummary(summary:ISummaryPrivate):string{
+  let result:number|string|null = null
+  const columnData:Array<any> = LData.compact(LData.map(dataSource.value, summary.dataField||""))
+  switch (summary.type) {
+    case "sum": {
+      if ((["number"] as Array<DataType>).includes(summary.dataType)){
+        result = LData.sumBy(columnData, i=>!isNaN(Number(i)) ? Number(i) : 0)
+      } break
+    }
+    case "count": {
+      if ((["string", "select", "number", "date"] as Array<DataType>).includes(summary.dataType)){
+        result = LData.size(columnData)
+      } break
+    }
+    case "min": {
+      if ((["string", "select"] as Array<DataType>).includes(summary.dataType)) { result = LData.minBy(columnData,i=>String(i).length) }
+      if (summary.dataType === "number") { result = LData.minBy(columnData,i=>!isNaN(Number(i)) ? Number(i) : 0) }
+      if (summary.dataType === "date") { result = LData.minBy(columnData,i=>new Date(i).getTime()) }
+      break
+    }
+    case "max": {
+      if ((["string", "select"] as Array<DataType>).includes(summary.dataType)) { result = LData.maxBy(columnData,i=>String(i).length) }
+      if (summary.dataType === "number") { result = LData.maxBy(columnData,i=>!isNaN(Number(i)) ? Number(i) : 0) }
+      if (summary.dataType === "date") { result = LData.maxBy(columnData,i=>new Date(i).getTime()) }
+      break
+    }
+    case "avg": {
+      if ((["string", "select"] as Array<DataType>).includes(summary.dataType)) { result = LData.meanBy(columnData,i=>String(i).length) }
+      if (summary.dataType === "number") { result = LData.meanBy(columnData,i=>!isNaN(Number(i)) ? Number(i) : 0) }
+      if (summary.dataType === "date") { result = LData.meanBy(columnData,i=>new Date(i).getTime()) }
+      break
+    }
+  }
+  if (result === null || result === undefined) { return "" }
+  result =  setCell(getColumn(summary.dataField), String(result))
+  if (summary?.customizeText) {
+    return <string>summary?.customizeText(summary, result)
+  } else {
+    return String(summary?.displayFormat).replace(/\{0}/g, result)
   }
 }
 function setCell(column:IColumnPrivate, value:any):string{
@@ -291,14 +436,18 @@ function setCell(column:IColumnPrivate, value:any):string{
     } else { return String(value) }
   }
   let valueCell
-  switch (column.type) {
-    case "string": valueCell =  toMask();break
-    case "number": valueCell = toMask();break
-    case "select": valueCell = toMask();break
-    case "date": valueCell = dayjs(value).format(column.paramsDatePicker?.mask);break
-    default: valueCell = value
+  if (value === null || value === undefined) {
+    valueCell = null
+  } else {
+    switch (column.type) {
+      case "string": valueCell =  toMask();break
+      case "number": valueCell = toMask();break
+      case "select": valueCell = toMask();break
+      case "date": valueCell = dayjs(value).format(column.paramsDatePicker?.mask);break
+      default: valueCell = value
+    }
   }
-  if (filterColumns[column.dataField]||queryTable.value.length){
+  if (valueCell && (filterColumns[column.dataField]||queryTable.value.length)){
     valueCell = valueCell.replace(new RegExp(
       filterColumns[column.dataField]||queryTable.value, "gi"),
       `<span class="${classMaskQuery.value}">$&</span>`)
@@ -326,11 +475,12 @@ function noEmptyFilters(filter: object) {
           :mode="mode"
           label-mode="vanishing"
           :params-input="{autocomplete: 'off'}"
-          :class-body="`mb-2 sticky top-1 z-20 rounded-md ${
+          :class-body="`mb-2 sticky top-1 z-20 rounded-md ease-out ${
             (mode === 'outlined') ? 'ring-white dark:ring-black' :
             (mode === 'underlined') ? 'ring-stone-50 dark:ring-stone-950' :
             (mode === 'filled') ? 'ring-stone-100 dark:ring-stone-900': '' }`"
-          :style="`max-width: ${queryTable.length?20:8}rem`"
+          :style="`max-width: ${isSearchActive||queryTable.length?20:8}rem`"
+          @is-active="(active)=>{isSearchActive = active}"
           @change:model-value="(v)=>searching(v)"
           @update:model-value="(v)=>lengthData > 100||searching(v)">
           <template #before>
@@ -338,17 +488,15 @@ function noEmptyFilters(filter: object) {
           </template>
         </StInput>
       </div>
-      <div class="flex flex-col overflow-x-auto border rounded-lg border-neutral-200 dark:border-neutral-800 min-h-[21rem]"
-           :style="`max-height: ${21}rem`">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-          <thead v-if="!isHiddenHead" class="bg-stone-100 dark:bg-stone-900 sticky top-0">
+      <div ref="tableBody" class="flex flex-col overflow-x-auto border rounded-lg border-neutral-200 dark:border-neutral-800 min-h-[21rem]"
+           :style="`height: ${28}rem`">
+        <table ref="table" class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+<!-- -------------------------------- -->
+          <thead v-if="!isHiddenHead" ref="thead" class="bg-stone-100 dark:bg-stone-900 sticky top-0 z-10">
           <tr>
             <template v-for="column in dataColumns" :key="column.id">
-              <th
-                v-if="column.visible"
-                scope="col"
-                class="text-xs font-bold text-left text-gray-500"
-                :class="[column.isFilter ? 'px-2 pt-1' : 'px-6 py-5']">
+              <th v-if="column.visible" scope="col"
+                :class="[column.isFilter ? 'pl-2 pt-1' : 'pl-6 py-5']">
                 <div class="group flex w-max cursor-pointer">
                   <div v-if="column.isFilter"
                     :style="columnStyle('filter', column)">
@@ -361,7 +509,7 @@ function noEmptyFilters(filter: object) {
                       class-body="m-0 my-2"
                       :params-input="column?.paramsInput"
                       class="border-none font-normal"
-                      :style="`max-width: ${column.width||6}rem`"
+                      :style="`max-width: ${column.width||column.minWidth||6}rem`"
                       clear
                       @change:model-value="(v)=>filtering(column?.dataField, v)"
                       @update:model-value="(v)=>lengthData > 100||filtering(column?.dataField, v)"
@@ -375,7 +523,7 @@ function noEmptyFilters(filter: object) {
                         classSelectList: 'normal-case font-normal',
                         ...column?.paramsSelect}"
                       :mode="mode"
-                      :style="`min-width: ${column.minWidth||10}rem`"
+                      :style="`min-width: ${column.width||column.minWidth||10}rem`"
                       class-body="m-0 my-2"
                       class="border-none font-normal"
                       clear
@@ -388,7 +536,7 @@ function noEmptyFilters(filter: object) {
                       label-mode="offsetDynamic"
                       class-body="m-0 my-2"
                       class="border-none font-normal"
-                      :style="`width: ${column.width||column.minWidth||8}rem`"
+                      :style="`min-width: ${column.width||column.minWidth||8}rem`"
                       :params-date-picker="column?.paramsDatePicker"
                       clear
                       @update:model-value="(v)=>filtering(column?.dataField, v)"/>
@@ -410,15 +558,32 @@ function noEmptyFilters(filter: object) {
             </template>
           </tr>
           </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-              <tr v-for="(data, index) in dataSource" :key="index" class="max-h-8">
-                <template v-for="(column, key) in dataColumns" :key="`${index}-${key}`">
-                  <td v-if="column.visible" class="px-6 py-4 text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap font-medium"
-                      :style="columnStyle('filter', column)" v-html="setCell(column, data[column.dataField])">
-                  </td>
-                </template>
-              </tr>
-            </tbody>
+<!-- -------------------------------- -->
+          <tbody ref="tbody" class="divide-y divide-gray-200 dark:divide-gray-800 overflow-y-auto">
+          <tr v-for="(data, index) in dataSource" :key="index" class="max-h-8">
+            <template v-for="(column, key) in dataColumns" :key="`${index}-${key}`">
+              <td v-if="column.visible" class="px-6 py-4 text-sm text-gray-800 dark:text-gray-300 whitespace-nowrap font-medium"
+                  :style="columnStyle('filter', column)">
+                <div class="flex items-center min-h-[1.5rem]" v-html="setCell(column, data[column.dataField])"/>
+              </td>
+            </template>
+          </tr>
+          </tbody>
+<!-- -------------------------------- -->
+          <div v-if="footerPaddingHeight" class="border-none" :style="`height: ${footerPaddingHeight-1}px`"></div>
+<!-- -------------------------------- -->
+          <tfoot v-if="isSummary && Object.keys(summaryColumns).length" ref="tfoot" class="bg-stone-100 dark:bg-stone-900 sticky bottom-0">
+          <tr>
+            <template v-for="column in dataColumns" :key="column.id">
+              <th v-if="column.visible" scope="col" class="pl-6 py-3">
+                  <div class="block text-sm font-normal text-gray-400 dark:text-gray-500 truncate text-left"
+                       :style="columnStyle('filter', column)"
+                       v-html="summaryColumns[column.dataField]"/>
+              </th>
+            </template>
+          </tr>
+          </tfoot>
+<!-- -------------------------------- -->
         </table>
       </div>
       <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
@@ -431,15 +596,15 @@ function noEmptyFilters(filter: object) {
       </transition>
       <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                   enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <div v-if="!dataFrame?.length" class="absolute top-[40%] left-0 w-full my-5 select-none text-center text-sm text-gray-500" v-html="noData"/>
+        <div v-if="!dataOriginal?.length" class="absolute top-[40%] left-0 w-full my-5 select-none text-center text-sm text-gray-500" v-html="noData"/>
       </transition>
       <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                   enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <div v-if="dataFrame?.length && !dataColumns?.length" class="absolute top-[50%] left-0 w-full my-5 select-none text-center text-sm text-gray-500" v-html="noColumn"/>
+        <div v-if="dataOriginal?.length && !dataColumns?.length" class="absolute top-[50%] left-0 w-full my-5 select-none text-center text-sm text-gray-500" v-html="noColumn"/>
       </transition>
       <transition leave-active-class="transition-all ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                   enter-active-class="transition-all ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <div v-if="dataFrame?.length && dataColumns?.length && !dataSource.length" class="absolute top-[55%] flex flex-col items-center left-0 w-full my-5 select-none text-center text-sm text-gray-500">
+        <div v-if="dataOriginal?.length && dataColumns?.length && !dataSource.length" class="absolute top-[40%] flex flex-col items-center left-0 w-full my-5 select-none text-center text-sm text-gray-500">
           <FunnelIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
           <div v-html="noFilter"/>
         </div>

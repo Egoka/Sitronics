@@ -209,7 +209,7 @@ function open() {
             <div v-for="item in typeof maxVisible === 'number' ? dataStore.getValue().slice(0, maxVisible) : dataStore.getValue()" :key="item[dataStore.getKey()]" class="z-10">
               <slot name="values" :selected="item" :key="valueSelect ? valueSelect : dataStore.getKey()" :delete-select="select">
                 <Badge mode="neutral" close-button class-content="fill-primary-500" @delete="select(item)"
-                       :class="['m-1 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
+                       :class="['m-1 mb-0 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
                   {{valueSelect? item[valueSelect] : item[dataStore.getKey()]}}
                 </Badge>
               </slot>
@@ -217,7 +217,7 @@ function open() {
             <div v-if="dataStore.getValue().length > maxVisible" class="z-10">
               <slot name="values" :selected="dataStore.getValue().length" :key="null" :delete-select="select">
                 <Badge mode="neutral" class-content="fill-primary-500"
-                       :class="['m-1 px-3 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
+                       :class="['m-1 mb-0 px-3 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
                   <FunnelIcon aria-hidden="true" class="h-3 w-3 mr-2 text-primary-400 dark:text-primary-600"/> {{dataStore.getValue().length}}
                 </Badge>
               </slot>

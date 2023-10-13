@@ -120,7 +120,7 @@ async function copy() {
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
           <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition cursor-help" aria-hidden="true" />
-          <Tooltip>Дополнителная информация</Tooltip>
+          <Tooltip>Дополнительная информация</Tooltip>
         </template>
       </Dropdown>
       <template v-if="!isDisabled">
@@ -139,7 +139,7 @@ async function copy() {
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <div v-if="clear && (value?.length||value>0)" class="h-5 w-5 mr-2">
             <XCircleIcon class="h-5 w-5 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition-all duration-300 cursor-pointer" aria-hidden="true" @click.stop="emit('clear')" />
-            <Tooltip>Очисить</Tooltip>
+            <Tooltip>Очистить</Tooltip>
           </div>
         </transition>
       </template>
