@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {reactive, computed, getCurrentInstance, ref, watch, useSlots} from "vue";
+import {reactive, computed, getCurrentInstance, ref, watch, useSlots, onMounted} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import {convertToNumber, convertToPhone, onkeydown, toNumber, toPhone} from "@/helpers/numbers";
 import {EyeIcon, EyeSlashIcon} from "@heroicons/vue/20/solid";
@@ -33,7 +33,7 @@ const emit = defineEmits<{
 const slots = useSlots()
 // ---------------------------------------
 const isActiveInput = ref<boolean>(false)
-const value = ref<string>(String(props.modelValue? toMask(props.modelValue) : ""))
+const value = ref<string>(String(props.modelValue || ""))
 watch(()=>props.modelValue,()=>{
   value.value = String(props.modelValue? toMask(props.modelValue) : "")
 })
@@ -66,6 +66,10 @@ function toMask(value:string|number):string {
     return convertToNumber(value, lengthInteger.value, lengthDecimal.value, " ")
   } else { return String(value) }
 }
+// ---------------------------------------
+onMounted(()=>{
+  value.value = toMask(value.value)
+})
 // ---------------------------------------
 watch(value, (value)=>{
   inputLayout.value = value

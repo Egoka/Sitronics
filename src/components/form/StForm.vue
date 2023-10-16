@@ -328,7 +328,7 @@ function submit(){
                       @change:model-value="changeField(field)">
                       <template #values="{selected, key, deleteSelect}">
                         <Badge mode="neutral" close-button class-content="fill-primary-500" @delete="deleteSelect(selected)"
-                               :class="['m-1 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
+                               :class="['m-1 mb-0 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
                           {{selected[key]}}
                         </Badge>
                       </template>

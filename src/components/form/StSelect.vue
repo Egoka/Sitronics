@@ -85,6 +85,9 @@ const inputLayout = reactive({value: valueLayout.value, isValue: isValue, mode: 
   classBody: props.classBody, class: props.class})
 // ---------------------------------------
 watch(value, ()=>{
+  if (value.value) {
+    dataStore.value.setValue(value.value)
+  } else { dataStore.value.clearValue() }
   inputLayout.value = valueLayout.value
 })
 watch(isInvalid, ()=>{
@@ -175,16 +178,16 @@ function onEnter(el:any, done:any) {
   gsap.to(el, {
     opacity: 1,
     height: '38px',
-    delay: el.dataset.index * 0.01,
+    delay: el.dataset.index * (dataStore.value.getData().length >= 80 ? 0 : 0.01),
     onComplete: done
   })
 }
 const delay = computed<number>(():number=> {
   const d = dataStore.value.getData().length
-  if (d>=0 && d>10) { return 0.25
-  } else if (d>=10 && d>30) { return 0.15
-  } else if (d>=30 && d>80) { return 0.10
-  } else if (d>=80) { return 0.05 } else { return 0.05}
+  if (d>=0 && d<10) { return 0.25
+  } else if (d>=10 && d<30) { return 0.05
+  } else if (d>=30 && d<80) { return 0.01
+  } else if (d>=80) { return 0 }
 })
 function onLeave(el:any, done:any) {
   gsap.to(el, {
@@ -275,7 +278,7 @@ function open() {
             @leave="onLeave">
               <template v-if="dataSelect?.length">
                 <li v-for="(item, index) in dataList"
-                    :key="dataStore.getKey() !== 'uuid'? item[dataStore.getKey()]: item[dataStore.getKey()]+index"
+                    :key="dataStore.getKey() !== 'uuid'? item[dataStore.getKey()]: item[dataStore.getKey()]"
                     :data-index="index"
                     class="group/li text-gray-900 dark:text-gray-100 relative cursor-default select-none flex items-center h-9 mx-2 pl-8 pr-4 last:mb-5 transition-colors duration-75"
                     :class="['hover:bg-primary-200 hover:dark:bg-primary-900', ['outlined','filled'].includes(mode) ? 'rounded-md': '']"

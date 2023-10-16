@@ -38,6 +38,7 @@ export const convertToPhone = (value: string):string => {
 export const convertToNumber = (number:number|string, lengthInteger = 20, lengthDecimal = 0, separator = '', end = '', interval = 3, floatingPoint= ''):string => {
   if (!number) { return "" }
   number = String(number).replace(/[^0-9.]/g, '')
+  if (!number.length) { return "" }
   const re = '\\d(?=(\\d{' + interval + '})+' + (lengthDecimal > 0 ? '\\D' : '$') + ')'
   const degree = String(Math.trunc(+number)).length - lengthInteger
   number = +number/10**(degree > 0 ? degree : 0)

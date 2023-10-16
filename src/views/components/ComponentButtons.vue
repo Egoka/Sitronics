@@ -103,9 +103,9 @@ function click(e) {
     <template #title>Buttons</template>
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Базовое использование</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-      Тут продиманстированны все варианты параметра <Badge class="mr-4">mode</Badge><Badge>Primary</Badge> по умолчанию</p>
+      Тут продемонстрированны все варианты параметра <Badge class="mr-4">mode</Badge><br><Badge>Neutral</Badge> по умолчанию</p>
     <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
-      <Button class="m-1" @click="click">Primary</Button>
+      <Button mode="primary" class="m-1" @click="click">Primary</Button>
       <Button mode="secondary" class="m-1">Secondary</Button>
       <Button mode="creative" class="m-1">Creative</Button>
       <Button mode="destructive" class="m-1">Destructive</Button>
@@ -129,7 +129,7 @@ function click(e) {
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       В кнопку можно добавлять иконки </p>
     <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
-      <Button class="m-1">
+      <Button mode="primary" class="m-1">
         <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
         Primary
       </Button>
@@ -176,7 +176,7 @@ function click(e) {
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       Чтобы сделать кнопку неактивной необходимо добавить аргумент <Badge>disabled</Badge></p>
     <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
-      <Button  disabled class="m-1">
+      <Button mode="primary" disabled class="m-1">
         <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
         Primary
       </Button>
@@ -224,7 +224,7 @@ function click(e) {
       Всплывающее окно, отображающее информацию, связанную с элементом, когда элемент получает фокус клавиатуры или наводится на него курсором мыши.
     </p>
     <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
-      <Button class="m-1">
+      <Button mode="primary" class="m-1">
         <Tooltip position="left">Кнопка Primary</Tooltip>
         <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
         Primary Test
@@ -269,7 +269,7 @@ function click(e) {
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       Конпка может быть вовсе без текста. Для ровноси иконки необходимо добавить классы <Badge>px-0</Badge></p>
     <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
-      <Button class="rounded-full m-1 h-9 w-9 px-2">
+      <Button mode="primary" class="rounded-full m-1 h-9 w-9 px-2">
         <Icons type="Pencil" class="h-4 w-4"/>
       </Button>
       <Button mode="secondary" class="rounded-md m-1 h-9 w-9 px-2">
