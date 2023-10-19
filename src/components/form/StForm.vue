@@ -13,7 +13,7 @@ import StCalendar, {type ICalendar} from "@/components/form/StCalendar.vue";
 import Button from "@/components/functional/Button.vue";
 import Badge from "@/components/functional/Badge.vue";
 // ---------------------------------------
-export type IMode = "outlined"|"underlined"|"filled"
+import type {IMode} from "@/components/BaseTypes";
 type classCol = "col-span-full"|"sm:col-span-3"|"sm:col-span-4"|"sm:col-span-5"|"sm:col-span-6"|string
 // ---------------------------------------
 export interface IRulesInput extends Rules {}
@@ -332,10 +332,10 @@ function submit(){
                           {{selected[key]}}
                         </Badge>
                       </template>
-                      <template #item="{item}">
-                        <div v-if="!field.paramsSelect?.noQuery" v-html="item?.marker"
+                      <template #item="{item, key}">
+                        <div v-if="!field.paramsSelect?.noQuery" v-html="item?.marker??item[key]"
                              class="text-gray-600 dark:text-gray-300 group-hover:text-primary-700 dark:group-hover:text-primary-400"/>
-                        <div v-else class="text-gray-500">{{field.paramsSelect?.valueSelect ? item[field.paramsSelect.valueSelect] : item}}</div>
+                        <div v-else class="text-gray-500">{{item[key]}}</div>
                       </template>
                       <template #before>
                         <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>

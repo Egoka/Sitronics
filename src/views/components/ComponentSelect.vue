@@ -8,7 +8,7 @@ import InputLayout from "@/components/functional/InputLayout.vue";
 import Icons from "@/components/functional/Icons.vue";
 import Select from "@/components/form/StSelect.vue";
 import StInput from "@/components/form/StInput.vue";
-const formFields = reactive({isInfo: ""})
+const formFields = reactive({isInfo1: null, isInfo2: 1233})
 
 const people = ref([
   {value: 1, label: "Wade Cooper"},
@@ -44,7 +44,25 @@ const form = ref({
     <template #title>Select</template>
     {{formFields}}
     <Select
-      v-model="formFields.isInfo"
+      v-model="formFields.isInfo1"
+      mode="filled"
+      label="Профессия"
+      label-mode="vanishing"
+      required
+      :params-select="{
+        dataSelect: test,
+        keySelect: 'value',
+        multiple: false,
+        maxVisible: 2
+      }"
+      help="Test field"
+      clear>
+      <template #before>
+        <Icons type="Sun"/>
+      </template>
+    </Select>
+    <Select
+      v-model="formFields.isInfo2"
       mode="filled"
       label="Профессия"
       label-mode="vanishing"

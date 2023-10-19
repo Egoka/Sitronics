@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, reactive, ref, useSlots} from "vue";
+import {computed, onMounted, onUnmounted, reactive, ref, useSlots, watch} from "vue";
 import {
   ArrowLongUpIcon, ArrowLongDownIcon,
   BarsArrowUpIcon, BarsArrowDownIcon,
@@ -10,13 +10,13 @@ import dayjs from 'dayjs'
 import Loading from "@/components/functional/Loading.vue";
 import Button from "@/components/functional/Button.vue";
 import Tooltip from "@/components/functional/Tooltip.vue";
-import Pagination from "@/components/functional/Pagination.vue";
+import Pagination, {type IPagination} from "@/components/functional/Pagination.vue";
 import StInput, {type IDataInput} from "@/components/form/StInput.vue";
 import StSelect, {type IDateSelect} from "@/components/form/StSelect.vue";
 import StCalendar, {type IDatePicker, type IRangeValue} from "@/components/form/StCalendar.vue";
 import isBetween from 'dayjs/plugin/isBetween'
 import {convertToNumber, convertToPhone} from "@/helpers/numbers";
-import type {IMode} from "@/components/form/StForm.vue";
+import type {IMode} from "@/components/BaseTypes";
 // ---------------------------------------
 type DataType = "string"|"number"|"select"|"date"
 type Sort = "asc"|"desc"|null
@@ -63,8 +63,9 @@ export interface ISummary {
 interface ISummaryPrivate extends ISummary {
   id: string
 }
-export interface IPagination {
-
+export interface ITablePagination extends Omit<IPagination, 'total'|'modelValue'> {
+  visible?:boolean
+  startPage?:number
 }
 // ---------------------------------------
 export interface ITable {
@@ -73,12 +74,12 @@ export interface ITable {
   toolbar?: IToolbar|boolean
   sort?: ISort|boolean
   filter?: IFilter|boolean
+  pagination?: ITablePagination|boolean
   isHiddenHead?:boolean
   isSummary?:boolean
   search?:boolean
   columns?: Array<IColumn>
   summary?: Array<ISummary>
-  pagination?: IPagination
   countVisibleRows?: number
   heightCell?:number
   noData?:string
@@ -98,8 +99,11 @@ const table = ref<HTMLElement>()
 const thead = ref<HTMLElement>()
 const tbody = ref<HTMLElement>()
 const tfoot = ref<HTMLElement>()
+const pager = ref<HTMLElement>()
 // ---------------------------------------
 let queryTable = ref<string>("")
+let pageTable = ref<number>(1)
+let sizeTable = ref<number>(6)
 let sortColumns = reactive<{ [keys:string]: Sort }>({})
 let sortOrders = ref<Array<{field:string, direction: NonNullable<Sort>}>>([])
 let filterColumns = reactive<object>({})
@@ -127,16 +131,21 @@ const dataSource = computed<Array<any>>(()=> {
         const column = dataColumns.value.find(col=>col.dataField === item)
         return isEqualsValue(column, row[column.dataField], filter[column.dataField])
       }).length === Object.keys(filter).length)
+    pageTable.value = 1
   }
   // Search
   if (data && queryTable.value.length){
     data = LData.filter(data,(row) => !!dataColumns.value
       .filter(item => item.visible)
       .filter(item => isEqualsValue(item, row[item.dataField], queryTable.value)).length)
+    pageTable.value = 1
   }
   isLoading.value = false
   return data || []
 })
+const resultDataSource = computed<Array<any>>(()=> isPagination.value
+  ? LData.slice(dataSource.value, sizePage.value * (pageTable.value - 1), sizeTable.value * (pageTable.value))
+  : dataSource.value)
 const dataColumns = computed<Array<IColumnPrivate>>(()=> {
   let listFields:Array<string> = LData.uniq(LData.flatten(LData.map(dataOriginal.value, LData.keys)))
   if (props.columns && props.columns?.length){
@@ -276,10 +285,21 @@ const isFilter = computed<boolean>(()=>typeof props?.filter === "object"
 const isSort = computed<boolean>(()=>typeof props?.sort === "object"
   ? typeof props?.sort?.visible === "boolean" ? props.sort.visible : true
   : typeof props?.sort === "boolean" ? props.sort : false )
+const isPagination = computed<ITablePagination["visible"]>(()=>typeof props?.pagination === "object"
+  ? typeof props?.pagination?.visible === "boolean" ? props.pagination.visible : true
+  : typeof props?.pagination === "boolean" ? props.pagination : false )
 const iconSort = computed<ISort["icon"]>(()=>(props?.sort as ISort)?.icon||"Arrow")
 const isSearch = computed<boolean>(()=> props.search||(props?.toolbar as IToolbar)?.search||false)
 const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearAllFilter || false) && (!!noEmptyFilters(filterColumns).length || !!queryTable.value.length))
-const isSearchActive = ref<boolean>()
+// ---------------------------------------
+const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=>(props.pagination as ITablePagination).startPage||1)
+const modePagination = computed<NonNullable<ITablePagination["mode"]>>(()=>(props.pagination as ITablePagination).mode||mode.value)
+const sizePage = computed<ITablePagination["sizePage"]>(()=>(props.pagination as ITablePagination).sizePage||countVisibleRows.value)
+const visibleNumberPages = computed<ITablePagination["visibleNumberPages"]>(()=>(props.pagination as ITablePagination).visibleNumberPages)
+const sizesSelector = computed<ITablePagination["sizesSelector"]>(()=>(props.pagination as ITablePagination).sizesSelector)
+const isInfoText = computed<ITablePagination["isInfoText"]>(()=>(props.pagination as ITablePagination).isInfoText??false)
+const isPageSizeSelector = computed<ITablePagination["isPageSizeSelector"]>(()=>(props.pagination as ITablePagination).isPageSizeSelector??false)
+const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationButtons"]>(()=>(props.pagination as ITablePagination).isHiddenNavigationButtons??false)
 // ---------------------------------------
 const heightCell = computed<number>(()=> props.heightCell||1.5)
 const heightRow = computed<number>(()=> {
@@ -289,7 +309,7 @@ const heightRow = computed<number>(()=> {
 })
 const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows||6)
 const heightTable = computed<number>(()=> {
-  return thead.value?.clientHeight + tfoot.value?.clientHeight + heightRow.value * countVisibleRows.value
+  return (thead.value?.clientHeight||0) + (tfoot.value?.clientHeight||0) + countVisibleRows.value * (heightRow.value||2 * 16 + heightCell.value * 16 + 1)
 })
 // ---------------------------------------
 const tableObserver = new ResizeObserver(entries => {
@@ -322,6 +342,13 @@ onUnmounted(()=>{
   tableObserver.disconnect();
 })
 // ---------------------------------------
+watch(startPage,(numberPage:number)=>{
+  pageTable.value = numberPage
+}, {immediate: true})
+watch(sizePage,(sizePageValue:number)=>{
+  sizeTable.value = sizePageValue ?? sizePage.value
+}, {immediate: true})
+// ---------------------------------------
 function getColumn(dataField:IColumn["dataField"], index?:number):IColumnPrivate {
   return dataColumns.value.find((column, item)=>dataField ? column.dataField === dataField : item === index)
 }
@@ -342,7 +369,6 @@ function sorting(columnName:string|undefined, value?:Sort) {
       if (value === null) { sortOrders.value.splice(index, 1)
       } else { sortOrders.value[index].direction = (value as NonNullable<Sort>) }
     } else {sortOrders.value.push({field: columnName, direction: "asc"})}
-    console.log(sortOrders.value, sortColumns)
   },timeout)
 }
 function filtering(columnName:string|undefined, value:any) {
@@ -365,6 +391,13 @@ function searching(value:any) {
   setTimeout(()=>{
     queryTable.value = value
   },timeout)
+}
+function switchPage(page:number) {
+  pageTable.value = page
+}
+function switchSizePage (sizePage:number) {
+  sizeTable.value = sizePage
+  pageTable.value = 1
 }
 function isEqualsValue(column:IColumnPrivate, columnValue:any, value: any): boolean {
   if (columnValue === null || columnValue === undefined) { return false }
@@ -403,7 +436,7 @@ function columnStyle(el:"filter", column:IColumnPrivate) {
   }
 }
 function setSummary(summary:ISummaryPrivate):string{
-  let result:number|string|null = null
+  let result:number|string|null|undefined = null
   const columnData:Array<any> = LData.map(dataSource.value, summary.dataField||"")
   switch (summary.type) {
     case "sum": {
@@ -509,13 +542,11 @@ function clearFilter() {
           clear
           :mode="mode"
           label-mode="vanishing"
-          :params-input="{autocomplete: 'off'}"
+          :params-input="{autocomplete: 'off', classInput: 'max-w-[5rem] focus:max-w-[10rem] sm:focus:max-w-[20rem] transition-all duration-500'}"
           :class-body="`sticky top-1 rounded-md ease-out ${
             (mode === 'outlined') ? 'ring-white dark:ring-black' :
             (mode === 'underlined') ? 'ring-stone-50 dark:ring-stone-950' :
             (mode === 'filled') ? 'ring-stone-100 dark:ring-stone-900': '' }`"
-          :style="`max-width: ${isSearchActive||queryTable?.length?20:8}rem`"
-          @is-active="(active)=>{isSearchActive = active}"
           @change:model-value="(v)=>searching(v)"
           @update:model-value="(v)=>lengthData > 100||searching(v)">
           <template #before>
@@ -534,11 +565,20 @@ function clearFilter() {
         <div v-if="slots.header" ref="tableFooter" class="min-h-[1.5rem] -mb-[1px] p-2 rounded-t-[7px] text-gray-500 bg-stone-100 dark:bg-stone-900">
           <slot name="header"/>
         </div>
-        <div class="relative">
-          <div ref="tableBody" class="overflow-x-auto rounded-[7px]" :style="`height: ${heightTable}px`">
+        <div class="relative rounded-[7px]">
+          <div ref="tableBody" class="overflow-x-auto"
+               :class="[!(slots.header) ? 'rounded-t-[7px]':'', !(isPagination || slots.footer) ? 'rounded-b-[7px]':'']"
+               :style="`height: ${heightTable}px`">
             <table ref="table" class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
     <!-- -------------------------------- -->
-              <thead v-if="!isHiddenHead" ref="thead" class="bg-stone-100 dark:bg-stone-900 sticky top-0 z-10">
+              <thead v-if="!isHiddenHead"
+                     ref="thead"
+                     class="sticky top-0 z-10"
+                     :class="[
+                       (mode === 'filled') ? 'bg-neutral-100 dark:bg-neutral-900' :
+                       (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
+                       (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : ''
+                     ]">
               <tr>
                 <template v-for="column in dataColumns" :key="column.id">
                   <th v-if="column.visible" scope="col"
@@ -606,7 +646,7 @@ function clearFilter() {
               </thead>
     <!-- -------------------------------- -->
               <tbody ref="tbody" class="divide-y divide-gray-200 dark:divide-gray-800 overflow-y-auto">
-              <tr v-for="(data, index) in dataSource" :key="index" class="max-h-8">
+              <tr v-for="(data, index) in resultDataSource" :key="index" class="max-h-8">
                 <template v-for="(column, key) in dataColumns" :key="`${index}-${key}`">
                   <td v-if="column.visible" class="px-6 py-4 text-sm text-gray-800 dark:text-gray-300 whitespace-nowrap font-medium"
                       :style="columnStyle('filter', column)">
@@ -624,7 +664,14 @@ function clearFilter() {
     <!-- -------------------------------- -->
               <tr v-if="footerPaddingHeight" class="border-none" :style="`height: ${footerPaddingHeight-1}px`"></tr>
     <!-- -------------------------------- -->
-              <tfoot v-if="isSummary && Object.keys(summaryColumns).length" ref="tfoot" class="bg-stone-100 dark:bg-stone-900 sticky bottom-0">
+              <tfoot v-if="isSummary && Object.keys(summaryColumns).length"
+                     ref="tfoot"
+                     class="sticky bottom-0"
+                     :class="[
+                       (mode === 'filled') ? 'bg-neutral-100 dark:bg-neutral-900' :
+                       (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
+                       (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : ''
+                     ]">
               <tr>
                 <template v-for="column in dataColumns" :key="column.id">
                   <th v-if="column.visible" scope="col" class="pl-6 py-3">
@@ -639,7 +686,23 @@ function clearFilter() {
             </table>
           </div>
     <!-- -------------------------------- -->
-<!--          <Pagination class="bg-stone-100 dark:bg-stone-900"></Pagination>-->
+          <div v-if="isPagination" ref="pager"
+               :class="[!isSummary||'relative sm:px-5', (!slots.footer) ? 'rounded-b-[7px]':'',
+               (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
+               (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
+               (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950': '']">
+            <Pagination :model-value="pageTable"
+                        :size-page="sizeTable"
+                        :mode="modePagination"
+                        :total="lengthData"
+                        :visible-number-pages="visibleNumberPages"
+                        :is-info-text="isInfoText"
+                        :sizes-selector="sizesSelector"
+                        :is-page-size-selector="isPageSizeSelector"
+                        :is-hidden-navigation-buttons="isHiddenNavigationButtons"
+                        class="border-t border-gray-200"
+                        @update:model-value="switchPage"
+                        @update:size-page="switchSizePage"/></div>
     <!-- -------------------------------- -->
           <transition leave-active-class="transition ease-in duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
                       enter-active-class="transition ease-in duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
@@ -669,7 +732,11 @@ function clearFilter() {
             </div>
           </transition>
         </div>
-        <div v-if="slots.footer" ref="tableFooter" class="min-h-[1.5rem] -mt-[1px] p-2 rounded-b-[7px] text-gray-500 bg-stone-100 dark:bg-stone-900">
+        <div v-if="slots.footer"
+             ref="tableFooter"
+             class="min-h-[1.5rem] -mt-[1px] p-2 rounded-b-[7px] text-gray-500 bg-stone-100 dark:bg-stone-900"
+             :class="[!(isSummary||isPagination)||'relative sm:px-5 border-t border-gray-200 dark:border-gray-800']"
+        >
           <slot name="footer"/>
         </div>
       </div>

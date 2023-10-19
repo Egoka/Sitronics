@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed} from "vue";
-import type {IMode} from "@/components/form/StForm.vue";
+import type {IMode} from "@/components/BaseTypes";
 export type ILabelMode = "offsetDynamic"|"offsetStatic"|"dynamic"|"static"|"vanishing"|"none"
 const props = defineProps<{
   title?: string

@@ -4,7 +4,7 @@ import {computed, getCurrentInstance, onMounted, ref} from "vue";
 import Label, {type ILabelMode} from "@/components/functional/Label.vue";
 import Dropdown from "@/components/functional/Dropdown.vue";
 import {toPhone, toNumber, convertToPhone, convertToNumber, onkeydown} from "@/helpers/numbers";
-import type {IMode} from "./StForm.vue";
+import type {IMode} from "@/components/BaseTypes";
 import {getLabelType} from "@/helpers/label";
 
 // ---------------------------------------

@@ -132,8 +132,8 @@ function clear() {
       focus:outline-0 focus:ring-0"
       @focus="isActiveInput = true"
       @blur="isActiveInput = false"
-      @input="inputEvent($event)"
-      @keydown="onkeydown($event)"
+      @input="inputEvent"
+      @keydown="onkeydown"
       @change="changeModelValue(($event.target as HTMLInputElement).value)"
     />
     <template #body><slot/></template>

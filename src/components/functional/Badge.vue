@@ -3,7 +3,6 @@
 import {computed} from "vue";
 import {XMarkIcon} from "@heroicons/vue/20/solid";
 import Button from "@/components/functional/Button.vue";
-import Icons from "@/components/functional/Icons.vue";
 // ---------------------------------------
 export interface IBadge {
   type?: "button" | "reset" | "submit"

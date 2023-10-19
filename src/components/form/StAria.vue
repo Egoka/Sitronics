@@ -114,8 +114,8 @@ function clear() {
                 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
                 focus:outline-0 focus:ring-0"
                 @focus="isActiveAria = true"
-                @input="inputEvent($event)"
-                @keydown="onkeydown($event)"
+                @input="inputEvent"
+                @keydown="onkeydown"
                 @change="changeModelValue(($event.target as HTMLInputElement).value)"/>
     <template #body><slot/></template>
     <template v-if="slots.before" #before><slot name="before"/></template>

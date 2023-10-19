@@ -19,7 +19,6 @@ import {
 } from 'epic-spinners'
 import {computed} from "vue";
 import colors from 'tailwindcss/colors'
-import {DefaultColors} from "tailwindcss/types/generated/colors";
 import {get} from "lodash";
 // ---------------------------------------
 export interface ILoading {

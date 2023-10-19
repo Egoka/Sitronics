@@ -117,6 +117,14 @@ const router = createRouter({
       component: () => import('../views/components/ComponentBadge.vue')
     },
     {
+      path: '/components/pagination',
+      name: 'pagination',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentPagination.vue')
+    },
+    {
       path: '/components/all',
       name: 'componentsAll',
       meta: {

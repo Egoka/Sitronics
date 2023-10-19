@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, ref} from 'vue'
-import type {IMode} from "./StForm.vue";
+import type {IMode} from "@/components/BaseTypes";
 import {QuestionMarkCircleIcon} from "@heroicons/vue/20/solid";
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
 import Dropdown from "../functional/Dropdown.vue";
@@ -135,7 +135,7 @@ function changeModelValue(value:any) {
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
           <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition" aria-hidden="true" />
-          <Tooltip>Дополнителная информация</Tooltip>
+          <Tooltip>Дополнительная информация</Tooltip>
         </template>
       </Dropdown>
     </div>

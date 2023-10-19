@@ -32,7 +32,7 @@ onMounted(()=>{
          min-w-[15rem] w-auto max-w-6xl origin-top-right
          p-3 rounded-md bg-white dark:bg-gray-950
          font-light italic text-xs text-gray-500 dark:text-gray-400
-         shadow-2xl ring-1 ring-black ring-opacity-5
+         shadow-lg ring-1 ring-black ring-opacity-5
          focus:outline-none"/>
   </transition>
 </template>

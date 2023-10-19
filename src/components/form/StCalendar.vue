@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, onMounted, reactive, ref, useSlots, watch} from "vue";
+import {computed, getCurrentInstance, reactive, ref, useSlots, watch} from "vue";
 // ---------------------------------------
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import { ArrowLongRightIcon, EllipsisVerticalIcon } from '@heroicons/vue/24/outline'
@@ -186,6 +186,7 @@ const emit = defineEmits<{
 }>()
 const slots = useSlots()
 // ---------------------------------------
+const inputBody = ref<HTMLElement>()
 const isOpenPicker = ref(false)
 // ---------------------------------------
 const datePicker = computed<Partial<IDatePicker>>(()=>{return {
@@ -287,7 +288,10 @@ function changeDate (date:ICalendarPicker["inputValue"]) {
   emit('update:isInvalid', false)
   emit('update:modelValue', baseDate.value)
 }
-function open() {
+function focus (isFocus) {
+  inputLayout.class = (props.class||"")+(isFocus ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+}
+function open () {
   if (isDisabled.value) { return }
   isOpenPicker.value=true
 }
@@ -300,7 +304,13 @@ function clear () {
 
 <template>
   <InputLayout v-bind="inputLayout" @clear="clear">
-    <div :id="`dataPicker${id}`" class="flex w-full min-h-[36px] max-h-16 overflow-auto" @click="open">
+    <div :id="`dataPicker${id}`"
+         ref="inputBody"
+         tabindex="0"
+         class="flex w-full min-h-[36px] max-h-16 overflow-auto focus:outline-0 focus:ring-0"
+         @focusin="focus(true)"
+         @focusout="focus(false)"
+         @click="open">
       <div v-if="datePicker?.isRange" class="flex flex-wrap items-center z-10 max-h-max cursor-default">
         {{(visibleDate as IRangeValue)?.start}}
         <ArrowLongRightIcon
@@ -312,27 +322,21 @@ function clear () {
           :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : 'text-gray-600 dark:text-gray-400']"
           class="h-5 w-5"/>
         <div v-if="separator === 'none' && (visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end" class="h-5 w-1"/>
-        <div v-else class="text-gray-400 dark:text-gray-600">{{placeholder}}</div>
+        <div v-if="!(visibleDate as IRangeValue)?.start && !(visibleDate as IRangeValue)?.end&&isOpenPicker" class="text-gray-400 dark:text-gray-600">{{placeholder}}</div>
         {{(visibleDate as IRangeValue)?.end}}
       </div>
-      <input
-        v-else
-        :id="id"
-        :name="id"
-        ref="input"
-        type="text"
-        :value="visibleDate"
-        :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '']"
-        class="block flex-1 border-0 w-full bg-transparent py-1.5 pl-1 cursor-default text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6 transition-all"
-        :disabled="isDisabled"
-        :placeholder="placeholder"/>
+      <div v-else :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '']"
+           class="block flex-1 border-0 w-full bg-transparent py-1.5 pl-1 cursor-default text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6 transition-all">
+        <span v-if="!visibleDate&&isOpenPicker" class="text-gray-400 dark:text-gray-600">{{placeholder}}</span>
+        {{visibleDate}}
+      </div>
     </div>
     <template #body>
       <transition leave-active-class="transition ease-in-out duration-200" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-5"
                         enter-active-class="transition ease-in-out duration-200" enter-from-class="opacity-0 -translate-y-5" enter-to-class="opacity-100 translate-y-0">
         <div v-show="isOpenPicker"
              :id="`picker${id}`"
-             class="absolute z-50 mt-1 w-min min-w-min max-w-lg max-h-max overflow-auto text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm"
+             class="vc-primary absolute z-50 mt-1 w-min min-w-min max-w-lg max-h-max overflow-auto text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm"
              :class="[ props.paramsDatePicker?.classPicker,
                !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
                !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',

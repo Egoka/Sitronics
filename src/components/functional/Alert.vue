@@ -35,7 +35,7 @@ const classClass = computed<Array<string>|string>(()=> {
     : [];
   [
     {reg: "^p-", class: "p-4"},
-    {reg: "^w-", class: "w-max"},
+    {reg: "^w-", class: "w-auto"},
     {reg: "^max-w-", class: "max-w-[89vw]"},
     {reg: "rounded", class: "rounded-md"},
   ].map((item:{reg: string, class: string})=>{

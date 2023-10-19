@@ -83,6 +83,11 @@ const items = ref([
     href: baseUrl+'/alert',
     imageSrc: 'https://horizon-ui.com/components/static/media/alerts.708d67af66999bb564de6ee603d4de92.svg',
   },
+  {
+    name: 'Pagination',
+    href: baseUrl+'/pagination',
+    imageSrc: 'https://horizon-ui.com/components/static/media/pin.4f081dec340b8b2ca36121d797c6c97c.svg',
+  },
 ])
 </script>
 <template>

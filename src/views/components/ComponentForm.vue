@@ -75,11 +75,12 @@ const structures = ref<Array<IFormStructure>>([
         name: "professionType",
         label: "Профессия",
         beforeIcon: "BookOpen",
+        modelValue: ["t2"],
         paramsSelect: {
-          dataSelect: ["apple", "banana", "cherry", "apple", "cherry", " t1", "t2", "t3"],
+          dataSelect: ["apple", "banana", "cherry", "t1", "t2", "t3"],
           keySelect: "value",
           valueSelect: "label",
-          multiple: true,
+          multiple: false,
         // dataSelect: [
         //   {value: 1, label: "Програмиист"},
         //   {value: 2, label: "HR"},
@@ -106,7 +107,7 @@ const structures = ref<Array<IFormStructure>>([
         // disabled: true,
         modelValue: ["apple"],
         paramsSelect: {
-          dataSelect: ["apple", "banana", "cherry", "apple", "cherry"],
+          dataSelect: ["apple", "banana", "cherry"],
           keySelect: "value",
           valueSelect: "label",
           multiple: true,
@@ -136,6 +137,7 @@ const structures = ref<Array<IFormStructure>>([
         beforeIcon: "CoBirthdayCake",
         afterText: "Text",
         paramsDatePicker: {
+          placeholder: "Дата 01.01.2023",
           minDate: new Date('2023-08-01T21:00:00.000Z'),
         },
         // disabled: true,
@@ -148,7 +150,7 @@ const structures = ref<Array<IFormStructure>>([
         // disabled: true,
         // modelValue: "2023-08-09T21:00:00.000Z",
         modelValue: { "start": "2023-08-02T21:00:00.000Z", "end": "2023-08-10T21:00:00.000Z" },
-        paramsDatePicker: { isRange: true, masks: {modelValue :"DD.MM.YYYY"} },
+        paramsDatePicker: { placeholder: "Дата 01.01.2023", isRange: true, masks: {modelValue :"DD.MM.YYYY"} },
         label: "День рождения",
         beforeIcon: "CoBirthdayCake",
         help: "Dates",
