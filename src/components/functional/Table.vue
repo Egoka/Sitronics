@@ -103,7 +103,7 @@ const pager = ref<HTMLElement>()
 // ---------------------------------------
 let queryTable = ref<string>("")
 let pageTable = ref<number>(1)
-let sizeTable = ref<number>(6)
+let sizeTable = ref<number>(5)
 let sortColumns = reactive<{ [keys:string]: Sort }>({})
 let sortOrders = ref<Array<{field:string, direction: NonNullable<Sort>}>>([])
 let filterColumns = reactive<object>({})
@@ -144,8 +144,8 @@ const dataSource = computed<Array<any>>(()=> {
   return data || []
 })
 const resultDataSource = computed<Array<any>>(()=> isPagination.value
-  ? LData.slice(dataSource.value, sizePage.value * (pageTable.value - 1), sizeTable.value * (pageTable.value))
-  : dataSource.value)
+    ? LData.slice(dataSource.value, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value))
+    : dataSource.value)
 const dataColumns = computed<Array<IColumnPrivate>>(()=> {
   let listFields:Array<string> = LData.uniq(LData.flatten(LData.map(dataOriginal.value, LData.keys)))
   if (props.columns && props.columns?.length){
@@ -272,7 +272,7 @@ const summaryColumns = computed<object>(()=>{
     }, {})
 })
 const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.classMaskQuery||"font-bold text-primary-700 dark:text-primary-400")
-const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode||"filled")
+const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode||"outlined")
 const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData || "Нет данных")
 const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn || "Нет колонок")
 const isHiddenHead = computed<ITable["isHiddenHead"]>(()=> props.isHiddenHead||false)
@@ -294,7 +294,7 @@ const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearA
 // ---------------------------------------
 const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=>(props.pagination as ITablePagination).startPage||1)
 const modePagination = computed<NonNullable<ITablePagination["mode"]>>(()=>(props.pagination as ITablePagination).mode||mode.value)
-const sizePage = computed<ITablePagination["sizePage"]>(()=>(props.pagination as ITablePagination).sizePage||countVisibleRows.value)
+const sizePage = computed<NonNullable<ITablePagination["sizePage"]>>(()=>(props.pagination as ITablePagination).sizePage??countVisibleRows.value)
 const visibleNumberPages = computed<ITablePagination["visibleNumberPages"]>(()=>(props.pagination as ITablePagination).visibleNumberPages)
 const sizesSelector = computed<ITablePagination["sizesSelector"]>(()=>(props.pagination as ITablePagination).sizesSelector)
 const isInfoText = computed<ITablePagination["isInfoText"]>(()=>(props.pagination as ITablePagination).isInfoText??false)
@@ -307,7 +307,7 @@ const heightRow = computed<number>(()=> {
   if (tagTr) { return tagTr.offsetHeight
   } else { const basePadding = 2;return basePadding * 16 + heightCell.value * 16 + 1 }
 })
-const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows||6)
+const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows||5)
 const heightTable = computed<number>(()=> {
   return (thead.value?.clientHeight||0) + (tfoot.value?.clientHeight||0) + countVisibleRows.value * (heightRow.value||2 * 16 + heightCell.value * 16 + 1)
 })
@@ -562,8 +562,17 @@ function clearFilter() {
         </transition>
       </div>
       <div class="flex flex-col border rounded-lg border-neutral-200 dark:border-neutral-800" >
-        <div v-if="slots.header" ref="tableFooter" class="min-h-[1.5rem] -mb-[1px] p-2 rounded-t-[7px] text-gray-500 bg-stone-100 dark:bg-stone-900">
-          <slot name="header"/>
+        <div v-if="slots.header"
+             ref="tableFooter"
+             class="min-h-[1.5rem] rounded-t-[7px] text-gray-500"
+             :class="[!(isSummary||isPagination)||'relative',
+             (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
+             (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
+             (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : ''
+             ]">
+          <div class="p-2 border-b border-gray-200 dark:border-gray-800">
+            <slot name="header"/>
+          </div>
         </div>
         <div class="relative rounded-[7px]">
           <div ref="tableBody" class="overflow-x-auto"
@@ -575,7 +584,7 @@ function clearFilter() {
                      ref="thead"
                      class="sticky top-0 z-10"
                      :class="[
-                       (mode === 'filled') ? 'bg-neutral-100 dark:bg-neutral-900' :
+                       (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
                        (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
                        (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : ''
                      ]">
@@ -668,7 +677,7 @@ function clearFilter() {
                      ref="tfoot"
                      class="sticky bottom-0"
                      :class="[
-                       (mode === 'filled') ? 'bg-neutral-100 dark:bg-neutral-900' :
+                       (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
                        (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
                        (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : ''
                      ]">
@@ -692,7 +701,7 @@ function clearFilter() {
                (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
                (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950': '']">
             <Pagination :model-value="pageTable"
-                        :size-page="sizeTable"
+                        :size-page="+sizeTable"
                         :mode="modePagination"
                         :total="lengthData"
                         :visible-number-pages="visibleNumberPages"
@@ -734,10 +743,15 @@ function clearFilter() {
         </div>
         <div v-if="slots.footer"
              ref="tableFooter"
-             class="min-h-[1.5rem] -mt-[1px] p-2 rounded-b-[7px] text-gray-500 bg-stone-100 dark:bg-stone-900"
-             :class="[!(isSummary||isPagination)||'relative sm:px-5 border-t border-gray-200 dark:border-gray-800']"
-        >
-          <slot name="footer"/>
+             class="min-h-[1.5rem] -mt-[1px] rounded-b-[7px] text-gray-500"
+             :class="[!(isSummary||isPagination)||'relative sm:px-5',
+             (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
+             (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
+             (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : ''
+             ]">
+          <div class="p-2 border-t border-gray-200 dark:border-gray-800">
+            <slot name="footer"/>
+          </div>
         </div>
       </div>
     </div>

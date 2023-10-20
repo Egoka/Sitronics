@@ -103,6 +103,9 @@ watch(isLoading, (value)=>{
 watch(isDisabled, (value)=>{
   inputLayout.disabled = value
 })
+watch(mode, (value)=>{
+  inputLayout.mode = value
+})
 watch(isActiveTextEditor, (value)=>{
   inputLayout.class = (props.class||"")+(value
     ? ` border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`

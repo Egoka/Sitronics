@@ -239,7 +239,7 @@ const baseDate = computed<Date|SimpleDateRange|null>(()=>{
 // ---------------------------------------
 const inputLayout = reactive({value: visibleDate.value, isValue: isValue, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: props.isInvalid, messageInvalid: props.messageInvalid,
-  required: props.required, loading: isLoading, disabled: props.disabled, help: props.help, clear: props.clear,
+  required: props.required, loading: isLoading, disabled: isDisabled.value, help: props.help, clear: props.clear,
   classBody: props.classBody, class: props.class})
 // ---------------------------------------
 watch(value, ()=>{
@@ -256,6 +256,12 @@ watch(isInvalid, ()=>{
 })
 watch(messageInvalid, ()=>{
   inputLayout.messageInvalid = props.messageInvalid
+})
+watch(isDisabled, (value)=>{
+  inputLayout.disabled = value
+})
+watch(mode, (value)=>{
+  inputLayout.mode = value
 })
 watch(isOpenPicker, (value)=>{
   if (value) {

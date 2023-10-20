@@ -112,6 +112,9 @@ watch(isLoading, (value)=>{
 watch(isDisabled, (value)=>{
   inputLayout.disabled = value
 })
+watch(mode, (value)=>{
+  inputLayout.mode = value
+})
 watch(isOpenList, (value)=>{
   if (value) {
     document.addEventListener("mousedown", closeSelect)
@@ -270,18 +273,17 @@ function onLeave(el:any, done:any) {
                   enter-active-class="transition ease-in-out duration-200" :enter-from-class="`opacity-0 ${animate}`" enter-to-class="opacity-100">
         <div v-show="isOpenList"
              :id="`list${id}`"
-             :class="['classSelectList overflow-auto absolute z-50 min-w-[10rem] mt-1 w-full max-h-60 text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm',
-                  props.paramsSelect?.classSelectList,
-                 !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
-                 !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
-                 !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900'
-                 ]">
+             :class="['classSelectList overflow-auto overscroll-y-contain absolute z-50 min-w-[10rem] mt-1 w-full max-h-60',
+             'text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm',
+             props.paramsSelect?.classSelectList,
+             !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
+             !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
+             !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900']">
           <div :class="[
             'sticky top-[220px] w-full h-5 z-20 bg-gradient-to-t to-transparent',
             !(mode === 'outlined')||'from-white dark:from-black via-white dark:via-black',
             !(mode === 'underlined')||'from-stone-50 dark:from-stone-950 via-stone-50 dark:via-stone-950',
-            !(mode === 'filled')||'from-stone-100 dark:from-stone-900 via-stone-100 dark:via-stone-900'
-          ]"/>
+            !(mode === 'filled')||'from-stone-100 dark:from-stone-900 via-stone-100 dark:via-stone-900']"/>
           <StInput
             :id="`search${id}`"
             v-if="isQuery"

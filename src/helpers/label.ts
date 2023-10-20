@@ -1,5 +1,5 @@
 import type {ILabelMode} from "@/components/functional/Label.vue";
-import {type ILayout} from "@/components/functional/InputLayout.vue";
+import type {ILayout} from "@/components/functional/InputLayout.vue";
 
 // @ts-ignore
 export const getLabelType = (value:any, label:ILayout["label"], labelMode:ILabelMode)=> {

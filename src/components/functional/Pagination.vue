@@ -31,13 +31,16 @@ const emit = defineEmits<{
 const selectPageSize = ref<ISelectExpose|null>()
 // ---------------------------------------
 const activePage = computed<Page>(()=>props.modelValue||pages[0])
-const sizePage = computed<IPagination["sizePage"]>(()=>props.sizePage||6)
-const visibleNumberPages = computed<IPagination["visibleNumberPages"]>(()=>(props.visibleNumberPages >= 5 ? props.visibleNumberPages : 5)||6)
+const sizePage = computed<IPagination["sizePage"]>(()=>props.sizePage||5)
+const visibleNumberPages = computed<IPagination["visibleNumberPages"]>(()=>(props.visibleNumberPages >= 5 ? props.visibleNumberPages : 5)||5)
 const total = computed<IPagination["total"]>(()=>props.total||0)
 const isInfoText = computed<IPagination["isInfoText"]>(()=>props.isInfoText??false)
 const isPageSizeSelector = computed<IPagination["isPageSizeSelector"]>(()=>(props.isPageSizeSelector||!!props.sizesSelector?.length)??false)
 const isNavigationButtons = computed<IPagination["isNavigationButtons"]>(()=>!props.isHiddenNavigationButtons??false)
-const arraySizesSelector = computed<Array<{key:number, value: string}>>(()=>((props.sizesSelector??[6,15,20,50,100,150]) as Array<number>)?.map(size=>{return{key: size, value: `${size} rows`}}))
+const arraySizesSelector = computed<Array<{key:number, value: string}>>(()=>
+  ((props.sizesSelector??[...new Set([+sizePage.value,5,15,20,50,100,150])]) as Array<number>)
+    ?.sort((a, b) => a - b)
+    ?.map(size=>{return{key: size, value: `${size} rows`}}))
 const pages = computed<Array<Page>>(()=> {
   const countPages = Math.ceil(total.value / sizePage.value)
   let resultArray = Array(countPages).fill(null).map((_, i) => i + 1)
@@ -109,7 +112,7 @@ function switchSizePage(sizePageValue) {
     <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between" :class="[ isInfoText||'flex-row-reverse' ]">
       <!-- -------------------------------- -->
       <div v-if="isInfoText" class="w-[7rem] md:w-[9rem] text-center -mb-4">
-        <p class="text-sm text-gray-700 dark:text-gray-500">
+        <p class="text-sm text-gray-600 dark:text-gray-500">
           <span class="font-bold dark:text-gray-400">{{ sizePage * activePage + (total - sizePage * activePage < 0 ? total - sizePage * activePage : 0) }}</span>
           of
           <span class="font-bold dark:text-gray-400">{{ total }}</span>
@@ -122,7 +125,7 @@ function switchSizePage(sizePageValue) {
           <button v-if="isNavigationButtons" class="inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300 disabled:cursor-not-allowed" :class="[
         (mode === 'filled') ? 'bg-neutral-100 dark:bg-neutral-900 rounded-lg mx-1 mt-0 px-3.5 py-2 hover:bg-neutral-200 dark:hover:bg-neutral-800' :
         (mode === 'outlined') ? 'bg-white dark:bg-neutral-950 ring-1 ring-inset ring-neutral-300 dark:ring-neutral-700 rounded-lg mx-1 mt-0 px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-900' :
-        (mode === 'underlined') ? 'border-t-2 border-transparent pt-4 px-3 hover:border-primary-400 hover:text-gray-700 dark:hover:border-primary-700 dark:hover:text-gray-300': ''
+        (mode === 'underlined') ? 'border-t-2 border-transparent -mt-px pt-4 px-3 hover:border-primary-400 hover:text-gray-700 dark:hover:border-primary-700 dark:hover:text-gray-300': ''
       ]" :disabled="[0, activePage].includes(pages[0])" @click="switchPage(pages.slice().reverse())">
             <template v-if="isInfoText || isPageSizeSelector">
               <span class="sr-only">Previous</span>
@@ -155,7 +158,7 @@ function switchSizePage(sizePageValue) {
           <button v-if="isNavigationButtons" class="inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300 disabled:cursor-not-allowed" :class="[
         (mode === 'filled') ? 'bg-neutral-100 dark:bg-neutral-900 rounded-lg mx-1 mt-0 px-3.5 py-2 hover:bg-neutral-200 dark:hover:bg-neutral-800' :
         (mode === 'outlined') ? 'bg-white dark:bg-neutral-950 ring-1 ring-inset ring-neutral-300 dark:ring-neutral-700 rounded-lg mx-1 mt-0 px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-900' :
-        (mode === 'underlined') ? 'border-t-2 border-transparent pt-4 px-3 hover:border-primary-400 hover:text-gray-700 dark:hover:border-primary-700 dark:hover:text-gray-300': ''
+        (mode === 'underlined') ? 'border-t-2 border-transparent -mt-px pt-4 px-3 hover:border-primary-400 hover:text-gray-700 dark:hover:border-primary-700 dark:hover:text-gray-300': ''
       ]" :disabled="[0, activePage].includes(pages[pages.length-1])" @click="switchPage(pages)">
             <template v-if="isInfoText || isPageSizeSelector">
               <span class="sr-only">Next</span>
@@ -175,7 +178,7 @@ function switchSizePage(sizePageValue) {
            (mode === 'outlined') ? 'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-neutral-950' :
            (mode === 'underlined') ? '': '']" 
            @click="selectPageSize?.openSelect()">
-        <p class="text-sm text-gray-700 dark:text-gray-500">Show:</p>
+        <p class="text-sm text-gray-400 dark:text-gray-500">Show:</p>
         <StSelect ref="selectPageSize"
                   :class="[(mode === 'outlined') ? 'border-none':(mode === 'underlined') ? '!bg-transparent': '']"
                   :class-body="['m-0 min-w-[6rem] max-w-[6rem]', (mode === 'filled') ? 'border-b border-stone-200 dark:border-stone-800':'']"
@@ -183,7 +186,7 @@ function switchSizePage(sizePageValue) {
                   :model-value="sizePage"
                   :params-select="{
                     noQuery: true,
-                    classSelect: 'font-bold dark:text-gray-400',
+                    classSelect: 'font-bold text-gray-600 dark:text-gray-500',
                     classSelectList: 'min-w-[8rem] top-[1rem] -translate-x-[25%] -translate-y-[120%] translate(-25%, -125%)',
                     animate: 'translate-y-58',
                     dataSelect:arraySizesSelector }"

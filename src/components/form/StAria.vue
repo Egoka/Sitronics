@@ -75,6 +75,9 @@ watch(isLoading, (value)=>{
 watch(isDisabled, (value)=>{
   inputLayout.disabled = value
 })
+watch(mode, (value)=>{
+  inputLayout.mode = value
+})
 // ---------------------------------------
 function closeAria(evt:MouseEvent) {
   isActiveAria.value = evt.composedPath().includes((inputAria.value as HTMLElement))

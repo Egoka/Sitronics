@@ -90,6 +90,9 @@ watch(isLoading, (value)=>{
 watch(isDisabled, (value)=>{
   inputLayout.disabled = value
 })
+watch(mode, (value)=>{
+  inputLayout.mode = value
+})
 // ---------------------------------------
 function inputEvent ($event:any) {
   if (mask.value === "phone"){ toPhone($event) }
