@@ -115,6 +115,9 @@ watch(isDisabled, (value)=>{
 watch(mode, (value)=>{
   inputLayout.mode = value
 })
+watch(()=>props.classBody, (value)=>{
+  inputLayout.classBody = value
+})
 watch(isOpenList, (value)=>{
   if (value) {
     document.addEventListener("mousedown", closeSelect)
@@ -291,10 +294,10 @@ function onLeave(el:any, done:any) {
             label="Найти..."
             :mode="mode"
             label-mode="vanishing"
-            :class-body="`m-2 mb-5 sticky top-1 z-20 rounded-md ring-4 ${
-              (mode === 'outlined') ? 'ring-white dark:ring-black' :
-              (mode === 'underlined') ? 'ring-stone-50 dark:ring-stone-950' :
-              (mode === 'filled') ? 'ring-stone-100 dark:ring-stone-900': '' }`"
+            :class-body="[`m-2 mb-5 sticky top-1 z-20 rounded-md`,
+            (mode === 'outlined') ? 'ring-stone-200 dark:ring-black': '',
+            (mode === 'underlined') ? 'ring-stone-200 dark:ring-stone-950': '',
+            (mode === 'filled') ? 'ring-stone-100 dark:ring-stone-900': '']"
             clear>
             <template #before>
               <MagnifyingGlassIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
@@ -309,7 +312,7 @@ function onLeave(el:any, done:any) {
             @leave="onLeave">
               <template v-if="dataSelect?.length">
                 <li v-for="(item, index) in dataList"
-                    :key="`${item[keySelect]}-${index}`"
+                    :key="`${item[keySelect]}`"
                     :data-index="index"
                     class="group/li text-gray-900 dark:text-gray-100 relative cursor-default select-none flex items-center h-9 mx-2 pl-8 pr-4 last:mb-5 transition-colors duration-75"
                     :class="['hover:bg-primary-200 hover:dark:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-100', ['outlined','filled'].includes(mode) ? 'rounded-md': '']"

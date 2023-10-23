@@ -37,6 +37,7 @@ const form = ref({
   person_id: null,
   role_ids: []
 });
+const mode = ref()
 
 </script>
 <template>
@@ -45,7 +46,7 @@ const form = ref({
     {{formFields}}
     <Select
       v-model="formFields.isInfo1"
-      mode="filled"
+      :mode="mode"
       label="Профессия"
       label-mode="vanishing"
       required
@@ -61,6 +62,7 @@ const form = ref({
         <Icons type="Sun"/>
       </template>
     </Select>
+    <StSelect label="Mode select" :params-select="{dataSelect:['filled', 'outlined', 'underlined']}" v-model="mode"/>
     <Select
       v-model="formFields.isInfo2"
       mode="filled"

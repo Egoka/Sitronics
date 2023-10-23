@@ -83,7 +83,7 @@ async function copy() {
 </script>
 
 <template>
-  <div ref="inputBody" :class="['relative transition-all duration-500', !isInvalid||'is-invalid', props.classBody||'mb-6 rounded-md']" :style="`scroll-margin-top: ${headerHeight + 10}px;`">
+  <div ref="inputBody" :class="['classBody relative transition-all duration-500', !isInvalid||'is-invalid', props.classBody||'mb-6 rounded-md']" :style="`scroll-margin-top: ${headerHeight + 10}px;`">
     <div ref="beforeInput" class="absolute inset-y-0 left-0 flex items-center h-[38px]" :class="[!slots.before||' pl-3 pr-1']">
       <slot name="before"/>
     </div>

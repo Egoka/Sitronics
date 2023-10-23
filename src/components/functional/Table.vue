@@ -51,7 +51,9 @@ export interface IColumn {
   paramsDatePicker?: Partial<IDatePicker>
   cellTemplate?: string
 }
-interface IColumnPrivate extends IColumn { id: string }
+interface IColumnPrivate extends IColumn {
+  id: string
+}
 export interface ISummary {
   dataField?: string
   name?: string
@@ -143,9 +145,13 @@ const dataSource = computed<Array<any>>(()=> {
   isLoading.value = false
   return data || []
 })
-const resultDataSource = computed<Array<any>>(()=> isPagination.value
-    ? LData.slice(dataSource.value, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value))
-    : dataSource.value)
+const resultDataSource = computed<Array<any>>(()=> {
+  let resultData:Array<any> = dataSource.value
+  if (isPagination.value) {
+    resultData = LData.slice(resultData, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value))
+  }
+  return resultData
+})
 const dataColumns = computed<Array<IColumnPrivate>>(()=> {
   let listFields:Array<string> = LData.uniq(LData.flatten(LData.map(dataOriginal.value, LData.keys)))
   if (props.columns && props.columns?.length){
