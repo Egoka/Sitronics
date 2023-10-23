@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, reactive, ref, useSlots, watch} from "vue";
+import {computed, getCurrentInstance, ref, useSlots, watch} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import Button from "@/components/functional/Button.vue";
 import Dialog, {type IDialog} from "@/components/functional/Dialog.vue";
@@ -40,26 +40,28 @@ const emit = defineEmits<{
 }>();
 const slots = useSlots()
 // ---------------------------------------
+const valueLayout = ref<ILayout["value"]>()
+const classLayout = ref<ILayout["class"]>()
 const open = ref(false)
 const quillEditor = ref<any>()
 const isActiveTextEditor = ref<boolean>(false)
 const additionalStyles = ref<string>('max-h-max h-max')
 // ---------------------------------------
-const id = ref<NonNullable<ITextEditor["id"]>>(String(props.id||getCurrentInstance()?.uid))
-const theme = ref<NonNullable<IDataTextEditor["theme"]>>(props.paramsTextEditor?.theme || "bubble")
-const value = computed<string>(()=> String(props.modelValue || ""))
-const isValue = computed<boolean>(()=> Boolean(value.value ? String(value.value).length : value.value || isActiveTextEditor.value))
-const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode || "outlined")
-const isDisabled = computed<NonNullable<ITextEditor["disabled"]>>(()=> props.disabled || false)
-const isLoading = computed<NonNullable<ITextEditor["isInvalid"]>>(()=> props.loading || false)
+const id = ref<NonNullable<ITextEditor["id"]>>(String(props.id ?? getCurrentInstance()?.uid))
+const theme = ref<NonNullable<IDataTextEditor["theme"]>>(props.paramsTextEditor?.theme ?? "bubble")
+const value = computed<string>(()=> String(props.modelValue ?? ""))
+const isValue = computed<boolean>(()=> Boolean(value.value ? String(value.value).length : value.value ?? isActiveTextEditor.value))
+const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
+const isDisabled = computed<NonNullable<ITextEditor["disabled"]>>(()=> props.disabled ?? false)
+const isLoading = computed<NonNullable<ITextEditor["isInvalid"]>>(()=> props.loading ?? false)
 const isInvalid = computed<NonNullable<ITextEditor["isInvalid"]>>(()=> !isDisabled.value ? props.isInvalid : false)
-const messageInvalid = computed<NonNullable<ITextEditor["messageInvalid"]>>(()=> props.messageInvalid || "")
-const classLayout = computed<NonNullable<ILayout["class"]>>(()=> { return props.class ? props.class + additionalStyles.value : additionalStyles.value })
+const messageInvalid = computed<NonNullable<ITextEditor["messageInvalid"]>>(()=> props.messageInvalid ?? "")
+const classStyle = computed<NonNullable<ILayout["class"]>>(()=> { return props.class ? props.class + additionalStyles.value : additionalStyles.value })
 // ---------------------------------------
-const inputLayout = reactive({value: "", isValue: isValue, mode: mode.value, label: props.label,
+const inputLayout = computed(()=>{return {isValue: isValue.value, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
-  classBody: props.classBody, class: classLayout.value})
+  classBody: props.classBody, class: classStyle.value}})
 // ---------------------------------------
 const paramsQuillEditor = computed<NonNullable<Partial<IDataTextEditor>>>(()=>{return {
   content: value.value,
@@ -88,26 +90,11 @@ const paramsQuillEditor = computed<NonNullable<Partial<IDataTextEditor>>>(()=>{r
   ...props.paramsTextEditor
 } })
 // ---------------------------------------
-watch(isInvalid, ()=>{
-  inputLayout.isInvalid = isInvalid.value
-})
-watch(messageInvalid, ()=>{
-  inputLayout.messageInvalid = messageInvalid.value
-})
 watch(theme, (theme)=>{
   open.value = theme === "snow" ? true : theme === "bubble" ? false : false
 })
-watch(isLoading, (value)=>{
-  inputLayout.loading = value
-})
-watch(isDisabled, (value)=>{
-  inputLayout.disabled = value
-})
-watch(mode, (value)=>{
-  inputLayout.mode = value
-})
 watch(isActiveTextEditor, (value)=>{
-  inputLayout.class = (props.class||"")+(value
+  classLayout.value = (props.class??"")+(value
     ? ` border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`
     : " " + additionalStyles.value)
 })
@@ -125,13 +112,17 @@ function clear() {
   changeModelValue('<p></p>')
 }
 function ready() {
-  setTimeout(()=> { inputLayout.value = quillEditor.value.editor.innerText },100)
+  setTimeout(()=> { valueLayout.value = quillEditor.value.editor.innerText },100)
 }
 // ---------------------------------------
 </script>
 
 <template>
-  <InputLayout v-bind="inputLayout" @clear="clear">
+  <InputLayout
+    :value="valueLayout"
+    :class="classLayout"
+    v-bind="inputLayout"
+    @clear="clear">
     <div class="editor-small max-h-20">
       <QuillEditor v-if="theme ==='bubble'"
                    ref="quillEditor"

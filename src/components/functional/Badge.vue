@@ -18,9 +18,9 @@ const emit = defineEmits<{
   (event: 'delete'): void;
 }>();
 // ---------------------------------------
-const mode = computed<NonNullable<IBadge["mode"]>>(()=> props.mode|| "primary")
-const isPoint = computed<NonNullable<IBadge["point"]>>(()=> props.point||false)
-const isCloseButton = computed<NonNullable<IBadge["closeButton"]>>(()=> props.closeButton||false)
+const mode = computed<NonNullable<IBadge["mode"]>>(()=> props.mode ?? "primary")
+const isPoint = computed<NonNullable<IBadge["point"]>>(()=> props.point ?? false)
+const isCloseButton = computed<NonNullable<IBadge["closeButton"]>>(()=> props.closeButton ?? false)
 const classBadge = computed<Array<string>>(()=> {
   const arrayClasses = !!props.class
     ? Array.isArray(props.class)

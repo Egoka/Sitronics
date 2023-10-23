@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, reactive, ref, useSlots, watch} from "vue";
+import {computed, getCurrentInstance, ref, useSlots, watch} from "vue";
 // ---------------------------------------
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import { ArrowLongRightIcon, EllipsisVerticalIcon } from '@heroicons/vue/24/outline'
@@ -197,19 +197,20 @@ const datePicker = computed<Partial<IDatePicker>>(()=>{return {
   expanded: true,
   trimWeeks: true,
   masks: {
-    modelValue: props.paramsDatePicker?.mask||'DD MMMM YYYY',
-    input: [props.paramsDatePicker?.mask||'DD MMMM YYYY']
+    modelValue: props.paramsDatePicker?.mask??'DD MMMM YYYY',
+    input: [props.paramsDatePicker?.mask??'DD MMMM YYYY']
   },
   ...props.paramsDatePicker
 }})
 // ---------------------------------------
+const classLayout = ref<ILayout["class"]>()
 const calendar = ref<ICalendarPicker>();
 const input = ref<HTMLElement|undefined>()
-const id = ref(props.id||getCurrentInstance()?.uid)
+const id = ref(props.id ?? getCurrentInstance()?.uid)
 const value = ref<ICalendar["modelValue"]>(
   (!!(props.modelValue as Partial<IRangeValue>)?.start && !!(props.modelValue as Partial<IRangeValue>)?.end)
   ?  props.paramsDatePicker?.isRange ? props.modelValue : null
-  : !props.paramsDatePicker?.isRange ? props.modelValue||"" : {start: null, end: null} )
+  : !props.paramsDatePicker?.isRange ? props.modelValue ?? "" : {start: null, end: null} )
 const isValue = computed<boolean>(()=> {
   if (props.paramsDatePicker?.isRange) {
     return !!(visibleDate.value as Partial<IRangeValue>)?.start && !!(visibleDate.value as Partial<IRangeValue>)?.end || isOpenPicker.value
@@ -217,13 +218,13 @@ const isValue = computed<boolean>(()=> {
     return !!visibleDate.value || isOpenPicker.value
   }
 })
-const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode || "outlined")
-const placeholder = computed<IDatePicker["placeholder"]> (()=> String(props.paramsDatePicker?.placeholder || ""))
-const isLoading = computed<NonNullable<ILayout["loading"]>>(()=> props.loading || false)
-const isDisabled = computed<NonNullable<ILayout["disabled"]>>(()=> props.disabled || false)
+const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
+const placeholder = computed<IDatePicker["placeholder"]> (()=> String(props.paramsDatePicker?.placeholder ?? ""))
+const isLoading = computed<NonNullable<ILayout["loading"]>>(()=> props.loading ?? false)
+const isDisabled = computed<NonNullable<ILayout["disabled"]>>(()=> props.disabled ?? false)
 const isInvalid = computed<NonNullable<ILayout["isInvalid"]>>(()=> !isDisabled.value ? props.isInvalid : false)
-const messageInvalid = computed<NonNullable<ILayout["messageInvalid"]>>(()=> props.messageInvalid || "")
-const separator = computed<NonNullable<IDatePicker["separator"]>>(()=> props.paramsDatePicker?.separator || "arrow")
+const messageInvalid = computed<NonNullable<ILayout["messageInvalid"]>>(()=> props.messageInvalid ?? "")
+const separator = computed<NonNullable<IDatePicker["separator"]>>(()=> props.paramsDatePicker?.separator ?? "arrow")
 const visibleDate = ref<ICalendarPicker["inputValue"]>()
 const valueLayout = computed<string>(()=>datePicker.value?.isRange
     ? (visibleDate.value as IRangeDate)?.start && (visibleDate.value as IRangeDate)?.end
@@ -237,32 +238,17 @@ const baseDate = computed<Date|SimpleDateRange|null>(()=>{
   } else { return null }
 })
 // ---------------------------------------
-const inputLayout = reactive({value: visibleDate.value, isValue: isValue, mode: mode.value, label: props.label,
+const inputLayout = computed(()=>{return{isValue: isValue.value, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: props.isInvalid, messageInvalid: props.messageInvalid,
-  required: props.required, loading: isLoading, disabled: isDisabled.value, help: props.help, clear: props.clear,
-  classBody: props.classBody, class: props.class})
+  required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
+  classBody: props.classBody, class: props.class}})
 // ---------------------------------------
-watch(value, ()=>{
-  inputLayout.value = valueLayout.value
-})
 watch(()=>props.modelValue, (modelValue)=>{
   value.value = modelValue
 },{deep: true})
 watch(calendar, ()=>{
   emit('getCalendar', (calendar.value as ICalendarPicker))
 },{deep: true})
-watch(isInvalid, ()=>{
-  inputLayout.isInvalid = props.isInvalid
-})
-watch(messageInvalid, ()=>{
-  inputLayout.messageInvalid = props.messageInvalid
-})
-watch(isDisabled, (value)=>{
-  inputLayout.disabled = value
-})
-watch(mode, (value)=>{
-  inputLayout.mode = value
-})
 watch(isOpenPicker, (value)=>{
   if (value) {
     document.addEventListener("click", closeCalendar)
@@ -271,7 +257,7 @@ watch(isOpenPicker, (value)=>{
     document.removeEventListener("click", closeCalendar);
     document.removeEventListener("keydown", keydownCalendar)
   }
-  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+  focus(value)
 })
 // ---------------------------------------
 function keydownCalendar(evt:KeyboardEvent){
@@ -294,8 +280,9 @@ function changeDate (date:ICalendarPicker["inputValue"]) {
   emit('update:isInvalid', false)
   emit('update:modelValue', baseDate.value)
 }
-function focus (isFocus) {
-  inputLayout.class = (props.class||"")+(isFocus ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+function focus (isFocus:boolean=true) {
+  classLayout.value = (props.class??"") +
+    (isFocus ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
 }
 function open () {
   if (isDisabled.value) { return }
@@ -309,7 +296,11 @@ function clear () {
 </script>
 
 <template>
-  <InputLayout v-bind="inputLayout" @clear="clear">
+  <InputLayout
+    :value="valueLayout"
+    :class="classLayout"
+    v-bind="inputLayout"
+    @clear="clear">
     <div :id="`dataPicker${id}`"
          ref="inputBody"
          tabindex="0"

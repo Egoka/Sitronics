@@ -31,20 +31,18 @@ const props = defineProps<ISwitch>()
 // ---------------------------------------
 const isActiveSwitch = ref<boolean>(false)
 // ---------------------------------------
-const id = ref(props.id||getCurrentInstance()?.uid)
-const value = computed<boolean>(()=> Boolean(props.modelValue||false))
-const switchingType = computed<IDataSwitch["switchingType"]>(()=> props.paramsSwitch?.switchingType||"checkbox")
-const mode = computed<IDataSwitch["mode"]>(()=> props.paramsSwitch?.mode || props.mode || "none")
-const label = computed<ISwitch["label"]>(()=> String(props.label || ""))
-const isDisabled = computed<ISwitch["disabled"]>(()=>props.disabled || false)
-const isRequired = computed<ISwitch["required"]>(()=>props.required)
-const rounded = computed<number>(()=> props.paramsSwitch?.rounded === "full" ? 9999 : props.paramsSwitch?.rounded || 9999)
-const iconActive = computed<IDataSwitch["iconActive"]>(()=> props.paramsSwitch?.iconActive||"")
-const iconInactive = computed<IDataSwitch["iconInactive"]>(()=> props.paramsSwitch?.iconInactive||"")
+const id = ref(props.id ?? getCurrentInstance()?.uid)
+const value = computed<boolean>(()=> Boolean(props.modelValue ?? false))
+const switchingType = computed<IDataSwitch["switchingType"]>(()=> props.paramsSwitch?.switchingType ?? "checkbox")
+const mode = computed<IDataSwitch["mode"]>(()=> props.paramsSwitch?.mode ?? props.mode ?? "none")
+const label = computed<ISwitch["label"]>(()=> String(props.label ?? ""))
+const isDisabled = computed<ISwitch["disabled"]>(()=>props.disabled ?? false)
+const isRequired = computed<ISwitch["required"]>(()=>props.required ?? false)
+const rounded = computed<number>(()=> props.paramsSwitch?.rounded === "full" ? 9999 : props.paramsSwitch?.rounded ?? 9999)
+const iconActive = computed<IDataSwitch["iconActive"]>(()=> props.paramsSwitch?.iconActive ?? "")
+const iconInactive = computed<IDataSwitch["iconInactive"]>(()=> props.paramsSwitch?.iconInactive ?? "")
 // ---------------------------------------
-function inputEvent (value:boolean) {
-  inputModelValue(value)
-}
+function inputEvent (value:boolean) { inputModelValue(value) }
 // ---------------------------------------
 const emit = defineEmits<{
   (event: 'update:modelValue', payload: boolean): void;

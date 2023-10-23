@@ -104,12 +104,12 @@ const emit = defineEmits<{
 // ---------------------------------------
 const arrayFieldsValidate = ["StInput", "StAria", "StSelect", "StCalendar", "StTextEditor"]
 // ---------------------------------------
-const name = computed<IForm["name"]>(()=>props.name || "")
-const modeStyle = computed<IMode|undefined>(()=>props.modeStyle || undefined)
-const modeLabel = computed<ILabelMode>(()=>props.modeLabel || "offsetDynamic")
-const isDisabled = computed<boolean>(()=>props.disabled || false)
-const autocomplete = computed<NonNullable<IForm["autocomplete"]>>(()=> props?.autocomplete || "on")
-const modeValidate = computed(()=>props.modeValidate || "onChange")
+const name = computed<IForm["name"]>(()=>props.name ?? "")
+const modeStyle = computed<IMode|undefined>(()=>props.modeStyle)
+const modeLabel = computed<ILabelMode>(()=>props.modeLabel ?? "offsetDynamic")
+const isDisabled = computed<boolean>(()=>props.disabled ?? false)
+const autocomplete = computed<NonNullable<IForm["autocomplete"]>>(()=> props?.autocomplete ?? "on")
+const modeValidate = computed(()=>props.modeValidate ?? "onChange")
 // ---------------------------------------
 const formFields = reactive<IFormFields>({})
 const formInvalidFields = reactive<{[key:string]: boolean}>({})
@@ -163,8 +163,8 @@ function setStructureParam(indexStructure:number, param:keyof IFormStructure, va
 // ---------------------------------------
 function getStructure (structures:Array<IFormStructure>):Array<IFormStructure> {
   return structures.map(structure=>{
-    if (!structure?.class?.length) structure.class = props.structureClass||"border-b border-gray-900/10 pb-12"
-    if (!structure?.classGrid?.length) structure.classGrid = props.structureClassGrid||"grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 mt-10"
+    if (!structure?.class?.length) { structure.class = props.structureClass ?? "border-b border-gray-900/10 pb-12" }
+    if (!structure?.classGrid?.length) { structure.classGrid = props.structureClassGrid ?? "grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 mt-10" }
     if (structure.fields){
       structure.fields = structure.fields.map((field:IFieldsType)=>{
         if (!field.name){
@@ -184,9 +184,9 @@ function getStructure (structures:Array<IFormStructure>):Array<IFormStructure> {
         field.mode = field.mode || modeStyle.value
         if (arrayFieldsValidate.includes(field.typeComponent)){
           (field as IFieldsIS).labelMode =
-            (field as IFieldsIS).labelMode || modeLabel.value
+            (field as IFieldsIS).labelMode ?? modeLabel.value
         }
-        field.disabled = field.disabled || isDisabled.value
+        field.disabled = field.disabled ?? isDisabled.value
         return field
       })
     }
@@ -215,8 +215,8 @@ async function validateField (field: IFieldsType) {
         if (arrayFieldsValidate.includes(field.typeComponent)) {
           (field as IFieldsIS).loading = false
         }
-        isInvalid = result?.isInvalid || isInvalid
-        message = result?.message || message
+        isInvalid = result?.isInvalid ?? isInvalid
+        message = result?.message ?? message
       }
       formInvalidFields[field.name] = isInvalid
       field["messageInvalid"] = message
@@ -383,7 +383,7 @@ function submit(){
     <div class="mt-6 flex items-center justify-end gap-x-6">
       <slot name="footer">
         <Button v-if="props.submitButton" type="submit">
-          {{ props.submitButton||'Save' }}
+          {{ props.submitButton ?? 'Save' }}
         </Button>
       </slot>
     </div>

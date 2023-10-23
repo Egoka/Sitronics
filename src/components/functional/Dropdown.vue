@@ -4,7 +4,7 @@ const props = defineProps<{
   isOpen?:boolean
   content?: string
 }>()
-const isOpen = ref(props?.isOpen|| false)
+const isOpen = ref(props?.isOpen ?? false)
 const dropdown = ref<HTMLElement|undefined>()
 onMounted(()=>{
   const iconDropdown = document.getElementById(`iconDropdown${getCurrentInstance()?.uid}`)

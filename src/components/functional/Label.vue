@@ -11,11 +11,11 @@ const props = defineProps<{
   translateX?:number|undefined
   maxWidth?:number|undefined
 }>();
-const title = computed(()=>props.title||"")
-const mode = computed<IMode>(()=> props.mode || "outlined")
+const title = computed(()=>props.title ?? "")
+const mode = computed<IMode>(()=> props.mode ?? "outlined")
 const isRequired = computed(()=>props.isRequired)
 const isDisabled = computed(()=>props.isDisabled)
-const type = computed(()=>props.type||"dynamic")
+const type = computed(()=>props.type ?? "dynamic")
 const translateX = computed(()=> {
   const x = props.translateX && props.translateX > 10 ? props.translateX : 10
   if (x >=10 &&  x < 17) { return 'translate-x-[1rem]'
@@ -29,7 +29,7 @@ const translateX = computed(()=> {
   } else if (x >=128 &&  x < 144) { return 'translate-x-[9rem]'
   } else if (x >=144) { return 'translate-x-[10rem]' }
 })
-const maxWidth = computed(()=> props.maxWidth || null)
+const maxWidth = computed(()=> props.maxWidth ?? null)
 const background = computed(()=> {
   if (mode.value === 'outlined'){
     return 'from-white dark:from-neutral-950 from-50% to-transparent to-55%'

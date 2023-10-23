@@ -31,17 +31,17 @@ export interface ILayout {
 // ---------------------------------------
 const props = defineProps<ILayout>()
 // ---------------------------------------
-const value = computed<ILayout["value"]>(()=> props.value || null)
-const isValue = computed<ILayout["value"]>(()=> props.isValue || false)
-const mode = computed<ILayout["mode"]>(()=> props.mode || "outlined")
-const label = computed<ILayout["label"]>(()=> String(props.label || ""))
-const labelMode = computed<ILabelMode>(()=> props.labelMode || "offsetDynamic")
+const value = computed<ILayout["value"]>(()=> props.value ?? null)
+const isValue = computed<ILayout["value"]>(()=> props.isValue ?? false)
+const mode = computed<ILayout["mode"]>(()=> props.mode ?? "outlined")
+const label = computed<ILayout["label"]>(()=> String(props.label ?? ""))
+const labelMode = computed<ILabelMode>(()=> props.labelMode ?? "offsetDynamic")
 const labelType = computed<ILabelMode>(()=> getLabelType(isValue.value, label.value, labelMode.value))
 const isRequired = computed<ILayout["required"]>(()=>props.required)
-const isLoading = computed<ILayout["loading"]>(()=> props.loading || false)
-const isDisabled = computed<ILayout["disabled"]>(()=>props.disabled || false)
+const isLoading = computed<ILayout["loading"]>(()=> props.loading ?? false)
+const isDisabled = computed<ILayout["disabled"]>(()=>props.disabled ?? false)
 const isInvalid = computed<ILayout["isInvalid"]>(()=>!isDisabled.value ? props.isInvalid : false)
-const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid || "")
+const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid ?? "")
 
 // ---------------------------------------
 const input = ref<HTMLElement|undefined>()

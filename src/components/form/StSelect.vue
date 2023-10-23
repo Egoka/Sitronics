@@ -52,8 +52,9 @@ defineExpose<ISelectExpose>({
 const inputBody = ref<HTMLElement>()
 const query = ref<string>("")
 const isOpenList = ref(false)
+const classLayout =  ref<ILayout["class"]>()
 // ---------------------------------------
-const id = ref(props.id||getCurrentInstance()?.uid)
+const id = ref(props.id ?? getCurrentInstance()?.uid)
 const visibleValue = ref<Array<any>>([])
 const value = computed<ISelect["modelValue"]>(()=>props.modelValue)
 const valueKeys = computed<Array<any>>(()=>visibleValue.value.map(item=>item[keySelect.value]))
@@ -80,44 +81,25 @@ const dataSelect = computed<IDateSelect["dataSelect"]>(()=> ( keySelect.value &&
     return { [(keySelect.value as string)]: typeof item === "object" ? item[(keySelect.value as string)] : item,
              [(valueSelect.value as string)]: typeof item === "object" ? item[(valueSelect.value as string)] : item }})
   : props.paramsSelect?.dataSelect)|| [])
-const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode || "outlined")
-const isDisabled = computed<NonNullable<ILayout["disabled"]>>(()=> props.disabled || false)
-const isLoading = computed<NonNullable<ILayout["isInvalid"]>>(()=> props.loading || false)
-const isInvalid = computed<NonNullable<ILayout["isInvalid"]>>(()=> props.isInvalid || false)
+const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
+const isDisabled = computed<NonNullable<ILayout["disabled"]>>(()=> props.disabled ?? false)
+const isLoading = computed<NonNullable<ILayout["isInvalid"]>>(()=> props.loading ?? false)
+const isInvalid = computed<NonNullable<ILayout["isInvalid"]>>(()=> props.isInvalid ?? false)
 const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid)
-const isValue = computed<boolean>(()=> Boolean(isMultiple.value ? value.value ? String(value.value).length : value.value : value.value || isOpenList.value))
-const isMultiple = computed<NonNullable<IDateSelect["multiple"]>>(()=> props.paramsSelect?.multiple || false)
+const isValue = computed<boolean>(()=> Boolean(isMultiple.value ? value.value ? String(value.value).length : value.value : value.value ?? isOpenList.value))
+const isMultiple = computed<NonNullable<IDateSelect["multiple"]>>(()=> props.paramsSelect?.multiple ?? false)
 const maxVisible = computed<IDateSelect["maxVisible"]>(()=> props.paramsSelect?.maxVisible)
-const noData = computed<NonNullable<IDateSelect["noData"]>>(()=> props.paramsSelect?.noData || "Нет данных")
+const noData = computed<NonNullable<IDateSelect["noData"]>>(()=> props.paramsSelect?.noData ?? "Нет данных")
 const isQuery = computed<NonNullable<IDateSelect["noQuery"]>>(()=> !props.paramsSelect?.noQuery)
-const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery||"font-bold text-primary-700 dark:text-primary-300")
-const animate = computed<NonNullable<IDateSelect["animate"]>>(()=> props.paramsSelect?.animate||"-translate-y-5")
+const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery ?? "font-bold text-primary-700 dark:text-primary-300")
+const animate = computed<NonNullable<IDateSelect["animate"]>>(()=> props.paramsSelect?.animate ?? "-translate-y-5")
 // ---------------------------------------
-const valueLayout = computed<string>(()=> visibleValue.value?.map(v=> v[valueSelect.value])?.join(", "))
+const valueLayout = computed<string|null>(()=> visibleValue.value?.map(v => v[valueSelect.value])?.join(", ")||null)
 // ---------------------------------------
-const inputLayout = reactive({value: valueLayout.value, isValue: isValue, mode: mode.value, label: props.label,
-  labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
-  required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
-  classBody: props.classBody, class: props.class})
+const inputLayout = computed(()=>{return{isValue: isValue.value, mode: mode.value, classBody: props.classBody, class: props.class,
+  label: props.label, labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
+  required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear}})
 // ---------------------------------------
-watch(isInvalid, ()=>{
-  inputLayout.isInvalid = props.isInvalid
-})
-watch(messageInvalid, ()=>{
-  inputLayout.messageInvalid = props.messageInvalid
-})
-watch(isLoading, (value)=>{
-  inputLayout.loading = value
-})
-watch(isDisabled, (value)=>{
-  inputLayout.disabled = value
-})
-watch(mode, (value)=>{
-  inputLayout.mode = value
-})
-watch(()=>props.classBody, (value)=>{
-  inputLayout.classBody = value
-})
 watch(isOpenList, (value)=>{
   if (value) {
     document.addEventListener("mousedown", closeSelect)
@@ -126,7 +108,7 @@ watch(isOpenList, (value)=>{
     document.removeEventListener("mousedown", closeSelect);
     document.removeEventListener("keydown", keydownSelect)
   }
-  inputLayout.class = (props.class||"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+  focusSelect(value)
 })
 watch(value, ()=>{
   if (value.value) {
@@ -143,7 +125,6 @@ watch(value, ()=>{
       visibleValue.value = result ? [result] : []
     }
   } else { visibleValue.value = [] }
-  inputLayout.value = valueLayout.value
 }, { immediate: true })
 // ---------------------------------------
 function keydownSelect(evt:KeyboardEvent){
@@ -156,7 +137,7 @@ function keydownSelect(evt:KeyboardEvent){
 }
 // ---------------------------------------
 function focusSelect(isFocus) {
-  inputLayout.class = (props.class||"")+(isFocus ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+  classLayout.value = (props.class??"")+(isFocus ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
 }
 function openSelect() {
   if (isDisabled.value) { return }
@@ -214,7 +195,7 @@ function onEnter(el:any, done:any) {
 }
 const lastLength = ref()
 const delay = computed<number>(():number=> {
-  const d = lastLength.value||dataList.value?.length
+  const d = lastLength.value ?? dataList.value?.length
   lastLength.value = dataList.value?.length
   if (d>=0 && d<10) { return 0.15
   } else if (d>=10 && d<30) { return 0.05
@@ -231,7 +212,11 @@ function onLeave(el:any, done:any) {
 }
 </script>
 <template>
-  <InputLayout v-bind="inputLayout" @clear="select(null)">
+  <InputLayout
+    :value="valueLayout"
+    :class="classLayout"
+    v-bind="inputLayout"
+    @clear="select(null)">
     <div :id="`select${id}`"
          ref="inputBody"
          tabindex="0"

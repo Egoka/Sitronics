@@ -137,7 +137,7 @@ const router = createRouter({
     if (savedPosition) {
       return savedPosition
     } else {
-      const header = document.querySelector("header")?.offsetHeight || 0
+      const header = document.querySelector("header")?.offsetHeight ?? 0
       return {
         behavior: 'smooth',
         top: -header,

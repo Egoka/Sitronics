@@ -20,8 +20,8 @@ const emit = defineEmits<{
   (event: 'update:modelValue', payload: boolean): void;
 }>();
 // ---------------------------------------
-const isOpen = computed<boolean>(()=>props.modelValue||false)
-const size = computed<IDialog["size"]>(()=>props.size||"size3")
+const isOpen = computed<boolean>(()=>props.modelValue ?? false)
+const size = computed<IDialog["size"]>(()=>props.size ?? "size3")
 const classSize = computed(()=>{
   switch (size.value){
     case 'size1': return "sm:max-w-[15rem]"
@@ -31,11 +31,11 @@ const classSize = computed(()=>{
     case 'size5': return "sm:max-w-[90%]"
   }
 })
-const isCloseButton = computed<IDialog["closeButton"]>(()=>props.closeButton||false)
-const notCloseBackground = computed<IDialog["notCloseBackground"]>(()=>props.notCloseBackground||false)
-const withoutMargin = computed<IDialog["withoutMargin"]>(()=>props.withoutMargin||false)
+const isCloseButton = computed<IDialog["closeButton"]>(()=>props.closeButton ?? false)
+const notCloseBackground = computed<IDialog["notCloseBackground"]>(()=>props.notCloseBackground ?? false)
+const withoutMargin = computed<IDialog["withoutMargin"]>(()=>props.withoutMargin ?? false)
 // ---------------------------------------
-const position = computed<NonNullable<IDialog["position"]>>(()=> props.position || "center")
+const position = computed<NonNullable<IDialog["position"]>>(()=> props.position ?? "center")
 const classDialog = computed<Array<string>|string>(()=> {
   const arrayDialog = !!props.class
     ? Array.isArray(props.class)

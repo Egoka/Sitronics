@@ -109,12 +109,12 @@ let sizeTable = ref<number>(5)
 let sortColumns = reactive<{ [keys:string]: Sort }>({})
 let sortOrders = ref<Array<{field:string, direction: NonNullable<Sort>}>>([])
 let filterColumns = reactive<object>({})
-let dataOriginal = ref<ITable["dataSource"]>(props.dataSource||[])
+let dataOriginal = ref<ITable["dataSource"]>(props.dataSource ?? [])
 // ---------------------------------------
 const isLoading = ref<boolean>(false)
 // ---------------------------------------
 const lengthData = computed<number>(()=> dataSource.value.length)
-const countDataOnLoading = computed<ITable["countDataOnLoading"]>(()=> props.countDataOnLoading||1000)
+const countDataOnLoading = computed<ITable["countDataOnLoading"]>(()=> props.countDataOnLoading ?? 1000)
 const dataSource = computed<Array<any>>(()=> {
   let data = dataOriginal.value
   // Order
@@ -143,7 +143,7 @@ const dataSource = computed<Array<any>>(()=> {
     pageTable.value = 1
   }
   isLoading.value = false
-  return data || []
+  return data ?? []
 })
 const resultDataSource = computed<Array<any>>(()=> {
   let resultData:Array<any> = dataSource.value
@@ -157,20 +157,20 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
   if (props.columns && props.columns?.length){
     return <Array<IColumnPrivate>>props.columns
       .map((column, index)=>{
-        const fieldName = column.dataField||listFields[index]||""
+        const fieldName = column.dataField ?? listFields[index] ?? ""
         if (fieldName === ""){ return false}
         const options = <IColumnPrivate>{
           ...column,
           id: `Col-${fieldName}-${index}`,
           dataField: fieldName,
-          name: `Col-${column.name||fieldName}`,
-          caption: column.caption||
+          name: `Col-${column.name ?? fieldName}`,
+          caption: column.caption ??
             (/^\d+$/.test(fieldName) ? `Col ${fieldName}`
             :(fieldName as string).charAt(0).toUpperCase() + (fieldName as string).slice(1)),
           visible: typeof column?.visible === "boolean" ? column.visible : true,
           isFilter: typeof column.isFilter === "boolean" ? column.isFilter : isFilter.value,
           isSort: typeof column.isSort === "boolean" ? column.isSort : isSort.value,
-          type: column.type||"string",
+          type: column.type ?? "string",
         }
         switch (options.type) {
           case "string": {
@@ -188,7 +188,7 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
             options.paramsSelect = <IDateSelect>{
               multiple: true,
               maxVisible: 0,
-              dataSelect: LData.compact(LData.uniq(LData.map(dataOriginal.value, options.dataField||"")))||[],
+              dataSelect: LData.compact(LData.uniq(LData.map(dataOriginal.value, options.dataField ?? ""))) ?? [],
               ...column.paramsSelect};break
           }
           case "date": {
@@ -198,10 +198,10 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
                 highlight: {
                   fillMode: 'light',
                 },
-                dates: LData.compact(LData.uniq(LData.map(dataOriginal.value, options.dataField||""))).map((item:string)=>new Date(item))||[],
+                dates: LData.compact(LData.uniq(LData.map(dataOriginal.value, options.dataField ?? ""))).map((item:string)=>new Date(item)) ?? [],
               }],
               classPicker: "-left-1/2",
-              mask: column.paramsDatePicker?.masks?.modelValue||"DD.MM.YYYY",
+              mask: column.paramsDatePicker?.masks?.modelValue ?? "DD.MM.YYYY",
               ...column.paramsDatePicker
             };
             break
@@ -230,27 +230,26 @@ const dataSummary = computed<Array<ISummaryPrivate>>(()=> {
   if (props.summary){
     return <Array<ISummaryPrivate>>props.summary.map((summary, index)=>{
       const column = getColumn(summary.dataField, index)
-      const summaryName = summary.dataField||column.dataField
+      const summaryName = summary.dataField ?? column.dataField
       return {
-        id: `Sum-${summary.name||summaryName}-${index}`,
-        name: `Sum-${summary.name||summaryName}`,
+        id: `Sum-${summary.name ?? summaryName}-${index}`,
+        name: `Sum-${summary.name ?? summaryName}`,
         dataField: summaryName,
-        displayFormat: summary.displayFormat||(
+        displayFormat: summary.displayFormat ?? (
                 summary.type === "max" ? "Max: {0}"
               : summary.type === "min" ? "Min: {0}"
               : summary.type === "sum" ? "Sum: {0}"
               : summary.type === "avg" ? "Avg: {0}"
               : summary.type === "count"?"Count: {0}"
-              : "Count: {0}"
-          )||
+              : "Count: {0}" ) ??
           ((["string", "date"]).includes(column.type as string) ? "Кол. {0}"
           : (["number", "select"]).includes(column.type as string) ? "Сум. {0}"
             : "Кол. {0}"),
-        type: summary.type||((["string", "date", "select"]).includes(column.type as string) ? "count"
+        type: summary.type ?? ((["string", "date", "select"]).includes(column.type as string) ? "count"
           : (["number"]).includes(column.type as string) ? "sum"
             : "count"),
         customizeText: summary.customizeText,
-        dataType: summary.dataType||column.type
+        dataType: summary.dataType ?? column.type
       }
     })
   } else {
@@ -277,14 +276,14 @@ const summaryColumns = computed<object>(()=>{
       return result
     }, {})
 })
-const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.classMaskQuery||"font-bold text-primary-700 dark:text-primary-400")
-const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode||"outlined")
-const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData || "Нет данных")
-const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn || "Нет колонок")
-const isHiddenHead = computed<ITable["isHiddenHead"]>(()=> props.isHiddenHead||false)
-const isSummary = computed<ITable["isSummary"]>(()=> props.isSummary||!!props.summary?.length||false)
-const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> props.noData || "Не найдено подходящих данных")
-const isVisibleToolbar = computed<boolean>(()=> isSearch.value || (props.toolbar as IToolbar)?.visible || (!!props.toolbar || !!(Object.keys(props.toolbar).length))||false)
+const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.classMaskQuery ?? "font-bold text-primary-700 dark:text-primary-400")
+const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode ?? "outlined")
+const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData ?? "Нет данных")
+const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn ?? "Нет колонок")
+const isHiddenHead = computed<ITable["isHiddenHead"]>(()=> props.isHiddenHead ?? false)
+const isSummary = computed<ITable["isSummary"]>(()=> props.isSummary ?? !!props.summary?.length ?? false)
+const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> props.noData ?? "Не найдено подходящих данных")
+const isVisibleToolbar = computed<boolean>(()=> isSearch.value ?? (props.toolbar as IToolbar)?.visible ?? (!!props.toolbar ?? !!(Object.keys(props.toolbar).length)) ?? false)
 const isFilter = computed<boolean>(()=>typeof props?.filter === "object"
   ? typeof props?.filter?.visible === "boolean" ? props.filter.visible : true
   : typeof props?.filter === "boolean" ? props.filter : false )
@@ -294,28 +293,28 @@ const isSort = computed<boolean>(()=>typeof props?.sort === "object"
 const isPagination = computed<ITablePagination["visible"]>(()=>typeof props?.pagination === "object"
   ? typeof props?.pagination?.visible === "boolean" ? props.pagination.visible : true
   : typeof props?.pagination === "boolean" ? props.pagination : false )
-const iconSort = computed<ISort["icon"]>(()=>(props?.sort as ISort)?.icon||"Arrow")
-const isSearch = computed<boolean>(()=> props.search||(props?.toolbar as IToolbar)?.search||false)
-const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearAllFilter || false) && (!!noEmptyFilters(filterColumns).length || !!queryTable.value.length))
+const iconSort = computed<ISort["icon"]>(()=>(props?.sort as ISort)?.icon ?? "Arrow")
+const isSearch = computed<boolean>(()=> props.search ?? (props?.toolbar as IToolbar)?.search ?? false)
+const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearAllFilter ?? false) && (!!noEmptyFilters(filterColumns).length ?? !!queryTable.value.length))
 // ---------------------------------------
-const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=>(props.pagination as ITablePagination).startPage||1)
-const modePagination = computed<NonNullable<ITablePagination["mode"]>>(()=>(props.pagination as ITablePagination).mode||mode.value)
+const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=>(props.pagination as ITablePagination).startPage ?? 1)
+const modePagination = computed<NonNullable<ITablePagination["mode"]>>(()=>(props.pagination as ITablePagination).mode ?? mode.value)
 const sizePage = computed<NonNullable<ITablePagination["sizePage"]>>(()=>(props.pagination as ITablePagination).sizePage??countVisibleRows.value)
 const visibleNumberPages = computed<ITablePagination["visibleNumberPages"]>(()=>(props.pagination as ITablePagination).visibleNumberPages)
 const sizesSelector = computed<ITablePagination["sizesSelector"]>(()=>(props.pagination as ITablePagination).sizesSelector)
-const isInfoText = computed<ITablePagination["isInfoText"]>(()=>(props.pagination as ITablePagination).isInfoText??false)
-const isPageSizeSelector = computed<ITablePagination["isPageSizeSelector"]>(()=>(props.pagination as ITablePagination).isPageSizeSelector??false)
-const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationButtons"]>(()=>(props.pagination as ITablePagination).isHiddenNavigationButtons??false)
+const isInfoText = computed<ITablePagination["isInfoText"]>(()=>(props.pagination as ITablePagination).isInfoText ?? false)
+const isPageSizeSelector = computed<ITablePagination["isPageSizeSelector"]>(()=>(props.pagination as ITablePagination).isPageSizeSelector ?? false)
+const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationButtons"]>(()=>(props.pagination as ITablePagination).isHiddenNavigationButtons ?? false)
 // ---------------------------------------
-const heightCell = computed<number>(()=> props.heightCell||1.5)
+const heightCell = computed<number>(()=> props.heightCell ?? 1.5)
 const heightRow = computed<number>(()=> {
   const tagTr = (tbody.value as HTMLElement)?.querySelector("tr")
   if (tagTr) { return tagTr.offsetHeight
   } else { const basePadding = 2;return basePadding * 16 + heightCell.value * 16 + 1 }
 })
-const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows||5)
+const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows ?? 5)
 const heightTable = computed<number>(()=> {
-  return (thead.value?.clientHeight||0) + (tfoot.value?.clientHeight||0) + countVisibleRows.value * (heightRow.value||2 * 16 + heightCell.value * 16 + 1)
+  return (thead.value?.clientHeight ?? 0) + (tfoot.value?.clientHeight ?? 0) + countVisibleRows.value * (heightRow.value||2 * 16 + heightCell.value * 16 + 1)
 })
 // ---------------------------------------
 const tableObserver = new ResizeObserver(entries => {
@@ -443,7 +442,7 @@ function columnStyle(el:"filter", column:IColumnPrivate) {
 }
 function setSummary(summary:ISummaryPrivate):string{
   let result:number|string|null|undefined = null
-  const columnData:Array<any> = LData.map(dataSource.value, summary.dataField||"")
+  const columnData:Array<any> = LData.map(dataSource.value, summary.dataField ?? "")
   switch (summary.type) {
     case "sum": {
       if ((["number"] as Array<DataType>).includes(summary.dataType)){
@@ -488,13 +487,13 @@ function setCell(column:IColumnPrivate, value:any):string{
       return convertToPhone(String(value))
     } else if (column?.mask === "number") {
       return convertToNumber(value,
-        column.paramsInput?.lengthInteger||20,
-        column.paramsInput?.lengthDecimal||0,
+        column.paramsInput?.lengthInteger ?? 20,
+        column.paramsInput?.lengthDecimal ?? 0,
         "")
     } else if (column?.mask === "price") {
       return convertToNumber(value,
-        column.paramsInput?.lengthInteger||20,
-        column.paramsInput?.lengthDecimal||0,
+        column.paramsInput?.lengthInteger ?? 20,
+        column.paramsInput?.lengthDecimal ?? 0,
         " ")
     } else { return String(value) }
   }
@@ -515,7 +514,7 @@ function setCell(column:IColumnPrivate, value:any):string{
 function setMarker (column:IColumnPrivate, valueCell:any):string {
   if (valueCell && (filterColumns[column.dataField]||queryTable.value.length)){
     valueCell = valueCell.replace(new RegExp(
-        filterColumns[column.dataField]||queryTable.value, "gi"),
+        filterColumns[column.dataField] ?? queryTable.value, "gi"),
       `<span class="${classMaskQuery.value}">$&</span>`)
   }
   return valueCell

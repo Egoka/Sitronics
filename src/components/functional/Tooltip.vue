@@ -13,8 +13,8 @@ const props = defineProps<ITooltip>()
 const tooltip = ref<HTMLElement>()
 const isVisibleHelp = ref<boolean>()
 // ---------------------------------------
-const delay = ref<NonNullable<ITooltip["delay"]>>(props.delay || 10)
-const position = ref<NonNullable<ITooltip["position"]>>(props.position || "top")
+const delay = ref<NonNullable<ITooltip["delay"]>>(props.delay ?? 10)
+const position = ref<NonNullable<ITooltip["position"]>>(props.position ?? "top")
 const element = computed<HTMLElement>(()=> {
   if (props.el) {
     if (typeof props.el === "string"){

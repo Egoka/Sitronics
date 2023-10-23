@@ -21,12 +21,12 @@ const emit = defineEmits<{
 const $slots = useSlots()
 // ---------------------------------------
 const isVisible = ref(props.modelValue)
-const type = computed<NonNullable<IAlertProps["type"]>>(()=> props.type||"success")
-const title = computed<NonNullable<IAlertProps["title"]>>(()=> props.title||"")
-const subtitle = computed<NonNullable<IAlertProps["subtitle"]>>(()=> props.subtitle||"")
+const type = computed<NonNullable<IAlertProps["type"]>>(()=> props.type ?? "success")
+const title = computed<NonNullable<IAlertProps["title"]>>(()=> props.title ?? "")
+const subtitle = computed<NonNullable<IAlertProps["subtitle"]>>(()=> props.subtitle ?? "")
 const displayTime = computed<number>(()=> !!+props.displayTime ? +props.displayTime : 0)
-const isCloseButton = computed<NonNullable<IAlertProps["closeButton"]>>(()=>props.closeButton||false)
-const position = computed<NonNullable<IAlertProps["position"]>>(()=> props.position || "top")
+const isCloseButton = computed<NonNullable<IAlertProps["closeButton"]>>(()=>props.closeButton ?? false)
+const position = computed<NonNullable<IAlertProps["position"]>>(()=> props.position ?? "top")
 const classClass = computed<Array<string>|string>(()=> {
   const arrayDialog = !!props.class
     ? Array.isArray(props.class)

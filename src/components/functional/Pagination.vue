@@ -30,15 +30,15 @@ const emit = defineEmits<{
 // ---------------------------------------
 const selectPageSize = ref<ISelectExpose|null>()
 // ---------------------------------------
-const activePage = computed<Page>(()=>props.modelValue||pages[0])
-const sizePage = computed<IPagination["sizePage"]>(()=>props.sizePage||5)
-const visibleNumberPages = computed<IPagination["visibleNumberPages"]>(()=>(props.visibleNumberPages >= 5 ? props.visibleNumberPages : 5)||5)
-const total = computed<IPagination["total"]>(()=>props.total||0)
-const isInfoText = computed<IPagination["isInfoText"]>(()=>props.isInfoText??false)
-const isPageSizeSelector = computed<IPagination["isPageSizeSelector"]>(()=>(props.isPageSizeSelector||!!props.sizesSelector?.length)??false)
-const isNavigationButtons = computed<IPagination["isNavigationButtons"]>(()=>!props.isHiddenNavigationButtons??false)
+const activePage = computed<Page>(()=>props.modelValue ?? pages[0])
+const sizePage = computed<IPagination["sizePage"]>(()=>props.sizePage ?? 5)
+const visibleNumberPages = computed<IPagination["visibleNumberPages"]>(()=>(props.visibleNumberPages >= 5 ? props.visibleNumberPages : 5) ?? 5)
+const total = computed<IPagination["total"]>(()=>props.total ?? 0)
+const isInfoText = computed<IPagination["isInfoText"]>(()=>props.isInfoText ?? false)
+const isPageSizeSelector = computed<IPagination["isPageSizeSelector"]>(()=>(props.isPageSizeSelector || !!props.sizesSelector?.length) ?? false)
+const isNavigationButtons = computed<IPagination["isNavigationButtons"]>(()=>!props.isHiddenNavigationButtons ?? false)
 const arraySizesSelector = computed<Array<{key:number, value: string}>>(()=>
-  ((props.sizesSelector??[...new Set([+sizePage.value,5,15,20,50,100,150])]) as Array<number>)
+  ((props.sizesSelector ?? [...new Set([+sizePage.value,5,15,20,50,100,150])]) as Array<number>)
     ?.sort((a, b) => a - b)
     ?.map(size=>{return{key: size, value: `${size} rows`}}))
 const pages = computed<Array<Page>>(()=> {
@@ -66,7 +66,7 @@ const pages = computed<Array<Page>>(()=> {
     ].flat()
   } else { return resultArray.length ? resultArray : [0] }
 })
-const mode = computed<IPagination["mode"]>(()=> props.mode || "outlined")
+const mode = computed<IPagination["mode"]>(()=> props.mode ?? "outlined")
 // ---------------------------------------
 function switchPage(value) {
   let page
@@ -76,7 +76,7 @@ function switchPage(value) {
       return active
     }, null)
   } else { page = value }
-  emit('update:modelValue', page === undefined||page === null||page <= 0 ? activePage.value : page)
+  emit('update:modelValue', page === undefined || page === null || page <= 0 ? activePage.value : page)
 }
 function switchSizePage(sizePageValue) {
   emit('update:sizePage', sizePageValue)
@@ -181,7 +181,7 @@ function switchSizePage(sizePageValue) {
         <p class="text-sm text-gray-400 dark:text-gray-500">Show:</p>
         <StSelect ref="selectPageSize"
                   :class="[(mode === 'outlined') ? 'border-none':(mode === 'underlined') ? '!bg-transparent': '']"
-                  :class-body="['m-0 min-w-[6rem] max-w-[6rem]', (mode === 'filled') ? 'border-b border-stone-200 dark:border-stone-800':'']"
+                  :class-body="['m-0 min-w-[6rem] max-w-[6rem]']"
                   :mode="mode"
                   :model-value="sizePage"
                   :params-select="{
