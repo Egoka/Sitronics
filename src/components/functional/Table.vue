@@ -34,6 +34,10 @@ export interface IFilter{
   noFilter?:string
   isClearAllFilter?:boolean
 }
+export interface IGrouping{
+  visible?:boolean
+  groupField?:string
+}
 export interface IColumn {
   dataField?:string
   name?:string
@@ -45,6 +49,8 @@ export interface IColumn {
   maxWidth?:number
   isFilter?:boolean
   isSort?:boolean
+  defaultFilter?: any
+  defaultSort?: Sort
   mask?:IDataInput["mask"]
   paramsInput?: IDataInput
   paramsSelect?: IDateSelect
@@ -76,8 +82,9 @@ export interface ITable {
   toolbar?: IToolbar|boolean
   sort?: ISort|boolean
   filter?: IFilter|boolean
+  grouping?: IGrouping|string
   pagination?: ITablePagination|boolean
-  isHiddenHead?:boolean
+  isColumns?:boolean
   isSummary?:boolean
   search?:boolean
   columns?: Array<IColumn>
@@ -106,20 +113,71 @@ const pager = ref<HTMLElement>()
 let queryTable = ref<string>("")
 let pageTable = ref<number>(1)
 let sizeTable = ref<number>(5)
+let widthsColumns = reactive<Array<number>|[]>([])
 let sortColumns = reactive<{ [keys:string]: Sort }>({})
-let sortOrders = ref<Array<{field:string, direction: NonNullable<Sort>}>>([])
 let filterColumns = reactive<object>({})
 let dataOriginal = ref<ITable["dataSource"]>(props.dataSource ?? [])
 // ---------------------------------------
 const isLoading = ref<boolean>(false)
 // ---------------------------------------
-const lengthData = computed<number>(()=> dataSource.value.length)
+const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode ?? "outlined")
+const isVisibleToolbar = computed<boolean>(()=> isSearch.value ?? (props.toolbar as IToolbar)?.visible ?? (!!props.toolbar ?? !!(Object.keys(props.toolbar).length)) ?? false)
+const isSearch = computed<boolean>(()=> props.search ?? (props?.toolbar as IToolbar)?.search ?? false)
+const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearAllFilter ?? false) && (!!noEmptyFilters(filterColumns).length ?? !!queryTable.value.length))
+const isColumns = computed<ITable["isColumns"]>(()=> props.isColumns ?? false)
+const isSummary = computed<ITable["isSummary"]>(()=> props.isSummary ?? !!props.summary?.length ?? false)
 const countDataOnLoading = computed<ITable["countDataOnLoading"]>(()=> props.countDataOnLoading ?? 1000)
+const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.classMaskQuery ?? "font-bold text-primary-700 dark:text-primary-400")
+const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData ?? "Нет данных")
+const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn ?? "Нет колонок")
+const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> props.noData ?? "Не найдено подходящих данных")
+const iconSort = computed<ISort["icon"]>(()=>(props?.sort as ISort)?.icon ?? "Arrow")
+const lengthData = computed<number>(()=> dataSource.value.length)
+const groupField = computed<IGrouping["groupField"]|null>(()=>typeof props?.grouping === "object"
+  ? typeof props?.grouping?.groupField === "string" ? props.grouping.groupField : null
+  : typeof props?.grouping === "string" ? props.grouping : null )
+const isFilter = computed<boolean>(()=>typeof props?.filter === "object"
+  ? typeof props?.filter?.visible === "boolean" ? props.filter.visible : true
+  : typeof props?.filter === "boolean" ? props.filter : false )
+const isSort = computed<boolean>(()=>typeof props?.sort === "object"
+  ? typeof props?.sort?.visible === "boolean" ? props.sort.visible : true
+  : typeof props?.sort === "boolean" ? props.sort : false )
+const isGroup = computed<boolean>(()=>typeof props?.grouping === "object"
+  ? typeof props?.grouping?.visible === "boolean" ? props.grouping.visible : true
+  : typeof props?.grouping === "string" ? !!props.grouping.length : false )
+const isPagination = computed<ITablePagination["visible"]>(()=>typeof props?.pagination === "object"
+  ? typeof props?.pagination?.visible === "boolean" ? props.pagination.visible : true
+  : typeof props?.pagination === "boolean" ? props.pagination : false )
+// ---------------------------------------
+const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=>(props.pagination as ITablePagination).startPage ?? 1)
+const modePagination = computed<NonNullable<ITablePagination["mode"]>>(()=>(props.pagination as ITablePagination).mode ?? mode.value)
+const sizePage = computed<NonNullable<ITablePagination["sizePage"]>>(()=>(props.pagination as ITablePagination).sizePage??countVisibleRows.value)
+const visibleNumberPages = computed<ITablePagination["visibleNumberPages"]>(()=>(props.pagination as ITablePagination).visibleNumberPages)
+const sizesSelector = computed<ITablePagination["sizesSelector"]>(()=>(props.pagination as ITablePagination).sizesSelector)
+const isInfoText = computed<ITablePagination["isInfoText"]>(()=>(props.pagination as ITablePagination).isInfoText ?? false)
+const isPageSizeSelector = computed<ITablePagination["isPageSizeSelector"]>(()=>(props.pagination as ITablePagination).isPageSizeSelector ?? false)
+const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationButtons"]>(()=>(props.pagination as ITablePagination).isHiddenNavigationButtons ?? false)
+// ---------------------------------------
+const heightCell = computed<number>(()=> props.heightCell ?? 1.5)
+const heightRow = computed<number>(()=> {
+  const tagTr = (tbody.value as HTMLElement)?.querySelector("tr")
+  if (tagTr) { return tagTr.offsetHeight
+  } else { const basePadding = 2;return basePadding * 16 + heightCell.value * 16 + 1 }
+})
+const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows ?? 5)
+const heightTable = computed<number>(()=> {
+  return (thead.value?.clientHeight ?? 0) + (tfoot.value?.clientHeight ?? 0) + countVisibleRows.value * (heightRow.value||2 * 16 + heightCell.value * 16 + 1) -1
+})
+// ---------------------------------------
 const dataSource = computed<Array<any>>(()=> {
   let data = dataOriginal.value
-  // Order
+  // Sort
   if (data && Object.keys(sortColumns).filter(i=>sortColumns[i] !== null).length){
-    data = LData.orderBy(data, sortOrders.value.map(i=>i.field), sortOrders.value.map(i=>i.direction))
+    const sortedFields = Object.keys(sortColumns).reduce((result, column)=>{
+      if (sortColumns[column] === "asc" || sortColumns[column] === "desc"){
+        result[column] = sortColumns[column] }
+      return result }, {})
+    data = LData.orderBy(data, Object.keys(sortedFields), Object.values(sortedFields))
   }
   // Filter
   if (data && noEmptyFilters(filterColumns).length){
@@ -145,11 +203,15 @@ const dataSource = computed<Array<any>>(()=> {
   isLoading.value = false
   return data ?? []
 })
-const resultDataSource = computed<Array<any>>(()=> {
-  let resultData:Array<any> = dataSource.value
+const resultDataSource = computed(()=> {
+  let resultData:any = dataSource.value
   if (isPagination.value) {
-    resultData = LData.slice(resultData, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value))
-  }
+    if (isGroup.value && groupField.value?.length ) {
+      resultData = Object.values(LData.groupBy(resultData, (item) => item[groupField.value])).flat() }
+    resultData = LData.slice(resultData, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value)) }
+  resultData = isGroup.value && groupField.value?.length
+    ? LData.groupBy(resultData, (item) => item[groupField.value])
+    : {0: resultData}
   return resultData
 })
 const dataColumns = computed<Array<IColumnPrivate>>(()=> {
@@ -198,9 +260,8 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
                 highlight: {
                   fillMode: 'light',
                 },
-                dates: LData.compact(LData.uniq(LData.map(dataOriginal.value, options.dataField ?? ""))).map((item:string)=>new Date(item)) ?? [],
+                dates: LData.compact(LData.uniq(LData.map(dataOriginal.value, (item)=> item[options.dataField] ? String(item[options.dataField]) : null ))) ?? [],
               }],
-              classPicker: "-left-1/2",
               mask: column.paramsDatePicker?.masks?.modelValue ?? "DD.MM.YYYY",
               ...column.paramsDatePicker
             };
@@ -276,46 +337,6 @@ const summaryColumns = computed<object>(()=>{
       return result
     }, {})
 })
-const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.classMaskQuery ?? "font-bold text-primary-700 dark:text-primary-400")
-const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode ?? "outlined")
-const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData ?? "Нет данных")
-const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn ?? "Нет колонок")
-const isHiddenHead = computed<ITable["isHiddenHead"]>(()=> props.isHiddenHead ?? false)
-const isSummary = computed<ITable["isSummary"]>(()=> props.isSummary ?? !!props.summary?.length ?? false)
-const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> props.noData ?? "Не найдено подходящих данных")
-const isVisibleToolbar = computed<boolean>(()=> isSearch.value ?? (props.toolbar as IToolbar)?.visible ?? (!!props.toolbar ?? !!(Object.keys(props.toolbar).length)) ?? false)
-const isFilter = computed<boolean>(()=>typeof props?.filter === "object"
-  ? typeof props?.filter?.visible === "boolean" ? props.filter.visible : true
-  : typeof props?.filter === "boolean" ? props.filter : false )
-const isSort = computed<boolean>(()=>typeof props?.sort === "object"
-  ? typeof props?.sort?.visible === "boolean" ? props.sort.visible : true
-  : typeof props?.sort === "boolean" ? props.sort : false )
-const isPagination = computed<ITablePagination["visible"]>(()=>typeof props?.pagination === "object"
-  ? typeof props?.pagination?.visible === "boolean" ? props.pagination.visible : true
-  : typeof props?.pagination === "boolean" ? props.pagination : false )
-const iconSort = computed<ISort["icon"]>(()=>(props?.sort as ISort)?.icon ?? "Arrow")
-const isSearch = computed<boolean>(()=> props.search ?? (props?.toolbar as IToolbar)?.search ?? false)
-const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearAllFilter ?? false) && (!!noEmptyFilters(filterColumns).length ?? !!queryTable.value.length))
-// ---------------------------------------
-const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=>(props.pagination as ITablePagination).startPage ?? 1)
-const modePagination = computed<NonNullable<ITablePagination["mode"]>>(()=>(props.pagination as ITablePagination).mode ?? mode.value)
-const sizePage = computed<NonNullable<ITablePagination["sizePage"]>>(()=>(props.pagination as ITablePagination).sizePage??countVisibleRows.value)
-const visibleNumberPages = computed<ITablePagination["visibleNumberPages"]>(()=>(props.pagination as ITablePagination).visibleNumberPages)
-const sizesSelector = computed<ITablePagination["sizesSelector"]>(()=>(props.pagination as ITablePagination).sizesSelector)
-const isInfoText = computed<ITablePagination["isInfoText"]>(()=>(props.pagination as ITablePagination).isInfoText ?? false)
-const isPageSizeSelector = computed<ITablePagination["isPageSizeSelector"]>(()=>(props.pagination as ITablePagination).isPageSizeSelector ?? false)
-const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationButtons"]>(()=>(props.pagination as ITablePagination).isHiddenNavigationButtons ?? false)
-// ---------------------------------------
-const heightCell = computed<number>(()=> props.heightCell ?? 1.5)
-const heightRow = computed<number>(()=> {
-  const tagTr = (tbody.value as HTMLElement)?.querySelector("tr")
-  if (tagTr) { return tagTr.offsetHeight
-  } else { const basePadding = 2;return basePadding * 16 + heightCell.value * 16 + 1 }
-})
-const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows ?? 5)
-const heightTable = computed<number>(()=> {
-  return (thead.value?.clientHeight ?? 0) + (tfoot.value?.clientHeight ?? 0) + countVisibleRows.value * (heightRow.value||2 * 16 + heightCell.value * 16 + 1)
-})
 // ---------------------------------------
 const tableObserver = new ResizeObserver(entries => {
   entries.forEach(() => {
@@ -336,12 +357,14 @@ setColorScheme(colorSchemeQueryList);
 colorSchemeQueryList.addEventListener('change', setColorScheme);
 // ---------------------------------------
 onMounted(()=>{
-  if (tbody.value) {
-    tableObserver.observe(tbody.value as Element);
-  }
-  const result = dataColumns.value.map((column)=>[column.dataField,null])
-  Object.assign(sortColumns, Object.fromEntries(new Map(result)))
-  Object.assign(filterColumns, Object.fromEntries(new Map(result)))
+  if (tbody.value) { tableObserver.observe(tbody.value as Element) }
+  const resultSort = dataColumns.value.map((column)=>[column.dataField,column.defaultSort??null])
+  Object.assign(sortColumns, Object.fromEntries(new Map(resultSort)))
+  const resultFilter = dataColumns.value.map((column)=>[column.dataField,column.defaultFilter??null])
+  Object.assign(filterColumns, Object.fromEntries(new Map(resultFilter)))
+  const resultWidths = dataColumns.value.map((column)=>[column.dataField,column.width??column.maxWidth??column.minWidth])
+  Object.assign(widthsColumns, Object.fromEntries(new Map(resultWidths)))
+  console.log("onMounted")
 })
 onUnmounted(()=>{
   tableObserver.disconnect();
@@ -369,11 +392,6 @@ function sorting(columnName:string|undefined, value?:Sort) {
   }
   setTimeout(()=>{
     sortColumns[columnName] = (value as Sort)
-    const index = sortOrders.value.findIndex(order=>order.field === columnName)
-    if (index > -1) {
-      if (value === null) { sortOrders.value.splice(index, 1)
-      } else { sortOrders.value[index].direction = (value as NonNullable<Sort>) }
-    } else {sortOrders.value.push({field: columnName, direction: "asc"})}
   },timeout)
 }
 function filtering(columnName:string|undefined, value:any) {
@@ -429,15 +447,6 @@ function isEqualsValue(column:IColumnPrivate, columnValue:any, value: any): bool
         } else { return false }
       }
     }
-  }
-}
-function columnStyle(el:"filter", column:IColumnPrivate) {
-  switch (el) {
-    case "filter": return [
-      !column.minWidth||`min-width: ${column.minWidth}rem`,
-      !column.width||`width: ${column.width}rem`,
-      !column.maxWidth||`max-width: ${column.maxWidth}rem`
-    ]
   }
 }
 function setSummary(summary:ISummaryPrivate):string{
@@ -531,6 +540,43 @@ function clearFilter() {
   Object.keys(filterColumns).map(filter=>filtering(filter, null))
   searching("")
 }
+// ---------------------------------------
+const defaultWidthColumn = ref<string>('max-width: 600px;min-width:100px;')
+function resizeColumn($event: MouseEvent, columnId: string) {
+  const columnEl: HTMLElement = (thead.value as HTMLElement)?.querySelector(`.${columnId}`);
+  if (columnEl) {
+    const column = <IColumnPrivate>dataColumns.value.find(item=>item.id === columnId)
+    const rect = columnEl.getBoundingClientRect();
+    let newW = $event.pageX - rect.left - 5
+    const maxW = column.maxWidth
+    if (newW > maxW && maxW) { newW = maxW }
+    const minW = column.minWidth ?? 100
+    if (newW < minW && minW) { newW = minW }
+    widthsColumns[column.dataField] = newW
+  }
+}
+const editableColumn = ref<string|null>(null)
+function move(ev: MouseEvent) {
+  resizeColumn(ev, editableColumn.value??"");
+}
+function startResizeColumn($event: MouseEvent, column: IColumnPrivate["id"]) {
+  if($event.stopPropagation) $event.stopPropagation();
+  if($event.preventDefault) $event.preventDefault();
+  editableColumn.value = column
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', stopResizeColumn);
+}
+function stopResizeColumn() {
+  editableColumn.value = null
+  window.removeEventListener('mousemove', move);
+}
+// ---------------------------------------
+function tableStyle(el:'column', column:IColumnPrivate) {
+  switch (el) {
+    case "column": { return [] }
+  }
+}
+// ---------------------------------------
 </script>
 
 <template>
@@ -585,21 +631,23 @@ function clearFilter() {
                :style="`height: ${heightTable}px`">
             <table ref="table" class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
     <!-- -------------------------------- -->
-              <thead v-if="!isHiddenHead"
+              <thead v-if="!isColumns"
                      ref="thead"
                      class="sticky top-0 z-10"
                      :class="[
                        (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
                        (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
-                       (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : ''
-                     ]">
+                       (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : '']">
               <tr>
-                <template v-for="column in dataColumns" :key="column.id">
+                <template v-for="(column, key) in dataColumns" :key="column.id">
                   <th v-if="column.visible" scope="col"
-                    :class="[column.isFilter ? 'pl-2 pt-1' : 'pl-6 py-5']">
-                    <div class="group flex w-max cursor-pointer">
-                      <div v-if="column.isFilter"
-                        :style="columnStyle('filter', column)">
+                      :class="[column.id, column.isFilter ? 'pl-2 pt-1' : 'pl-6 py-5', ]"
+                      :style="!widthsColumns[column.dataField] ? defaultWidthColumn :
+                      `width: ${widthsColumns[column.dataField]}px;
+                      min-width: ${widthsColumns[column.dataField]}px;
+                      max-width: ${widthsColumns[column.dataField]}px;`">
+                    <div class="group relative flex w-full cursor-pointer">
+                      <div v-if="column.isFilter" class="w-full">
                         <StInput
                           v-if="column.type === 'string'||column.type === 'number'"
                           :model-value="filterColumns[column?.dataField]"
@@ -608,8 +656,8 @@ function clearFilter() {
                           label-mode="offsetDynamic"
                           class-body="m-0 my-2"
                           :params-input="column?.paramsInput"
+                          :style="`min-width: ${column.minWidth||70}px`"
                           class="border-none font-normal"
-                          :style="`max-width: ${column.width||column.minWidth||6}rem`"
                           clear
                           @change:model-value="(v)=>filtering(column?.dataField, v)"
                           @update:model-value="(v)=>lengthData > 100||filtering(column?.dataField, v)"
@@ -623,7 +671,7 @@ function clearFilter() {
                             classSelectList: 'normal-case font-normal',
                             ...column?.paramsSelect}"
                           :mode="mode"
-                          :style="`min-width: ${column.width||column.minWidth||10}rem`"
+                          :style="`min-width: ${column.width||column.minWidth||50}px`"
                           class-body="m-0 my-2"
                           class="border-none font-normal"
                           clear
@@ -636,12 +684,12 @@ function clearFilter() {
                           label-mode="offsetDynamic"
                           class-body="m-0 my-2"
                           class="border-none font-normal"
-                          :style="`min-width: ${column.width||column.minWidth||8}rem`"
+                          :style="`min-width: ${column.width||column.minWidth||50}px`"
                           :params-date-picker="column?.paramsDatePicker"
                           clear
                           @update:model-value="(v)=>filtering(column?.dataField, v)"/>
                       </div>
-                      <div v-else class="block text-left text-sm font-medium text-gray-400 dark:text-gray-500 truncate" :style="columnStyle('filter', column)">
+                      <div v-else class="block text-left text-sm font-medium text-gray-400 dark:text-gray-500 truncate">
                         {{ column.caption }}
                       </div>
                       <div v-if="column.isSort||isSort"
@@ -653,6 +701,11 @@ function clearFilter() {
                         <BarsArrowUpIcon v-if="iconSort === 'Bars' && [null, 'asc'].includes(sortColumns[column?.dataField])" class="ml-1 h-4 w-4 text-gray-400"/>
                         <BarsArrowDownIcon v-if="iconSort === 'Bars' && sortColumns[column?.dataField] === 'desc'" class="ml-1 h-4 w-4 text-gray-400"/>
                       </div>
+                      <div class="resizable absolute  z-10 inset-y-0 flex items-center hover:opacity-100 px-2 cursor-ew-resize transition-opacity duration-500 "
+                           :class="[dataColumns.length-1 > key ? '-right-5' : 'right-3', editableColumn === column.id ? 'opacity-100': 'opacity-0']"
+                           @mousedown="startResizeColumn($event, column.id)" @mouseup="stopResizeColumn">
+                        <div class="h-8 w-1.5 rounded-full bg-neutral-300 dark:bg-neutral-600"></div>
+                      </div>
                     </div>
                   </th>
                 </template>
@@ -660,20 +713,39 @@ function clearFilter() {
               </thead>
     <!-- -------------------------------- -->
               <tbody ref="tbody" class="divide-y divide-gray-200 dark:divide-gray-800 overflow-y-auto">
-              <tr v-for="(data, index) in resultDataSource" :key="index" class="max-h-8">
-                <template v-for="(column, key) in dataColumns" :key="`${index}-${key}`">
-                  <td v-if="column.visible" class="px-6 py-4 text-sm text-gray-800 dark:text-gray-300 whitespace-nowrap font-medium"
-                      :style="columnStyle('filter', column)">
-                    <div v-if="!column?.cellTemplate" class="flex items-center min-h-[2.5rem]" :style="`min-height: ${heightCell}rem`" v-html="setMarker(column, setCell(column, data[column.dataField]))"/>
-                    <div v-else class="flex items-center min-h-[2.5rem]" :style="`min-height: ${heightCell}rem`">
-                      <slot :name="column?.cellTemplate"
-                            :column="column"
-                            :value="setCell(column, data[column.dataField])"
-                            :value-with-marker="setMarker(column, setCell(column, data[column.dataField]))"/>
-                    </div>
-                  </td>
+                <template v-for="(group, key) in resultDataSource" :key="key">
+                  <tr v-if="isGroup">
+                    <th :colspan="dataColumns.length" scope="colgroup"
+                        :style="`top:${thead?.clientHeight-1}px`"
+                        :class="['sticky','bg-neutral-100 dark:bg-neutral-900','px-6 py-2 pr-3 pl-10 sm:pl-12',
+                        'outline -outline-offset-1 -outline-0 outline-gray-200 dark:outline-gray-800',
+                        'font-medium text-left text-base text-gray-800 dark:text-gray-300 whitespace-nowrap']">
+                      <div class="sticky left-10 sm:left-12 flex items-center w-fit min-h-[2.5rem] truncate"
+                           :style="`min-height: ${heightCell}rem`">
+                        <slot name="group" :item="key" :length="group.length">{{key}}</slot>
+                      </div>
+                    </th>
+                  </tr>
+                  <tr v-for="(data, index) in group" :key="index">
+                    <template v-for="(column, key) in dataColumns" :key="`${index}-${key}`">
+                      <td v-if="column.visible" class="px-6 py-4 text-sm text-gray-800 dark:text-gray-300 font-medium"
+                          :style="!widthsColumns[column.dataField] ? defaultWidthColumn :
+                          `width: ${widthsColumns[column.dataField]}px;
+                          min-width: ${widthsColumns[column.dataField]}px;
+                          max-width: ${widthsColumns[column.dataField]}px;`">
+                        <div v-if="!column?.cellTemplate" class="flex items-center whitespace-pre-line overflow-auto"
+                             :style="`min-height: ${heightCell}rem;max-height: ${(heightCell*5)*16+2}px;`"
+                             v-html="setMarker(column, setCell(column, data[column.dataField]))"/>
+                        <div v-else class="flex items-center min-h-[2.5rem] whitespace-pre-line overflow-auto"
+                             :style="`min-height: ${heightCell}rem;max-height: ${(heightCell*5)*16+2}px;`">
+                          <slot :name="column?.cellTemplate"
+                                :column="column" :value="setCell(column, data[column.dataField])"
+                                :value-with-marker="setMarker(column, setCell(column, data[column.dataField]))"/>
+                        </div>
+                      </td>
+                    </template>
+                  </tr>
                 </template>
-              </tr>
               </tbody>
     <!-- -------------------------------- -->
               <tr v-if="footerPaddingHeight" class="border-none" :style="`height: ${footerPaddingHeight-1}px`"></tr>
@@ -690,7 +762,6 @@ function clearFilter() {
                 <template v-for="column in dataColumns" :key="column.id">
                   <th v-if="column.visible" scope="col" class="pl-6 py-3">
                       <div class="block text-sm font-normal text-gray-400 dark:text-gray-500 truncate text-left"
-                           :style="columnStyle('filter', column)"
                            v-html="summaryColumns[column.dataField]"/>
                   </th>
                 </template>

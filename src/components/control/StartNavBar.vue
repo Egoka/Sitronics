@@ -111,7 +111,13 @@ const mobileMenuOpen = ref(false)
         <div class="mt-6 flow-root">
           <div class="-my-6 divide-y divide-gray-500/10">
             <div class="space-y-2 py-6">
-              <Button v-for="item in navigation" :key="item.title" :link="item.href" mode="secondary" :class="[baseUrl !== item.name ? 'router-link-active': '', 'text-gray-900 dark:text-gray-300 shadow-none rounded-lg w-full']">{{ item.title }}</Button>
+              <Button v-for="item in navigation" :key="item.title"
+                      :link="item.href"
+                      mode="secondary"
+                      :class="[baseUrl !== item.name ? 'router-link-active': '', 'text-gray-900 dark:text-gray-300 shadow-none rounded-lg w-full']"
+                      @click="mobileMenuOpen = false">
+                {{ item.title }}
+              </Button>
             </div>
             <div class="py-6">
               <a href="#" class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 dark:text-gray-300 hover:bg-gray-50 hover:dark:bg-gray-900">Log in</a>

@@ -112,7 +112,7 @@ function changeModelValue(value:any) {
         :disabled="isDisabled"
         type="checkbox"
         class="h-4 w-4 bg-stone-50 dark:bg-stone-950 border-gray-300 dark:border-gray-700 text-primary-500 dark:text-primary-700 border-[1px] focus:ring-offset-0 focus:ring-primary-200 focus:dark:ring-primary-800 transition
-        disabled:bg-slate-500 disabled:text-slate-500 disabled:accent-slate-500"
+        disabled:bg-slate-500 disabled:text-slate-500 disabled:accent-slate-500 cursor-pointer"
         :style="`border-radius: ${rounded-1}px`"
         @focus="isActiveSwitch = true"
         @blur="isActiveSwitch = false"
@@ -122,7 +122,7 @@ function changeModelValue(value:any) {
     </div>
     <div class="text-sm leading-6">
       <label :for="id" :class="[
-        `font-medium text-gray-600 dark:text-gray-400`,
+        `font-medium text-gray-600 dark:text-gray-400 cursor-pointer`,
         !isDisabled||'text-slate-800 dark:text-slate-200',
         !isRequired||`after:content-['*'] after:text-red-500 after:dark:text-red-800 after:ml-1`]">
         {{ label }}
@@ -132,7 +132,7 @@ function changeModelValue(value:any) {
     <div class="absolute inset-y-0 right-0 flex items-center pl-1">
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
-          <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition" aria-hidden="true" />
+          <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition cursor-help" aria-hidden="true" />
           <Tooltip>Дополнительная информация</Tooltip>
         </template>
       </Dropdown>

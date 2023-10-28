@@ -13,7 +13,7 @@ export type Page = number
 export interface IPagination {
   modelValue?: Page
   mode?: IMode
-  sizePage?: number
+  sizePage?: number|5|15|20|50|100|150
   sizesSelector?: [5,15,20,50,100,150]|Array<number>
   visibleNumberPages?:number
   total?: number

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, useSlots} from "vue";
+import {computed, onMounted, onUnmounted, ref, useSlots} from "vue";
 import type {IMode} from "@/components/BaseTypes";
 import Label, {type ILabelMode} from "@/components/functional/Label.vue";
 import {getLabelType} from "@/helpers/label";
@@ -42,7 +42,7 @@ const isLoading = computed<ILayout["loading"]>(()=> props.loading ?? false)
 const isDisabled = computed<ILayout["disabled"]>(()=>props.disabled ?? false)
 const isInvalid = computed<ILayout["isInvalid"]>(()=>!isDisabled.value ? props.isInvalid : false)
 const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid ?? "")
-
+const help = computed<ILayout["help"]>(()=> String(props.help ?? ""))
 // ---------------------------------------
 const input = ref<HTMLElement|undefined>()
 const inputBody = ref<HTMLElement|undefined>()
@@ -56,6 +56,25 @@ const beforeWidth = ref<number|null>(null)
 const afterWidth = ref<number|null>(null)
 const headerHeight = ref(0)
 const isCopy = ref(false)
+// ---------------------------------------
+const tableObserver = new ResizeObserver(entries => {
+  entries.forEach(() => {
+    setWidthInput()
+  });
+});
+const widthInput = ref<number>(0)
+function setWidthInput() {
+  const result = inputBody.value?.clientWidth
+  widthInput.value = result ? result : 0
+}
+onMounted(()=>{
+  if (inputBody.value) {
+    tableObserver.observe(inputBody.value as Element);
+  }
+})
+onUnmounted(()=>{
+  tableObserver.disconnect();
+})
 // ---------------------------------------
 onMounted(()=>{
   new ResizeObserver(entries => {
@@ -83,7 +102,9 @@ async function copy() {
 </script>
 
 <template>
-  <div ref="inputBody" :class="['classBody relative transition-all duration-500', !isInvalid||'is-invalid', props.classBody||'mb-6 rounded-md']" :style="`scroll-margin-top: ${headerHeight + 10}px;`">
+  <div ref="inputBody"
+       :class="['classBody relative transition-all duration-500', !isInvalid||'is-invalid', props.classBody||'mb-6 rounded-md']"
+       :style="`scroll-margin-top: ${headerHeight + 10}px;`">
     <div ref="beforeInput" class="absolute inset-y-0 left-0 flex items-center h-[38px]" :class="[!slots.before||' pl-3 pr-1']">
       <slot name="before"/>
     </div>
@@ -103,7 +124,7 @@ async function copy() {
            :is-required="isRequired"
            :is-disabled="isDisabled"
            :translate-x="beforeWidth||10"
-           :max-width="input?.['offsetWidth']"/>
+           :max-width="widthInput"/>
     <span ref="afterInput" class="absolute inset-y-0 right-0 flex items-center h-[38px]">
       <div v-if="slots.after" class="flex pr-2">
         <slot name="after"/>

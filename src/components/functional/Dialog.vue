@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, watch} from "vue";
 import Button from "@/components/functional/Button.vue";
 import {XMarkIcon} from "@heroicons/vue/20/solid";
 
@@ -13,6 +13,7 @@ export interface IDialog {
   closeButton?: boolean
   withoutMargin?: boolean
   notCloseBackground?: boolean
+  toTeleport?: string
 }
 // ---------------------------------------
 const props = defineProps<IDialog>()
@@ -20,6 +21,7 @@ const emit = defineEmits<{
   (event: 'update:modelValue', payload: boolean): void;
 }>();
 // ---------------------------------------
+const toTeleport = computed<IDialog["toTeleport"]>(()=>props.toTeleport ?? "body")
 const isOpen = computed<boolean>(()=>props.modelValue ?? false)
 const size = computed<IDialog["size"]>(()=>props.size ?? "size3")
 const classSize = computed(()=>{
@@ -83,7 +85,7 @@ function closeModal() {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport :to="String(toTeleport)">
     <transition  appear leave-active-class="transition-all ease-in-out duration-500" leave-from-class="translate-x-0 opacity-100" :leave-to-class="enterAndLeaveClass"
                 enter-active-class="transition-all ease-in-out duration-500" :enter-from-class="enterAndLeaveClass" enter-to-class="translate-x-0 opacity-100">
       <div v-if="isOpen" class="fixed top-0 left-0 right-0 bottom-0 z-50 w-full overflow-x-hidden overflow-y-auto inset-0 h-screen max-h-full">
