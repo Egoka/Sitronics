@@ -1,13 +1,14 @@
 <script setup lang="ts">
 // ---------------------------------------
 import {computed} from "vue";
+import type {StyleClass} from "@/components/BaseTypes";
 
 export interface IButton {
   type?: "button" | "reset" | "submit"
   link?: string | Location
   linkReplace?: boolean
   mode?:  "primary" | "secondary" | "creative" | "destructive" | "outline" | "line" | "neutral" | "ghost" | "link" | "text" | "custom"
-  class?: string| Array<string>
+  class?: StyleClass
   disabled?: boolean
 }
 // ---------------------------------------
@@ -19,7 +20,7 @@ const disabled = computed<NonNullable<IButton["disabled"]>>(()=> props.disabled 
 const type = computed<NonNullable<IButton["type"]>>(()=> props.type ?? "button")
 const mode = computed<NonNullable<IButton["mode"]>>(()=> props.mode ?? "neutral")
 const tag = computed<string>(()=> ['link', 'text'].includes(mode.value) ? 'button' : 'a')
-const classButton = computed<Array<string>>(()=> {
+const classButton = computed<StyleClass>(()=> {
   const arrayClasses = !!props.class
     ? Array.isArray(props.class)
       ? (props.class as Array<string>).flat().map(item=>item.split(" ")).flat()

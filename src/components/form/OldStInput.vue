@@ -151,7 +151,7 @@ onMounted(()=>{
       [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
       disabled:bg-slate-50 disabled:dark:bg-slate-950 disabled:text-slate-500 disabled:border-slate-200 disabled:dark:border-slate-800 disabled:border-dashed disabled:shadow-none"
       :class="[!isInvalid||'is-invalid ring-2 ring-red-500 scroll-mt-10',
-      !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black focus:ring-2 focus:border-transparent',
+      !(mode === 'outlined')||'border border-gray-300 dark:border-gray-600 bg-white dark:bg-black focus:ring-2 focus:border-transparent',
       !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] shadow-none bg-stone-50 dark:bg-stone-950 focus:border-b-[1px] focus:border-primary-400 focus:dark:border-primary-600 focus:ring-0',
       !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900 focus:ring-2 disabled:bg-stone-100 disabled:dark:bg-stone-900 disabled:border-dotted disabled:border-2 disabled:border-slate-200',
       props.classInput]"

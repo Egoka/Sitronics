@@ -1,6 +1,7 @@
 import * as Vue from 'vue';
 import Alert from "@/components/functional/Alert.vue";
 import type { Properties as CSS } from 'csstype';
+import type {StyleClass} from "@/components/BaseTypes";
 export interface IAlert {
   modelValue?: boolean
   type?: "success"|"warning"|"info"| "error"|"neutral"
@@ -8,7 +9,7 @@ export interface IAlert {
   size?: "xs"|"sm"|"md"|"lg"|"xl"|"2xl"|"3xl"|"4xl"|"5xl"|"6xl"|"7xl"
   title?: string
   subtitle?: string
-  class?: string| Array<string>
+  class?: StyleClass
   style?: CSS
   displayTime?: string|number|1000|2000|3000|4000|5000
   notAnimate?: boolean

@@ -2,6 +2,7 @@
 import {computed, watch} from "vue";
 import Button from "@/components/functional/Button.vue";
 import {XMarkIcon} from "@heroicons/vue/20/solid";
+import type {StyleClass} from "@/components/BaseTypes";
 
 // ---------------------------------------
 export interface IDialog {
@@ -38,7 +39,7 @@ const notCloseBackground = computed<IDialog["notCloseBackground"]>(()=>props.not
 const withoutMargin = computed<IDialog["withoutMargin"]>(()=>props.withoutMargin ?? false)
 // ---------------------------------------
 const position = computed<NonNullable<IDialog["position"]>>(()=> props.position ?? "center")
-const classDialog = computed<Array<string>|string>(()=> {
+const classDialog = computed<StyleClass>(()=> {
   const arrayDialog = !!props.class
     ? Array.isArray(props.class)
       ? (props.class as Array<string>).flat().map(item=>item.split(" ")).flat()
@@ -69,7 +70,7 @@ const classDialog = computed<Array<string>|string>(()=> {
   } else { arrayDialog.push("left-1/2 -translate-x-1/2") }
   return arrayDialog
 })
-const enterAndLeaveClass = computed<Array<string>|string>(()=> {
+const enterAndLeaveClass = computed<StyleClass>(()=> {
   if (!props.notAnimate) {
     if(position.value.includes("left")){ return "-translate-x-full"}
     else if(position.value.includes("right")){ return "translate-x-full"}

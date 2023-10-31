@@ -46,7 +46,7 @@ const autocomplete = computed<NonNullable<IDataInput["autocomplete"]>>(()=> prop
 const mask = computed<IDataInput["mask"]|null>(()=> props.paramsInput?.mask ?? null)
 const lengthInteger = computed<NonNullable<IDataInput["lengthInteger"]>>(()=> +(props.paramsInput?.lengthInteger ?? 20))
 const lengthDecimal = computed<NonNullable<IDataInput["lengthDecimal"]>>(()=> +(props.paramsInput?.lengthDecimal ?? 0))
-const isValue = computed<boolean>(()=> Boolean(value.value ? String(value.value).length : value.value ?? isActiveInput.value))
+const isValue = computed<boolean>(()=> !!value.value || isActiveInput.value)
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
 const isDisabled = computed<NonNullable<IInput["disabled"]>>(()=> props.disabled ?? false)
 const isLoading = computed<NonNullable<IInput["isInvalid"]>>(()=> props.loading ?? false)

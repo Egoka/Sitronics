@@ -13,7 +13,7 @@ import StCalendar, {type ICalendar} from "@/components/form/StCalendar.vue";
 import Button from "@/components/functional/Button.vue";
 import Badge from "@/components/functional/Badge.vue";
 // ---------------------------------------
-import type {IMode} from "@/components/BaseTypes";
+import type {IMode, StyleClass} from "@/components/BaseTypes";
 type classCol = "col-span-full"|"sm:col-span-3"|"sm:col-span-4"|"sm:col-span-5"|"sm:col-span-6"|string
 // ---------------------------------------
 export interface IRulesInput extends Rules {}
@@ -85,7 +85,7 @@ export interface IFormStructure {
 export interface IForm {
   name?: string
   structure: Array<IFormStructure>
-  class?: string | Array<string>
+  class?: StyleClass
   modeStyle?: IMode
   modeLabel?: ILabelMode
   modeValidate?: "onSubmit"|"onChange"|"onInput"

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import {getCurrentInstance, computed, ref, onMounted, onUnmounted, watch} from "vue";
+import type {StyleClass} from "@/components/BaseTypes";
 // ---------------------------------------
 export interface ITooltip {
   el?: string|Element
   delay?: number|5|10|15|20
   position?: "top"|"bottom"|"left"|"right"|"center"|"left-bottom"|"left-top"|"right-bottom"|"right-top"
-  class?: string| Array<string>
+  class?: StyleClass
 }
 // ---------------------------------------
 const props = defineProps<ITooltip>()
@@ -22,7 +23,7 @@ const element = computed<HTMLElement>(()=> {
     } else { return props.el}
   } else { return getCurrentInstance()?.vnode?.el?.parentElement }
 })
-const classTooltip = computed<Array<string>>(()=> {
+const classTooltip = computed<StyleClass>(()=> {
   const arrayClasses = !!props.class
     ? Array.isArray(props.class)
       ? (props.class as Array<string>).flat().map(item=>item.split(" ")).flat()

@@ -10,6 +10,7 @@ import {
 } from "@heroicons/vue/20/solid";
 import Button from "@/components/functional/Button.vue";
 import {IAlert} from "@/components/functional/Alert.ts";
+import type {StyleClass} from "@/components/BaseTypes";
 // ---------------------------------------
 export interface IAlertProps extends Omit<IAlert, 'position'> {
   position?: "top"|"bottom"|"left"|"right"|"center"
@@ -27,7 +28,7 @@ const subtitle = computed<NonNullable<IAlertProps["subtitle"]>>(()=> props.subti
 const displayTime = computed<number>(()=> !!+props.displayTime ? +props.displayTime : 0)
 const isCloseButton = computed<NonNullable<IAlertProps["closeButton"]>>(()=>props.closeButton ?? false)
 const position = computed<NonNullable<IAlertProps["position"]>>(()=> props.position ?? "top")
-const classClass = computed<Array<string>|string>(()=> {
+const classClass = computed<StyleClass>(()=> {
   const arrayDialog = !!props.class
     ? Array.isArray(props.class)
       ? (props.class as Array<string>).flat().map(item=>item.split(" ")).flat()
@@ -45,7 +46,7 @@ const classClass = computed<Array<string>|string>(()=> {
   })
   return arrayDialog
 })
-const startEnterAndLeaveClass = computed<Array<string>|string>(()=> {
+const startEnterAndLeaveClass = computed<StyleClass>(()=> {
   if (!props.notAnimate) {
     if(position.value.includes("left")){ return "-translate-x-[200%] opacity-0"}
     else if(position.value.includes("right")){ return "translate-x-[200%] opacity-0"}
@@ -53,7 +54,7 @@ const startEnterAndLeaveClass = computed<Array<string>|string>(()=> {
     else if(position.value.includes("bottom")){ return "translate-y-[200%] opacity-0"}}
   return "opacity-0"
 })
-const endEnterAndLeaveClass = computed<Array<string>|string>(()=> {
+const endEnterAndLeaveClass = computed<StyleClass>(()=> {
   if (!props.notAnimate) {
     if(position.value.includes("left")){ return "translate-x-0 opacity-100"}
     else if(position.value.includes("right")){ return "translate-x-0 opacity-100"}

@@ -16,7 +16,7 @@ import StSelect, {type IDateSelect} from "@/components/form/StSelect.vue";
 import StCalendar, {type IDatePicker, type IRangeValue} from "@/components/form/StCalendar.vue";
 import isBetween from 'dayjs/plugin/isBetween'
 import {convertToNumber, convertToPhone} from "@/helpers/numbers";
-import type {IMode} from "@/components/BaseTypes";
+import type {StyleClass, IMode} from "@/components/BaseTypes";
 // ---------------------------------------
 type DataType = "string"|"number"|"select"|"date"
 type Sort = "asc"|"desc"|null
@@ -56,6 +56,17 @@ export interface IColumn {
   paramsSelect?: IDateSelect
   paramsDatePicker?: Partial<IDatePicker>
   cellTemplate?: string
+  class?:{
+    th?: StyleClass
+    colFilter?: StyleClass
+    colFilterClass?: StyleClass|"border-none font-normal"
+    colFilterClassBody?: StyleClass|"tm-0 my-1"
+    colText?: StyleClass|"text-left text-gray-400 dark:text-gray-500"
+    td?: StyleClass|"px-6 py-4 text-gray-800 dark:text-gray-300"
+    cellText?: StyleClass|"flex items-center whitespace-pre-line overflow-auto"
+    tf?: StyleClass
+    sumText?: StyleClass|"text-left text-gray-400 dark:text-gray-500"
+  }
 }
 interface IColumnPrivate extends IColumn {
   id: string
@@ -75,6 +86,65 @@ export interface ITablePagination extends Omit<IPagination, 'total'|'modelValue'
   visible?:boolean
   startPage?:number
 }
+export interface IStyles {
+  class?: {
+    body?: StyleClass|'p-1.5'
+    toolbar?: StyleClass|'justify-end'
+    bodyTable?: StyleClass
+    slotHeader?: StyleClass
+    slotFooter?: StyleClass
+    table?: StyleClass
+    thead?: StyleClass
+    tbody?: StyleClass
+    tfoot?: StyleClass
+    group?: StyleClass|'text-left text-gray-800 dark:text-gray-300 px-6 py-2 pr-3 pl-10 sm:pl-12'
+    groupText?: StyleClass|'left-10 sm:left-12 flex items-center w-fit min-h-[2.5rem] truncate'
+    pagination?: StyleClass
+  }
+  hoverRows?:string|'hover:bg-neutral-100/90 dark:hover:bg-neutral-900/50'|boolean
+  isStripedRows?:boolean
+  horizontalLines?:boolean
+  verticalLines?:boolean
+  borderRadiusPx?: number
+  filterLines?:boolean
+  border?: string|'border-neutral-200 dark:border-neutral-800'|'border-0 border-b-0 border-t-0 border-r-0'|{
+    table?: string|'border-neutral-200 dark:border-neutral-800'|'border-0'
+    header?: string|'border-neutral-200 dark:border-neutral-800'|'border-b-0'
+    filter?: string|'border-neutral-200 dark:border-neutral-800'|'border-r-0'
+    head?: string|'border-neutral-200 dark:border-neutral-800'|'border-b-0'
+    cell?: string|'border-neutral-200 dark:border-neutral-800'|'border-0'
+    summary?: string|'border-neutral-200 dark:border-neutral-800'|'border-t-0'
+    pagination?: string|'border-neutral-200 dark:border-neutral-800'|'border-t-0'
+    footer?: string|'border-neutral-200 dark:border-neutral-800'|'border-t-0'
+  }
+}
+export interface IStylesPrivate extends Omit<IStyles, 'border|hoverRows|class'> {
+  class: {
+    body: StyleClass
+    toolbar: StyleClass
+    bodyTable: StyleClass
+    slotHeader: StyleClass
+    slotFooter: StyleClass
+    table: StyleClass
+    thead: StyleClass
+    tbody: StyleClass
+    tfoot: StyleClass
+    group: StyleClass
+    groupText: StyleClass
+    pagination: StyleClass
+  }
+  hoverRows: string
+  border: {
+    table: string
+    header: string
+    filter: string
+    head: string
+    cell: string
+    summary: string
+    pagination: string
+    footer: string
+  }
+}
 // ---------------------------------------
 export interface ITable {
   mode?:IMode
@@ -84,17 +154,18 @@ export interface ITable {
   filter?: IFilter|boolean
   grouping?: IGrouping|string
   pagination?: ITablePagination|boolean
-  isColumns?:boolean
-  isSummary?:boolean
   search?:boolean
-  columns?: Array<IColumn>
-  summary?: Array<ISummary>
+  columns?: boolean|Array<IColumn>
+  summary?: boolean|Array<ISummary>
   countVisibleRows?: number
   heightCell?:number
   noData?:string
   noColumn?:string
+  noFilter?:string
+  unchangedColumns?:boolean
   classMaskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
   countDataOnLoading?:number|100|1000|10000
+  styles?:IStyles
 }
 // ---------------------------------------
 const props = defineProps<ITable>()
@@ -124,14 +195,15 @@ const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode ?? "outlined"
 const isVisibleToolbar = computed<boolean>(()=> isSearch.value ?? (props.toolbar as IToolbar)?.visible ?? (!!props.toolbar ?? !!(Object.keys(props.toolbar).length)) ?? false)
 const isSearch = computed<boolean>(()=> props.search ?? (props?.toolbar as IToolbar)?.search ?? false)
 const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearAllFilter ?? false) && (!!noEmptyFilters(filterColumns).length ?? !!queryTable.value.length))
-const isColumns = computed<ITable["isColumns"]>(()=> props.isColumns ?? false)
-const isSummary = computed<ITable["isSummary"]>(()=> props.isSummary ?? !!props.summary?.length ?? false)
+const isColumns = computed<boolean>(()=> typeof props.columns === "boolean" ? props.columns : Array.isArray(props.columns))
+const isSummary = computed<boolean>(()=> typeof props.summary === "boolean" ? props.summary : Array.isArray(props.summary))
 const countDataOnLoading = computed<ITable["countDataOnLoading"]>(()=> props.countDataOnLoading ?? 1000)
 const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.classMaskQuery ?? "font-bold text-primary-700 dark:text-primary-400")
 const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData ?? "Нет данных")
 const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn ?? "Нет колонок")
-const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> props.noData ?? "Не найдено подходящих данных")
+const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> props.noFilter ?? "Не найдено подходящих данных")
 const iconSort = computed<ISort["icon"]>(()=>(props?.sort as ISort)?.icon ?? "Arrow")
+const unchangedColumns = computed<ITable["unchangedColumns"]>(()=>props.unchangedColumns)
 const lengthData = computed<number>(()=> dataSource.value.length)
 const groupField = computed<IGrouping["groupField"]|null>(()=>typeof props?.grouping === "object"
   ? typeof props?.grouping?.groupField === "string" ? props.grouping.groupField : null
@@ -145,10 +217,10 @@ const isSort = computed<boolean>(()=>typeof props?.sort === "object"
 const isGroup = computed<boolean>(()=>typeof props?.grouping === "object"
   ? typeof props?.grouping?.visible === "boolean" ? props.grouping.visible : true
   : typeof props?.grouping === "string" ? !!props.grouping.length : false )
-const isPagination = computed<ITablePagination["visible"]>(()=>typeof props?.pagination === "object"
+const isPagination = computed<boolean>(()=>typeof props?.pagination === "object"
   ? typeof props?.pagination?.visible === "boolean" ? props.pagination.visible : true
   : typeof props?.pagination === "boolean" ? props.pagination : false )
-// ---------------------------------------
+// ---PAGINATION--------------------------
 const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=>(props.pagination as ITablePagination).startPage ?? 1)
 const modePagination = computed<NonNullable<ITablePagination["mode"]>>(()=>(props.pagination as ITablePagination).mode ?? mode.value)
 const sizePage = computed<NonNullable<ITablePagination["sizePage"]>>(()=>(props.pagination as ITablePagination).sizePage??countVisibleRows.value)
@@ -157,7 +229,7 @@ const sizesSelector = computed<ITablePagination["sizesSelector"]>(()=>(props.pag
 const isInfoText = computed<ITablePagination["isInfoText"]>(()=>(props.pagination as ITablePagination).isInfoText ?? false)
 const isPageSizeSelector = computed<ITablePagination["isPageSizeSelector"]>(()=>(props.pagination as ITablePagination).isPageSizeSelector ?? false)
 const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationButtons"]>(()=>(props.pagination as ITablePagination).isHiddenNavigationButtons ?? false)
-// ---------------------------------------
+// ---CELL--------------------------------
 const heightCell = computed<number>(()=> props.heightCell ?? 1.5)
 const heightRow = computed<number>(()=> {
   const tagTr = (tbody.value as HTMLElement)?.querySelector("tr")
@@ -168,7 +240,7 @@ const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> 
 const heightTable = computed<number>(()=> {
   return (thead.value?.clientHeight ?? 0) + (tfoot.value?.clientHeight ?? 0) + countVisibleRows.value * (heightRow.value||2 * 16 + heightCell.value * 16 + 1) -1
 })
-// ---------------------------------------
+// ---DATA--------------------------------
 const dataSource = computed<Array<any>>(()=> {
   let data = dataOriginal.value
   // Sort
@@ -206,17 +278,15 @@ const dataSource = computed<Array<any>>(()=> {
 const resultDataSource = computed(()=> {
   let resultData:any = dataSource.value
   if (isPagination.value) {
-    if (isGroup.value && groupField.value?.length ) {
+    if (isGroup.value) {
       resultData = Object.values(LData.groupBy(resultData, (item) => item[groupField.value])).flat() }
     resultData = LData.slice(resultData, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value)) }
-  resultData = isGroup.value && groupField.value?.length
-    ? LData.groupBy(resultData, (item) => item[groupField.value])
-    : {0: resultData}
+  resultData = isGroup.value ? LData.groupBy(resultData, (item) => item[groupField.value]) : {0: resultData}
   return resultData
 })
 const dataColumns = computed<Array<IColumnPrivate>>(()=> {
   let listFields:Array<string> = LData.uniq(LData.flatten(LData.map(dataOriginal.value, LData.keys)))
-  if (props.columns && props.columns?.length){
+  if (Array.isArray(props.columns) && props.columns?.length){
     return <Array<IColumnPrivate>>props.columns
       .map((column, index)=>{
         const fieldName = column.dataField ?? listFields[index] ?? ""
@@ -233,6 +303,15 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
           isFilter: typeof column.isFilter === "boolean" ? column.isFilter : isFilter.value,
           isSort: typeof column.isSort === "boolean" ? column.isSort : isSort.value,
           type: column.type ?? "string",
+          class: {
+            ...column.class,
+            colFilterClass: column.class?.colFilterClass??"border-none font-normal",
+            colFilterClassBody: column.class?.colFilterClassBody??"tm-0 my-1",
+            colText: column.class?.colText??"text-left text-gray-400 dark:text-gray-500",
+            td: column.class?.td??"px-6 py-4 text-gray-800 dark:text-gray-300",
+            cellText: column.class?.cellText??"flex items-center whitespace-pre-line overflow-auto",
+            sumText: column.class?.sumText??"font-normal text-sm text-left text-gray-400 dark:text-gray-500"
+          }
         }
         switch (options.type) {
           case "string": {
@@ -250,6 +329,8 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
             options.paramsSelect = <IDateSelect>{
               multiple: true,
               maxVisible: 0,
+              classSelect: 'normal-case font-normal max-h-[25rem]',
+              classSelectList: 'normal-case font-normal',
               dataSelect: LData.compact(LData.uniq(LData.map(dataOriginal.value, options.dataField ?? ""))) ?? [],
               ...column.paramsSelect};break
           }
@@ -288,7 +369,7 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
 })
 const dataSummary = computed<Array<ISummaryPrivate>>(()=> {
   if (!isSummary.value) { return []}
-  if (props.summary){
+  if (Array.isArray(props.summary) && props.summary?.length){
     return <Array<ISummaryPrivate>>props.summary.map((summary, index)=>{
       const column = getColumn(summary.dataField, index)
       const summaryName = summary.dataField ?? column.dataField
@@ -337,12 +418,57 @@ const summaryColumns = computed<object>(()=>{
       return result
     }, {})
 })
+// ---STYLE-------------------------------
+const styles = computed<IStylesPrivate>(()=>{
+  const st = props.styles?.class
+  const border = <object>props.styles?.border
+  const hoverRows = typeof props.styles?.hoverRows === 'string'
+    ? (props.styles?.hoverRows as string)
+    : typeof props.styles?.hoverRows === 'boolean' && props.styles?.hoverRows
+      ? "hover:bg-neutral-100/90 dark:hover:bg-neutral-900/50": ''
+  const defaultBorder = typeof border === "string"
+    ? border : "border-neutral-200 dark:border-neutral-800"
+  return {
+    class: {
+      body: st?.body ?? "p-1.5",
+      toolbar: st?.toolbar ?? "justify-end",
+      bodyTable: st?.bodyTable ?? "",
+      slotHeader: st?.slotHeader ?? "",
+      slotFooter: st?.slotFooter ?? "",
+      table: st?.table ?? "",
+      thead: st?.thead ?? "",
+      tbody: st?.tbody ?? "",
+      tfoot: st?.tfoot ?? "",
+      group: st?.group ?? "text-left text-gray-800 dark:text-gray-300 px-6 py-2 pr-3 pl-10 sm:pl-12",
+      groupText: st?.groupText ?? "left-10 sm:left-12 flex items-center w-fit min-h-[2.5rem] truncate",
+      pagination: st?.pagination ?? "",
+    },
+    hoverRows: hoverRows,
+    borderRadiusPx: props.styles?.borderRadiusPx ?? mode.value === 'underlined'? 0 : 7,
+    isStripedRows: props.styles?.isStripedRows ?? false,
+    horizontalLines: props.styles?.horizontalLines ?? true,
+    verticalLines: props.styles?.verticalLines ?? false,
+    filterLines: props.styles?.filterLines ?? false,
+    border: {
+      table: border?.table ?? defaultBorder,
+      header: border?.header ?? defaultBorder,
+      filter: border?.filter ?? defaultBorder,
+      head: border?.head ?? defaultBorder,
+      cell: border?.cell ?? defaultBorder,
+      summary: border?.summary ?? defaultBorder,
+      pagination: border?.pagination ?? defaultBorder,
+      footer: border?.footer ?? defaultBorder,
+    }
+  }
+})
+const tableBodyStyle = computed(()=>`height: ${
+  heightTable.value}px;${!(slots.header) ? `border-top-left-radius: ${styles.value.borderRadiusPx}px;border-top-right-radius: ${styles.value.borderRadiusPx}px;`:''}${
+  !(isPagination.value || slots.footer) ? `border-bottom-left-radius: ${styles.value.borderRadiusPx}px;border-bottom-right-radius: ${styles.value.borderRadiusPx}px;`:''}`)
+const modeStyle = computed(()=> (mode.value === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
+  (mode.value === 'outlined') ? 'bg-white dark:bg-neutral-950' :
+  (mode.value === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : '')
 // ---------------------------------------
-const tableObserver = new ResizeObserver(entries => {
-  entries.forEach(() => {
-    setFooterPaddingHeight()
-  });
-});
+const tableObserver = new ResizeObserver(entries => entries.forEach(() => setFooterPaddingHeight()))
 const footerPaddingHeight = ref<number>(0)
 function setFooterPaddingHeight() {
   const result = tableBody.value?.clientHeight -
@@ -364,7 +490,6 @@ onMounted(()=>{
   Object.assign(filterColumns, Object.fromEntries(new Map(resultFilter)))
   const resultWidths = dataColumns.value.map((column)=>[column.dataField,column.width??column.maxWidth??column.minWidth])
   Object.assign(widthsColumns, Object.fromEntries(new Map(resultWidths)))
-  console.log("onMounted")
 })
 onUnmounted(()=>{
   tableObserver.disconnect();
@@ -540,7 +665,7 @@ function clearFilter() {
   Object.keys(filterColumns).map(filter=>filtering(filter, null))
   searching("")
 }
-// ---------------------------------------
+// ---RESIZE-COLUMN-----------------------
 const defaultWidthColumn = ref<string>('max-width: 600px;min-width:100px;')
 function resizeColumn($event: MouseEvent, columnId: string) {
   const columnEl: HTMLElement = (thead.value as HTMLElement)?.querySelector(`.${columnId}`);
@@ -571,263 +696,243 @@ function stopResizeColumn() {
   window.removeEventListener('mousemove', move);
 }
 // ---------------------------------------
-function tableStyle(el:'column', column:IColumnPrivate) {
-  switch (el) {
-    case "column": { return [] }
-  }
-}
-// ---------------------------------------
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <div class="inline-block align-middle relative w-full p-1.5">
-      <div v-if="isVisibleToolbar" class="toolbar flex justify-end mb-2 transition-transform">
-        <div v-if="slots.toolbar" class="w-full">
-          <slot name="toolbar"/>
-        </div>
-        <StInput
-          v-if="isSearch"
-          :model-value="queryTable"
-          label="Найти..."
-          clear
-          :mode="mode"
-          label-mode="vanishing"
-          :params-input="{autocomplete: 'off', classInput: 'max-w-[5rem] focus:max-w-[10rem] sm:focus:max-w-[20rem] transition-all duration-500'}"
-          :class-body="`sticky top-1 rounded-md ease-out ${
-            (mode === 'outlined') ? 'ring-white dark:ring-black' :
-            (mode === 'underlined') ? 'ring-stone-50 dark:ring-stone-950' :
-            (mode === 'filled') ? 'ring-stone-100 dark:ring-stone-900': '' }`"
-          @change:model-value="(v)=>searching(v)"
-          @update:model-value="(v)=>lengthData > 100||searching(v)">
-          <template #before>
-            <MagnifyingGlassIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
-          </template>
-        </StInput>
-        <transition leave-active-class="transition ease-in duration-1000" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                    enter-active-class="transition ease-in duration-1000" enter-from-class="opacity-0" enter-to-class="opacity-100">
-            <Button v-if="isFilterClear" class="group rounded-md ml-2 h-[38px] min-w-[38px] px-2 bg-stone-100 dark:bg-stone-900" @click="clearFilter">
-              <FunnelIcon aria-hidden="true" class="h-4 w-4 text-gray-400 dark:text-gray-600 group-hover:text-red-400 group-hover:dark:text-red-600"/>
-              <Tooltip>Очистить все фильтры</Tooltip>
-            </Button>
-        </transition>
+  <div class="inline-block align-middle relative w-full" :class="styles.class.body">
+    <div v-if="isVisibleToolbar" class="toolbar flex mb-2 transition-transform" :class="styles.class.toolbar">
+      <div v-if="slots.toolbar" class="w-full">
+        <slot name="toolbar"/>
       </div>
-      <div class="flex flex-col border rounded-lg border-neutral-200 dark:border-neutral-800" >
-        <div v-if="slots.header"
-             ref="tableFooter"
-             class="min-h-[1.5rem] rounded-t-[7px] text-gray-500"
-             :class="[!(isSummary||isPagination)||'relative',
-             (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
-             (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
-             (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : ''
-             ]">
-          <div class="p-2 border-b border-gray-200 dark:border-gray-800">
-            <slot name="header"/>
-          </div>
+      <StInput
+        v-if="isSearch"
+        :model-value="queryTable"
+        label="Найти..."
+        clear
+        :mode="mode"
+        label-mode="vanishing"
+        :params-input="{autocomplete: 'off', classInput: 'max-w-[5rem] focus:max-w-[10rem] sm:focus:max-w-[20rem] transition-all duration-500'}"
+        :class-body="`sticky top-1 rounded-md ease-out ${modeStyle}`"
+        @change:model-value="(v)=>searching(v)"
+        @update:model-value="(v)=>lengthData > 100||searching(v)">
+        <template #before>
+          <MagnifyingGlassIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
+        </template>
+      </StInput>
+      <transition leave-active-class="transition ease-in duration-1000" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                  enter-active-class="transition ease-in duration-1000" enter-from-class="opacity-0" enter-to-class="opacity-100">
+          <Button v-if="isFilterClear" class="group rounded-md ml-2 h-[38px] min-w-[38px] px-2 bg-stone-100 dark:bg-stone-900" @click="clearFilter">
+            <FunnelIcon aria-hidden="true" class="h-4 w-4 text-gray-400 dark:text-gray-600 group-hover:text-red-400 group-hover:dark:text-red-600"/>
+            <Tooltip>Очистить все фильтры</Tooltip>
+          </Button>
+      </transition>
+    </div>
+    <div class="flex flex-col border" :class="[styles.border?.table]" :style="`border-radius: ${styles.borderRadiusPx}px;`">
+      <div v-if="slots.header"
+           ref="tableFooter"
+           class="min-h-[1.5rem] text-gray-500"
+           :class="[!(isSummary||isPagination)||'relative', modeStyle]"
+           :style="`border-top-left-radius: ${styles.borderRadiusPx}px;border-top-right-radius: ${styles.borderRadiusPx}px;`">
+        <div class="p-2 border-b" :class="[styles.class.slotHeader, styles.border?.header]">
+          <slot name="header"/>
         </div>
-        <div class="relative rounded-[7px]">
-          <div ref="tableBody" class="overflow-x-auto"
-               :class="[!(slots.header) ? 'rounded-t-[7px]':'', !(isPagination || slots.footer) ? 'rounded-b-[7px]':'']"
-               :style="`height: ${heightTable}px`">
-            <table ref="table" class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-    <!-- -------------------------------- -->
-              <thead v-if="!isColumns"
-                     ref="thead"
-                     class="sticky top-0 z-10"
-                     :class="[
-                       (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
-                       (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
-                       (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : '']">
-              <tr>
-                <template v-for="(column, key) in dataColumns" :key="column.id">
-                  <th v-if="column.visible" scope="col"
-                      :class="[column.id, column.isFilter ? 'pl-2 pt-1' : 'pl-6 py-5', ]"
-                      :style="!widthsColumns[column.dataField] ? defaultWidthColumn :
-                      `width: ${widthsColumns[column.dataField]}px;
-                      min-width: ${widthsColumns[column.dataField]}px;
-                      max-width: ${widthsColumns[column.dataField]}px;`">
-                    <div class="group relative flex w-full cursor-pointer">
-                      <div v-if="column.isFilter" class="w-full">
-                        <StInput
-                          v-if="column.type === 'string'||column.type === 'number'"
-                          :model-value="filterColumns[column?.dataField]"
-                          :label="column.caption"
-                          :mode="mode"
-                          label-mode="offsetDynamic"
-                          class-body="m-0 my-2"
-                          :params-input="column?.paramsInput"
-                          :style="`min-width: ${column.minWidth||70}px`"
-                          class="border-none font-normal"
-                          clear
-                          @change:model-value="(v)=>filtering(column?.dataField, v)"
-                          @update:model-value="(v)=>lengthData > 100||filtering(column?.dataField, v)"
-                          @clear="filtering(column?.dataField, null)"/>
-                        <StSelect
-                          v-if="column.type === 'select'"
-                          :model-value="filterColumns[column?.dataField]"
-                          :label="column.caption"
-                          :params-select="{
-                            classSelect: 'normal-case font-normal max-h-[25rem]',
-                            classSelectList: 'normal-case font-normal',
-                            ...column?.paramsSelect}"
-                          :mode="mode"
-                          :style="`min-width: ${column.width||column.minWidth||50}px`"
-                          class-body="m-0 my-2"
-                          class="border-none font-normal"
-                          clear
-                          @update:model-value="(v)=>filtering(column?.dataField, v)"/>
-                        <StCalendar
-                          v-if="column.type === 'date'"
-                          :model-value="filterColumns[column?.dataField]"
-                          :label="column.caption"
-                          :mode="mode"
-                          label-mode="offsetDynamic"
-                          class-body="m-0 my-2"
-                          class="border-none font-normal"
-                          :style="`min-width: ${column.width||column.minWidth||50}px`"
-                          :params-date-picker="column?.paramsDatePicker"
-                          clear
-                          @update:model-value="(v)=>filtering(column?.dataField, v)"/>
-                      </div>
-                      <div v-else class="block text-left text-sm font-medium text-gray-400 dark:text-gray-500 truncate">
-                        {{ column.caption }}
-                      </div>
-                      <div v-if="column.isSort||isSort"
-                           class="flex items-center transition-opacity duration-500"
-                           :class="[sortColumns[column?.dataField] === null ? 'opacity-0 group-hover:opacity-100' : 'opacity-100']"
-                           @click="sorting(column?.dataField)">
-                        <ArrowLongUpIcon v-if="iconSort === 'Arrow' && [null, 'asc'].includes(sortColumns[column?.dataField])" class="ml-1 h-4 w-4 text-gray-400"/>
-                        <ArrowLongDownIcon v-if="iconSort === 'Arrow' && sortColumns[column?.dataField] === 'desc'" class="ml-1 h-4 w-4 text-gray-400"/>
-                        <BarsArrowUpIcon v-if="iconSort === 'Bars' && [null, 'asc'].includes(sortColumns[column?.dataField])" class="ml-1 h-4 w-4 text-gray-400"/>
-                        <BarsArrowDownIcon v-if="iconSort === 'Bars' && sortColumns[column?.dataField] === 'desc'" class="ml-1 h-4 w-4 text-gray-400"/>
-                      </div>
-                      <div class="resizable absolute  z-10 inset-y-0 flex items-center hover:opacity-100 px-2 cursor-ew-resize transition-opacity duration-500 "
-                           :class="[dataColumns.length-1 > key ? '-right-5' : 'right-3', editableColumn === column.id ? 'opacity-100': 'opacity-0']"
-                           @mousedown="startResizeColumn($event, column.id)" @mouseup="stopResizeColumn">
-                        <div class="h-8 w-1.5 rounded-full bg-neutral-300 dark:bg-neutral-600"></div>
-                      </div>
+      </div>
+      <div class="relative">
+        <div ref="tableBody" class="overflow-x-auto" :class="styles.class.bodyTable" :style="tableBodyStyle">
+          <table ref="table" class="min-w-full border-separate border-spacing-0" :class="styles.class.table">
+  <!-- -------------------------------- -->
+            <thead v-if="isColumns"
+                   ref="thead"
+                   class="sticky top-0 z-10"
+                   :class="[styles.class.thead, modeStyle]">
+            <tr>
+              <template v-for="(column, key) in dataColumns" :key="column.id">
+                <th v-if="column.visible" scope="col"
+                    :class="[column.id, column.class?.th, 'group/th', column.isFilter ? 'pl-1 pr-0 py-2' : 'pl-6 py-5', 'border-b', styles.border?.head]"
+                    :style="!widthsColumns[column.dataField] ? defaultWidthColumn :
+                    `width: ${widthsColumns[column.dataField]}px;
+                    min-width: ${widthsColumns[column.dataField]}px;
+                    max-width: ${widthsColumns[column.dataField]}px;`">
+                  <div class="group relative flex w-full cursor-pointer" :class="[styles.filterLines ? 'border-r group-last/th:border-r-0' : '', styles.border?.filter]">
+                    <div v-if="column.isFilter" class="w-full" :class="[column.class?.colFilter]">
+                      <StInput
+                        v-if="column.type === 'string'||column.type === 'number'"
+                        :model-value="filterColumns[column?.dataField]"
+                        :label="column.caption"
+                        :mode="mode"
+                        :params-input="column?.paramsInput"
+                        :class="column.class?.colFilterClass"
+                        :class-body="column.class?.colFilterClassBody"
+                        :style="`min-width: ${column.minWidth||70}px`"
+                        label-mode="offsetDynamic"
+                        clear
+                        @change:model-value="(v)=>filtering(column?.dataField, v)"
+                        @update:model-value="(v)=>lengthData > 100||filtering(column?.dataField, v)"
+                        @clear="filtering(column?.dataField, null)"/>
+                      <StSelect
+                        v-if="column.type === 'select'"
+                        :model-value="filterColumns[column?.dataField]"
+                        :label="column.caption"
+                        :params-select="column?.paramsSelect"
+                        :mode="mode"
+                        :class="column.class?.colFilterClass"
+                        :class-body="column.class?.colFilterClassBody"
+                        :style="`min-width: ${column.width||column.minWidth||50}px`"
+                        clear
+                        @update:model-value="(v)=>filtering(column?.dataField, v)"/>
+                      <StCalendar
+                        v-if="column.type === 'date'"
+                        :model-value="filterColumns[column?.dataField]"
+                        :label="column.caption"
+                        :mode="mode"
+                        :params-date-picker="column?.paramsDatePicker"
+                        label-mode="offsetDynamic"
+                        :class="column.class?.colFilterClass"
+                        :class-body="column.class?.colFilterClassBody"
+                        :style="`min-width: ${column.width||column.minWidth||50}px`"
+                        clear
+                        @update:model-value="(v)=>filtering(column?.dataField, v)"/>
+                    </div>
+                    <div v-else
+                         class="block text-sm font-medium truncate"
+                         :class="[column.class?.colText]">
+                      {{ column.caption }}
+                    </div>
+                    <div v-if="column.isSort||isSort"
+                         class="flex items-center transition-opacity duration-500 pr-1"
+                         :class="[sortColumns[column?.dataField] === null ? 'opacity-0 group-hover:opacity-100' : 'opacity-100']"
+                         @click="sorting(column?.dataField)">
+                      <ArrowLongUpIcon v-if="iconSort === 'Arrow' && [null, 'asc'].includes(sortColumns[column?.dataField])" class="ml-1 h-4 w-4 text-gray-400"/>
+                      <ArrowLongDownIcon v-if="iconSort === 'Arrow' && sortColumns[column?.dataField] === 'desc'" class="ml-1 h-4 w-4 text-gray-400"/>
+                      <BarsArrowUpIcon v-if="iconSort === 'Bars' && [null, 'asc'].includes(sortColumns[column?.dataField])" class="ml-1 h-4 w-4 text-gray-400"/>
+                      <BarsArrowDownIcon v-if="iconSort === 'Bars' && sortColumns[column?.dataField] === 'desc'" class="ml-1 h-4 w-4 text-gray-400"/>
+                    </div>
+                    <div v-if="!unchangedColumns" class="resizable absolute z-10 inset-y-0 flex items-center hover:opacity-100 px-2 cursor-ew-resize transition-opacity duration-500 "
+                         :class="[dataColumns.length-1 > key ? '-right-3' : 'right-3', editableColumn === column.id ? 'opacity-100': 'opacity-0']"
+                         @mousedown="startResizeColumn($event, column.id)" @mouseup="stopResizeColumn">
+                      <div class="h-8 w-1.5 rounded-full bg-neutral-300 dark:bg-neutral-600"></div>
+                    </div>
+                  </div>
+                </th>
+              </template>
+            </tr>
+            </thead>
+  <!-- -------------------------------- -->
+            <tbody ref="tbody" class="overflow-y-auto" :class="styles.class.tbody">
+              <template v-for="(group, key) in resultDataSource" :key="key">
+                <tr v-if="isGroup">
+                  <th :colspan="dataColumns.length" scope="colgroup"
+                      :style="`top:${thead?.clientHeight-1}px`"
+                      :class="['sticky','border-t-2 border-b', 'font-medium text-base whitespace-nowrap',
+                      styles.class?.group, styles.border?.cell, modeStyle]">
+                    <div class="sticky"
+                         :class="[styles.class.groupText]"
+                         :style="`min-height: ${heightCell}rem`">
+                      <slot name="group" :item="key" :length="group.length">
+                        {{key}}
+                      </slot>
                     </div>
                   </th>
-                </template>
-              </tr>
-              </thead>
-    <!-- -------------------------------- -->
-              <tbody ref="tbody" class="divide-y divide-gray-200 dark:divide-gray-800 overflow-y-auto">
-                <template v-for="(group, key) in resultDataSource" :key="key">
-                  <tr v-if="isGroup">
-                    <th :colspan="dataColumns.length" scope="colgroup"
-                        :style="`top:${thead?.clientHeight-1}px`"
-                        :class="['sticky','bg-neutral-100 dark:bg-neutral-900','px-6 py-2 pr-3 pl-10 sm:pl-12',
-                        'outline -outline-offset-1 -outline-0 outline-gray-200 dark:outline-gray-800',
-                        'font-medium text-left text-base text-gray-800 dark:text-gray-300 whitespace-nowrap']">
-                      <div class="sticky left-10 sm:left-12 flex items-center w-fit min-h-[2.5rem] truncate"
-                           :style="`min-height: ${heightCell}rem`">
-                        <slot name="group" :item="key" :length="group.length">{{key}}</slot>
+                </tr>
+                <tr v-for="(data, index) in group" :key="index" class="group/tr"
+                    :class="[!styles.hoverRows?.length||`${styles.hoverRows} transition-colors duration-100`, !styles.isStripedRows||
+                    ((mode === 'filled') ? 'odd:bg-stone-100 even:bg-stone-50 dark:odd:bg-stone-900 dark:even:bg-stone-950' :
+                    (mode === 'outlined') ? 'odd:bg-white even:bg-neutral-50 dark:odd:bg-neutral-950 dark:even:bg-neutral-900' :
+                    (mode === 'underlined') ? 'odd:bg-stone-50 even:bg-stone-100 dark:odd:bg-stone-950 dark:even:bg-neutral-900' : '')]">
+                  <template v-for="(column, key) in dataColumns" :key="`${index}-${key}`">
+                    <td v-if="column.visible"
+                        class="text-sm font-medium border-b border-r last:border-r-0 group-last/tr:border-b-0"
+                        :class="[column.class?.td, styles.border?.cell, styles.verticalLines ? 'border-r-px': 'border-r-0', styles.horizontalLines ? 'border-b-px': 'border-b-0']"
+                        :style="!widthsColumns[column.dataField] ? defaultWidthColumn :
+                        `width: ${widthsColumns[column.dataField]}px;
+                        min-width: ${widthsColumns[column.dataField]}px;
+                        max-width: ${widthsColumns[column.dataField]}px;`">
+                      <div v-if="!column?.cellTemplate" :class="[column.class?.cellText]"
+                           :style="`min-height: ${heightCell}rem;max-height: ${(heightCell*5)*16+2}px;`"
+                           v-html="setMarker(column, setCell(column, data[column.dataField]))"/>
+                      <div v-else :class="[column.class?.cellText]"
+                           :style="`min-height: ${heightCell}rem;max-height: ${(heightCell*5)*16+2}px;`">
+                        <slot :name="column?.cellTemplate"
+                              :column="column" :rowData="data" :value="setCell(column, data[column.dataField])"
+                              :value-with-marker="setMarker(column, setCell(column, data[column.dataField]))"/>
                       </div>
-                    </th>
-                  </tr>
-                  <tr v-for="(data, index) in group" :key="index">
-                    <template v-for="(column, key) in dataColumns" :key="`${index}-${key}`">
-                      <td v-if="column.visible" class="px-6 py-4 text-sm text-gray-800 dark:text-gray-300 font-medium"
-                          :style="!widthsColumns[column.dataField] ? defaultWidthColumn :
-                          `width: ${widthsColumns[column.dataField]}px;
-                          min-width: ${widthsColumns[column.dataField]}px;
-                          max-width: ${widthsColumns[column.dataField]}px;`">
-                        <div v-if="!column?.cellTemplate" class="flex items-center whitespace-pre-line overflow-auto"
-                             :style="`min-height: ${heightCell}rem;max-height: ${(heightCell*5)*16+2}px;`"
-                             v-html="setMarker(column, setCell(column, data[column.dataField]))"/>
-                        <div v-else class="flex items-center min-h-[2.5rem] whitespace-pre-line overflow-auto"
-                             :style="`min-height: ${heightCell}rem;max-height: ${(heightCell*5)*16+2}px;`">
-                          <slot :name="column?.cellTemplate"
-                                :column="column" :value="setCell(column, data[column.dataField])"
-                                :value-with-marker="setMarker(column, setCell(column, data[column.dataField]))"/>
-                        </div>
-                      </td>
-                    </template>
-                  </tr>
-                </template>
-              </tbody>
-    <!-- -------------------------------- -->
-              <tr v-if="footerPaddingHeight" class="border-none" :style="`height: ${footerPaddingHeight-1}px`"></tr>
-    <!-- -------------------------------- -->
-              <tfoot v-if="isSummary && Object.keys(summaryColumns).length"
-                     ref="tfoot"
-                     class="sticky bottom-0"
-                     :class="[
-                       (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
-                       (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
-                       (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : ''
-                     ]">
-              <tr>
-                <template v-for="column in dataColumns" :key="column.id">
-                  <th v-if="column.visible" scope="col" class="pl-6 py-3">
-                      <div class="block text-sm font-normal text-gray-400 dark:text-gray-500 truncate text-left"
-                           v-html="summaryColumns[column.dataField]"/>
-                  </th>
-                </template>
-              </tr>
-              </tfoot>
-    <!-- -------------------------------- -->
-            </table>
-          </div>
-    <!-- -------------------------------- -->
-          <div v-if="isPagination" ref="pager"
-               :class="[!isSummary||'relative sm:px-5', (!slots.footer) ? 'rounded-b-[7px]':'',
-               (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
-               (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
-               (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950': '']">
-            <Pagination :model-value="pageTable"
-                        :size-page="+sizeTable"
-                        :mode="modePagination"
-                        :total="lengthData"
-                        :visible-number-pages="visibleNumberPages"
-                        :is-info-text="isInfoText"
-                        :sizes-selector="sizesSelector"
-                        :is-page-size-selector="isPageSizeSelector"
-                        :is-hidden-navigation-buttons="isHiddenNavigationButtons"
-                        class="border-t border-gray-200"
-                        @update:model-value="switchPage"
-                        @update:size-page="switchSizePage"/></div>
-    <!-- -------------------------------- -->
-          <transition leave-active-class="transition ease-in duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                      enter-active-class="transition ease-in duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
-            <div v-if="isLoading" class="absolute z-30 top-0 bottom-0 left-0 w-full select-none text-center text-sm text-gray-500">
-              <div class="flex justify-center items-center h-full w-full rounded-lg bg-neutral-100/70 dark:bg-neutral-800/50">
-                <Loading type="Fingerprint" :size="100" :color="isDark? 'primary.800' : 'primary.500'"/>
-              </div>
-            </div>
-          </transition>
-    <!-- -------------------------------- -->
-          <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                      enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-            <div v-if="!isLoading && !dataOriginal?.length"
-                 class="absolute top-[40%] left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500" v-html="noData"/>
-          </transition>
-          <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                      enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-            <div v-if="!isLoading && dataOriginal?.length && !dataColumns?.length"
-                 class="absolute top-[50%] left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500" v-html="noColumn"/>
-          </transition>
-          <transition leave-active-class="transition-all ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                      enter-active-class="transition-all ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-            <div v-if="!isLoading && dataOriginal?.length && dataColumns?.length && !dataSource.length"
-                 class="absolute top-[40%] flex flex-col items-center left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500">
-              <FunnelIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
-              <div v-html="noFilter"/>
-            </div>
-          </transition>
+                    </td>
+                  </template>
+                </tr>
+              </template>
+            </tbody>
+  <!-- -------------------------------- -->
+            <tr v-if="footerPaddingHeight" class="border-none" :style="`height: ${footerPaddingHeight-1}px`"></tr>
+  <!-- -------------------------------- -->
+            <tfoot v-if="isSummary && Object.keys(summaryColumns).length"
+                   ref="tfoot" class="sticky bottom-0"
+                   :class="[styles.class.tfoot, modeStyle]">
+            <tr>
+              <template v-for="column in dataColumns" :key="column.id">
+                <th v-if="column.visible" scope="col" class="px-3 py-3"
+                    :class="[column.class?.tf, 'border-t', styles.border?.summary]">
+                    <div class="block font-normal text-sm truncate"
+                         :class="column.class?.sumText"
+                         v-html="summaryColumns[column.dataField]"/>
+                </th>
+              </template>
+            </tr>
+            </tfoot>
+  <!-- -------------------------------- -->
+          </table>
         </div>
-        <div v-if="slots.footer"
-             ref="tableFooter"
-             class="min-h-[1.5rem] -mt-[1px] rounded-b-[7px] text-gray-500"
-             :class="[!(isSummary||isPagination)||'relative sm:px-5',
-             (mode === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
-             (mode === 'outlined') ? 'bg-white dark:bg-neutral-950' :
-             (mode === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : ''
-             ]">
-          <div class="p-2 border-t border-gray-200 dark:border-gray-800">
-            <slot name="footer"/>
+  <!-- -------------------------------- -->
+        <div v-if="isPagination" ref="pager"
+             :class="[!isSummary||'relative sm:px-5', modeStyle]"
+             :style="!slots.footer ?`border-bottom-left-radius: ${styles.borderRadiusPx}px;border-bottom-right-radius: ${styles.borderRadiusPx}px;`:''">
+          <Pagination :model-value="pageTable"
+                      :size-page="+sizeTable"
+                      :mode="modePagination"
+                      :total="lengthData"
+                      :visible-number-pages="visibleNumberPages"
+                      :is-info-text="isInfoText"
+                      :sizes-selector="sizesSelector"
+                      :is-page-size-selector="isPageSizeSelector"
+                      :is-hidden-navigation-buttons="isHiddenNavigationButtons"
+                      :class="['border-t', styles.class.pagination, styles.border?.pagination]"
+                      @update:model-value="switchPage"
+                      @update:size-page="switchSizePage"/></div>
+  <!-- -------------------------------- -->
+        <transition leave-active-class="transition ease-in duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                    enter-active-class="transition ease-in duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
+          <div v-if="isLoading" class="absolute z-30 top-0 bottom-0 left-0 w-full select-none text-center text-sm text-gray-500">
+            <div class="flex justify-center items-center h-full w-full rounded-lg bg-neutral-100/70 dark:bg-neutral-800/50">
+              <Loading type="Fingerprint" :size="100" :color="isDark? 'primary.800' : 'primary.500'"/>
+            </div>
           </div>
+        </transition>
+  <!-- -------------------------------- -->
+        <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                    enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
+          <div v-if="!isLoading && !dataOriginal?.length"
+               class="absolute top-[40%] left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500" v-html="noData"/>
+        </transition>
+        <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                    enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
+          <div v-if="!isLoading && dataOriginal?.length && !dataColumns?.length"
+               class="absolute top-[50%] left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500" v-html="noColumn"/>
+        </transition>
+        <transition leave-active-class="transition-all ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
+                    enter-active-class="transition-all ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
+          <div v-if="!isLoading && dataOriginal?.length && dataColumns?.length && !dataSource.length"
+               class="absolute top-[40%] flex flex-col items-center left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500">
+            <FunnelIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
+            <div v-html="noFilter"/>
+          </div>
+        </transition>
+      </div>
+      <div v-if="slots.footer"
+           ref="tableFooter"
+           class="min-h-[1.5rem] -mt-[1px] text-gray-500"
+           :class="[!(isSummary||isPagination)||'relative sm:px-5', modeStyle]"
+           :style="`border-bottom-left-radius: ${styles.borderRadiusPx}px;border-bottom-right-radius: ${styles.borderRadiusPx}px;`">
+        <div class="p-2 border-t" :class="[styles.class.slotFooter, styles.border?.footer]">
+          <slot name="footer"/>
         </div>
       </div>
     </div>

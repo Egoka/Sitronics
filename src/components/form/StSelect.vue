@@ -268,7 +268,7 @@ function onLeave(el:any, done:any) {
              !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
              !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900']">
           <div :class="[
-            'sticky top-[220px] w-full h-5 z-20 bg-gradient-to-t to-transparent',
+            'sticky top-[220px] w-full h-5 z-20 bg-gradient-to-t to-transparent pointer-events-none',
             !(mode === 'outlined')||'from-white dark:from-black via-white dark:via-black',
             !(mode === 'underlined')||'from-stone-50 dark:from-stone-950 via-stone-50 dark:via-stone-950',
             !(mode === 'filled')||'from-stone-100 dark:from-stone-900 via-stone-100 dark:via-stone-900']"/>

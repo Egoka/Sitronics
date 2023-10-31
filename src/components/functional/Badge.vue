@@ -3,12 +3,13 @@
 import {computed} from "vue";
 import {XMarkIcon} from "@heroicons/vue/20/solid";
 import Button from "@/components/functional/Button.vue";
+import type {StyleClass} from "@/components/BaseTypes";
 // ---------------------------------------
 export interface IBadge {
   type?: "button" | "reset" | "submit"
   mode?:  "primary" | "secondary" | "outline" | "neutral"
-  class?: string| Array<string>
-  classContent?: string| Array<string>
+  class?: StyleClass
+  classContent?: StyleClass
   point?: boolean
   closeButton?:boolean
 }
@@ -21,7 +22,7 @@ const emit = defineEmits<{
 const mode = computed<NonNullable<IBadge["mode"]>>(()=> props.mode ?? "primary")
 const isPoint = computed<NonNullable<IBadge["point"]>>(()=> props.point ?? false)
 const isCloseButton = computed<NonNullable<IBadge["closeButton"]>>(()=> props.closeButton ?? false)
-const classBadge = computed<Array<string>>(()=> {
+const classBadge = computed<StyleClass>(()=> {
   const arrayClasses = !!props.class
     ? Array.isArray(props.class)
       ? (props.class as Array<string>).flat().map(item=>item.split(" ")).flat()
@@ -58,7 +59,7 @@ const classBadge = computed<Array<string>>(()=> {
   }
   return arrayClasses
 })
-const classBadgeContent = computed<Array<string>>(()=> {
+const classBadgeContent = computed<StyleClass>(()=> {
   const arrayClasses = []
   !(mode.value === "primary") || arrayClasses.push("fill-primary-100 dark:fill-primary-300")
   !(mode.value === "secondary") || arrayClasses.push("fill-primary-600 dark:fill-primary-300")

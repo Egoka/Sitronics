@@ -186,20 +186,20 @@ const structures = ref<Array<IFormStructure>>([
       },
       {
         typeComponent: "StInput",
-        name: "disabled",
+        name: "disabled1",
         label: "outlined",
         mode: "outlined",
         disabled: false
       },
       {
         typeComponent: "StInput",
-        name: "disabled",
+        name: "disabled2",
         label: "filled",
         mode: "filled",
         disabled: false
       },      {
         typeComponent: "StInput",
-        name: "disabled",
+        name: "disabled3",
         label: "underlined",
         mode: "underlined",
         disabled: false
