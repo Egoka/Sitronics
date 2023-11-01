@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, reactive, ref, useSlots, watch} from "vue";
+import {computed, onMounted, onUnmounted, reactive, Ref, ref, UnwrapRef, useSlots, watch} from "vue";
 import {
   ArrowLongUpIcon, ArrowLongDownIcon,
   BarsArrowUpIcon, BarsArrowDownIcon,
@@ -20,6 +20,12 @@ import type {StyleClass, IMode} from "@/components/BaseTypes";
 // ---------------------------------------
 type DataType = "string"|"number"|"select"|"date"
 type Sort = "asc"|"desc"|null
+type Search = string
+type Page = number
+type Sorted = { [dataField:string]: Sort }
+type Widths = { [dataField:string]: number }
+type Filters = { [dataField:string]: any }
+type ResultData = { [dataField:string]: Array<any> }
 // ---------------------------------------
 export interface IToolbar {
   visible?:boolean
@@ -56,6 +62,7 @@ export interface IColumn {
   paramsSelect?: IDateSelect
   paramsDatePicker?: Partial<IDatePicker>
   cellTemplate?: string
+  setCellValue?(column:IColumn, value:any, data?:any):any,
   class?:{
     th?: StyleClass
     colFilter?: StyleClass
@@ -107,6 +114,7 @@ export interface IStyles {
   verticalLines?:boolean
   borderRadiusPx?: number
   filterLines?:boolean
+  maskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
   border?: string|'border-neutral-200 dark:border-neutral-800'|'border-0 border-b-0 border-t-0 border-r-0'|{
     table?: string|'border-neutral-200 dark:border-neutral-800'|'border-0'
     header?: string|'border-neutral-200 dark:border-neutral-800'|'border-b-0'
@@ -162,48 +170,54 @@ export interface ITable {
   noData?:string
   noColumn?:string
   noFilter?:string
-  unchangedColumns?:boolean
-  classMaskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
+  resizedColumns?:boolean
   countDataOnLoading?:number|100|1000|10000
   styles?:IStyles
 }
 // ---------------------------------------
 const props = defineProps<ITable>()
 const emit = defineEmits<{
+  (event: 'sort', payload: {dataColumns:Array<IColumn>, sortedFields:Sorted}): void
+  (event: 'filter', payload: {dataColumns:Array<IColumn>, filteredFields: Filters}): void
+  (event: 'filter', payload: {dataColumns:Array<IColumn>, filteredFields: Filters}): void
+  (event: 'search', payload: Search)
+  (event: 'resultData', payload: ResultData)
+  (event: 'switchPage', payload: Page)
+  (event: 'switchSizePage', payload: Page)
+  (event: 'clearFilter')
 }>();
 const slots = useSlots()
-// ---------------------------------------
-const tableBody = ref<HTMLElement>()
-const tableFooter = ref<HTMLElement>()
+// ---REF-LINK----------------------------
 const table = ref<HTMLElement>()
 const thead = ref<HTMLElement>()
 const tbody = ref<HTMLElement>()
 const tfoot = ref<HTMLElement>()
 const pager = ref<HTMLElement>()
-// ---------------------------------------
-let queryTable = ref<string>("")
-let pageTable = ref<number>(1)
-let sizeTable = ref<number>(5)
-let widthsColumns = reactive<Array<number>|[]>([])
-let sortColumns = reactive<{ [keys:string]: Sort }>({})
-let filterColumns = reactive<object>({})
-let dataOriginal = ref<ITable["dataSource"]>(props.dataSource ?? [])
-// ---------------------------------------
+const tableBody = ref<HTMLElement>()
+const tableFooter = ref<HTMLElement>()
+// ---STATE-------------------------------
+const queryTable = ref<Search>("")
+const pageTable = ref<Page>(1)
+const sizeTable = ref<Page>(5)
+const widthsColumns = reactive<Widths>({})
+const sortColumns = reactive<Sorted>({})
+const filterColumns = reactive<Filters>({})
+const allData = ref<ITable["dataSource"]>(props.dataSource ?? [])
 const isLoading = ref<boolean>(false)
-// ---------------------------------------
+// ---PROPS-------------------------------
 const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode ?? "outlined")
 const isVisibleToolbar = computed<boolean>(()=> isSearch.value ?? (props.toolbar as IToolbar)?.visible ?? (!!props.toolbar ?? !!(Object.keys(props.toolbar).length)) ?? false)
 const isSearch = computed<boolean>(()=> props.search ?? (props?.toolbar as IToolbar)?.search ?? false)
-const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearAllFilter ?? false) && (!!noEmptyFilters(filterColumns).length ?? !!queryTable.value.length))
+const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearAllFilter ?? false) && (!!noEmptyFilters(filterColumns).length || !!queryTable.value.length))
 const isColumns = computed<boolean>(()=> typeof props.columns === "boolean" ? props.columns : Array.isArray(props.columns))
 const isSummary = computed<boolean>(()=> typeof props.summary === "boolean" ? props.summary : Array.isArray(props.summary))
 const countDataOnLoading = computed<ITable["countDataOnLoading"]>(()=> props.countDataOnLoading ?? 1000)
-const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.classMaskQuery ?? "font-bold text-primary-700 dark:text-primary-400")
+const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.styles?.maskQuery ?? "font-bold text-primary-700 dark:text-primary-400")
 const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData ?? "Нет данных")
 const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn ?? "Нет колонок")
 const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> props.noFilter ?? "Не найдено подходящих данных")
 const iconSort = computed<ISort["icon"]>(()=>(props?.sort as ISort)?.icon ?? "Arrow")
-const unchangedColumns = computed<ITable["unchangedColumns"]>(()=>props.unchangedColumns)
+const resizedColumns = computed<ITable["resizedColumns"]>(()=>props.resizedColumns)
 const lengthData = computed<number>(()=> dataSource.value.length)
 const groupField = computed<IGrouping["groupField"]|null>(()=>typeof props?.grouping === "object"
   ? typeof props?.grouping?.groupField === "string" ? props.grouping.groupField : null
@@ -236,13 +250,13 @@ const heightRow = computed<number>(()=> {
   if (tagTr) { return tagTr.offsetHeight
   } else { const basePadding = 2;return basePadding * 16 + heightCell.value * 16 + 1 }
 })
-const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows ?? 5)
-const heightTable = computed<number>(()=> {
-  return (thead.value?.clientHeight ?? 0) + (tfoot.value?.clientHeight ?? 0) + countVisibleRows.value * (heightRow.value||2 * 16 + heightCell.value * 16 + 1) -1
+const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows ?? 0)
+const heightTable = computed<string>(()=> {
+  return countVisibleRows.value > 0 ? `${(thead.value?.clientHeight ?? 0) + (tfoot.value?.clientHeight ?? 0) + countVisibleRows.value * (heightRow.value||2 * 16 + heightCell.value * 16 + 1) -1}px`: 'auto'
 })
 // ---DATA--------------------------------
 const dataSource = computed<Array<any>>(()=> {
-  let data = dataOriginal.value
+  let data = allData.value
   // Sort
   if (data && Object.keys(sortColumns).filter(i=>sortColumns[i] !== null).length){
     const sortedFields = Object.keys(sortColumns).reduce((result, column)=>{
@@ -250,6 +264,7 @@ const dataSource = computed<Array<any>>(()=> {
         result[column] = sortColumns[column] }
       return result }, {})
     data = LData.orderBy(data, Object.keys(sortedFields), Object.values(sortedFields))
+    emit('sort', {dataColumns: dataColumns.value, sortedFields: (sortedFields as Sorted)})
   }
   // Filter
   if (data && noEmptyFilters(filterColumns).length){
@@ -263,29 +278,32 @@ const dataSource = computed<Array<any>>(()=> {
         const column = dataColumns.value.find(col=>col.dataField === item)
         return isEqualsValue(column, row[column.dataField], filter[column.dataField])
       }).length === Object.keys(filter).length)
-    pageTable.value = 1
+    switchPage(1)
+    emit('filter', {dataColumns: dataColumns.value, filteredFields: (filter as Filters)})
   }
   // Search
   if (data && queryTable.value.length){
     data = LData.filter(data,(row) => !!dataColumns.value
       .filter(item => item.visible)
       .filter(item => isEqualsValue(item, row[item.dataField], queryTable.value)).length)
-    pageTable.value = 1
+    switchPage(1)
+    emit('search', queryTable.value)
   }
   isLoading.value = false
   return data ?? []
 })
-const resultDataSource = computed(()=> {
+const resultDataSource = computed<ResultData>(()=> {
   let resultData:any = dataSource.value
   if (isPagination.value) {
     if (isGroup.value) {
       resultData = Object.values(LData.groupBy(resultData, (item) => item[groupField.value])).flat() }
     resultData = LData.slice(resultData, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value)) }
   resultData = isGroup.value ? LData.groupBy(resultData, (item) => item[groupField.value]) : {0: resultData}
+  emit('resultData', resultData)
   return resultData
 })
 const dataColumns = computed<Array<IColumnPrivate>>(()=> {
-  let listFields:Array<string> = LData.uniq(LData.flatten(LData.map(dataOriginal.value, LData.keys)))
+  let listFields:Array<string> = LData.uniq(LData.flatten(LData.map(allData.value, LData.keys)))
   if (Array.isArray(props.columns) && props.columns?.length){
     return <Array<IColumnPrivate>>props.columns
       .map((column, index)=>{
@@ -331,7 +349,7 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
               maxVisible: 0,
               classSelect: 'normal-case font-normal max-h-[25rem]',
               classSelectList: 'normal-case font-normal',
-              dataSelect: LData.compact(LData.uniq(LData.map(dataOriginal.value, options.dataField ?? ""))) ?? [],
+              dataSelect: LData.compact(LData.uniq(LData.map(allData.value, options.dataField ?? ""))) ?? [],
               ...column.paramsSelect};break
           }
           case "date": {
@@ -341,7 +359,7 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
                 highlight: {
                   fillMode: 'light',
                 },
-                dates: LData.compact(LData.uniq(LData.map(dataOriginal.value, (item)=> item[options.dataField] ? String(item[options.dataField]) : null ))) ?? [],
+                dates: LData.compact(LData.uniq(LData.map(allData.value, (item)=> item[options.dataField] ? String(item[options.dataField]) : null ))) ?? [],
               }],
               mask: column.paramsDatePicker?.masks?.modelValue ?? "DD.MM.YYYY",
               ...column.paramsDatePicker
@@ -362,7 +380,15 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
         visible: true,
         isFilter: isFilter.value,
         isSorting: isSort.value,
-        type: "string"
+        type: "string",
+        class: {
+          colFilterClass: "border-none font-normal",
+          colFilterClassBody: "tm-0 my-1",
+          colText: "text-left text-gray-400 dark:text-gray-500",
+          td: "px-6 py-4 text-gray-800 dark:text-gray-300",
+          cellText: "flex items-center whitespace-pre-line overflow-auto",
+          sumText: "font-normal text-sm text-left text-gray-400 dark:text-gray-500"
+        }
       }
     })
   }
@@ -426,7 +452,7 @@ const styles = computed<IStylesPrivate>(()=>{
     ? (props.styles?.hoverRows as string)
     : typeof props.styles?.hoverRows === 'boolean' && props.styles?.hoverRows
       ? "hover:bg-neutral-100/90 dark:hover:bg-neutral-900/50": ''
-  const defaultBorder = typeof border === "string"
+  const defaultBorder = typeof (border as string|object) === "string"
     ? border : "border-neutral-200 dark:border-neutral-800"
   return {
     class: {
@@ -461,10 +487,10 @@ const styles = computed<IStylesPrivate>(()=>{
     }
   }
 })
-const tableBodyStyle = computed(()=>`height: ${
-  heightTable.value}px;${!(slots.header) ? `border-top-left-radius: ${styles.value.borderRadiusPx}px;border-top-right-radius: ${styles.value.borderRadiusPx}px;`:''}${
+const tableBodyStyle = computed<string>(()=>`height: ${
+  heightTable.value};${!(slots.header) ? `border-top-left-radius: ${styles.value.borderRadiusPx}px;border-top-right-radius: ${styles.value.borderRadiusPx}px;`:''}${
   !(isPagination.value || slots.footer) ? `border-bottom-left-radius: ${styles.value.borderRadiusPx}px;border-bottom-right-radius: ${styles.value.borderRadiusPx}px;`:''}`)
-const modeStyle = computed(()=> (mode.value === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
+const modeStyle = computed<string>(()=> (mode.value === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
   (mode.value === 'outlined') ? 'bg-white dark:bg-neutral-950' :
   (mode.value === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : '')
 // ---------------------------------------
@@ -475,12 +501,94 @@ function setFooterPaddingHeight() {
     (thead.value?.clientHeight + tbody.value?.clientHeight + tfoot.value?.clientHeight)
   footerPaddingHeight.value = result ? result : 0
 }
-// ---------------------------------------
+// ---IS-DARK-----------------------------
 const isDark = ref<boolean>(window.matchMedia('(prefers-color-scheme: dark)')?.matches)
 const colorSchemeQueryList = window.matchMedia('(prefers-color-scheme: dark)');
 const setColorScheme = e => isDark.value = e.matches
 setColorScheme(colorSchemeQueryList);
 colorSchemeQueryList.addEventListener('change', setColorScheme);
+// ---EXPOSE------------------------------
+export interface ITableExpose {
+  //---STATE-------------------------
+  widthsColumns: Readonly<Widths>
+  sortColumns: Readonly<Sorted>
+  filterColumns: Readonly<Filters>
+  queryTable: Readonly<Ref<UnwrapRef<Search>>>
+  pageTable: Readonly<Ref<UnwrapRef<Page>>>
+  sizeTable: Readonly<Ref<UnwrapRef<Page>>>
+  allData: Readonly<Ref<UnwrapRef<ITable["dataSource"]>>>
+  isLoading: Readonly<Ref<UnwrapRef<boolean>>>
+  // ---PROPS-------------------------------
+  mode: Readonly<Ref<UnwrapRef<ITable["mode"]>>>
+  isVisibleToolbar: Readonly<Ref<UnwrapRef<boolean>>>
+  isSearch: Readonly<Ref<UnwrapRef<boolean>>>
+  isFilterClear: Readonly<Ref<UnwrapRef<boolean>>>
+  isColumns: Readonly<Ref<UnwrapRef<boolean>>>
+  isSummary: Readonly<Ref<UnwrapRef<boolean>>>
+  countDataOnLoading: Readonly<Ref<UnwrapRef<ITable["countDataOnLoading"]>>>
+  classMaskQuery: Readonly<Ref<UnwrapRef<ITable["classMaskQuery"]>>>
+  noData: Readonly<Ref<UnwrapRef<ITable["noData"]>>>
+  noColumn: Readonly<Ref<UnwrapRef<ITable["noData"]>>>
+  noFilter: Readonly<Ref<UnwrapRef<IFilter["noFilter"]>>>
+  iconSort: Readonly<Ref<UnwrapRef<ISort["icon"]>>>
+  resizedColumns: Readonly<Ref<UnwrapRef<ITable["resizedColumns"]>>>
+  lengthData: Readonly<Ref<UnwrapRef<number>>>
+  groupField: Readonly<Ref<UnwrapRef<IGrouping["groupField"]|null>>>
+  isFilter: Readonly<Ref<UnwrapRef<boolean>>>
+  isSort: Readonly<Ref<UnwrapRef<boolean>>>
+  isGroup: Readonly<Ref<UnwrapRef<boolean>>>
+  isPagination: Readonly<Ref<UnwrapRef<boolean>>>
+  // ---PAGINATION--------------------------
+  startPage: Readonly<Ref<UnwrapRef<ITablePagination["startPage"]>>>
+  modePagination: Readonly<Ref<UnwrapRef<ITablePagination["mode"]>>>
+  sizePage: Readonly<Ref<UnwrapRef<ITablePagination["sizePage"]>>>
+  visibleNumberPages: Readonly<Ref<UnwrapRef<ITablePagination["visibleNumberPages"]>>>
+  sizesSelector: Readonly<Ref<UnwrapRef<ITablePagination["sizesSelector"]>>>
+  isInfoText: Readonly<Ref<UnwrapRef<ITablePagination["isInfoText"]>>>
+  isPageSizeSelector: Readonly<Ref<UnwrapRef<ITablePagination["isPageSizeSelector"]>>>
+  isHiddenNavigationButtons: Readonly<Ref<UnwrapRef<ITablePagination["isHiddenNavigationButtons"]>>>
+  // ---CELL--------------------------------
+  heightCell: Readonly<Ref<UnwrapRef<number>>>
+  heightRow: Readonly<Ref<UnwrapRef<number>>>
+  countVisibleRows: Readonly<Ref<UnwrapRef<ITable["countVisibleRows"]>>>
+  heightTable: Readonly<Ref<UnwrapRef<string>>>
+  // ---DATA--------------------------------
+  dataSource: Readonly<Ref<UnwrapRef<Array<any>>>>
+  resultDataSource: Readonly<Ref<UnwrapRef<ResultData>>>
+  dataColumns: Readonly<Ref<UnwrapRef<Array<IColumnPrivate>>>>
+  dataSummary: Readonly<Ref<UnwrapRef<Array<ISummaryPrivate>>>>
+  summaryColumns: Readonly<Ref<UnwrapRef<object>>>
+  // ---STYLE-------------------------------
+  styles: Readonly<Ref<UnwrapRef<IStylesPrivate>>>
+  tableBodyStyle: Readonly<Ref<UnwrapRef<string>>>
+  modeStyle: Readonly<Ref<UnwrapRef<string>>>
+  isDark: Readonly<Ref<UnwrapRef<boolean>>>
+  // ---METHODS-----------------------------
+  getColumn(dataField:IColumn["dataField"], index?:number):IColumn
+  sorting(dataField:IColumn["dataField"], value?:Sort):void
+  filtering(dataField:IColumn["dataField"], value:any):void
+  searching(value:Search):void
+  switchPage(page:Page):void
+  switchSizePage(sizePage:Page):void
+  clearFilter():void
+}
+defineExpose<ITableExpose>({
+  //---STATE-------------------------
+  widthsColumns, sortColumns, filterColumns, queryTable, pageTable, sizeTable, allData, isLoading,
+  // ---PROPS-------------------------------
+  mode, isVisibleToolbar, isSearch, isFilterClear, isColumns, isSummary, countDataOnLoading, classMaskQuery,
+  noData, noColumn, noFilter, iconSort, resizedColumns, lengthData, groupField, isFilter, isSort, isGroup, isPagination,
+  // ---PAGINATION--------------------------
+  startPage, modePagination, sizePage, visibleNumberPages, sizesSelector, isInfoText, isPageSizeSelector, isHiddenNavigationButtons,
+  // ---CELL--------------------------------
+  heightCell,heightRow,countVisibleRows,heightTable,
+  // ---DATA--------------------------------
+  dataSource,resultDataSource,dataColumns,dataSummary,summaryColumns,
+  // ---STYLE-------------------------------
+  styles,tableBodyStyle,modeStyle,isDark,
+  // ---METHODS-----------------------------
+  getColumn,sorting,filtering,searching,switchPage,switchSizePage,clearFilter
+})
 // ---------------------------------------
 onMounted(()=>{
   if (tbody.value) { tableObserver.observe(tbody.value as Element) }
@@ -496,56 +604,58 @@ onUnmounted(()=>{
 })
 // ---------------------------------------
 watch(startPage,(numberPage:number)=>{
-  pageTable.value = numberPage
+  switchPage(numberPage)
 }, {immediate: true})
 watch(sizePage,(sizePageValue:number)=>{
-  sizeTable.value = sizePageValue ?? sizePage.value
+  switchSizePage (sizePageValue ?? sizePage.value)
 }, {immediate: true})
-// ---------------------------------------
+// ---METHODS-----------------------------
 function getColumn(dataField:IColumn["dataField"], index?:number):IColumnPrivate {
   return dataColumns.value.find((column, item)=>dataField ? column.dataField === dataField : item === index)
 }
-function sorting(columnName:string|undefined, value?:Sort) {
-  if (!columnName){ return }
+function sorting(dataField:IColumn["dataField"], value?:Sort) {
+  if (!dataField){ return }
   if (value === undefined) {
-    value = (sortColumns[columnName] === null ? "asc"
-        : sortColumns[columnName] === "asc" ? "desc"
-        : sortColumns[columnName] === "desc" ? null : null) }
+    value = (sortColumns[dataField] === null ? "asc"
+        : sortColumns[dataField] === "asc" ? "desc"
+        : sortColumns[dataField] === "desc" ? null : null) }
   let timeout = lengthData.value > countDataOnLoading.value ? 800 : 10
   if (timeout > 100){
     isLoading.value = true
   }
   setTimeout(()=>{
-    sortColumns[columnName] = (value as Sort)
+    sortColumns[dataField] = (value as Sort)
   },timeout)
 }
-function filtering(columnName:string|undefined, value:any) {
-  if (!columnName){ return }
-  let timeout = (dataOriginal.value?.length > countDataOnLoading.value)
+function filtering(dataField:IColumn["dataField"], value:any) {
+  if (!dataField){ return }
+  let timeout = (allData.value?.length > countDataOnLoading.value)
     ? lengthData.value > countDataOnLoading.value||value === null||value === "" ? 800 : 0 : 0
   if (timeout > 100){
     isLoading.value = true
   }
   setTimeout(()=>{
-    filterColumns[columnName] = value
+    filterColumns[dataField] = value
   },timeout)
 }
-function searching(value:any) {
-  let timeout = dataOriginal.value?.length > countDataOnLoading.value
+function searching(value:Search|null) {
+  let timeout = allData.value?.length > countDataOnLoading.value
     ? lengthData.value > countDataOnLoading.value||value === null||value === "" ? 800 : 0 : 0
   if (timeout > 100){
     isLoading.value = true
   }
   setTimeout(()=>{
-    queryTable.value = value
+    queryTable.value = value??""
   },timeout)
 }
-function switchPage(page:number) {
+function switchPage(page:Page) {
   pageTable.value = page
+  emit('switchPage', pageTable.value)
 }
-function switchSizePage (sizePage:number) {
+function switchSizePage (sizePage:Page) {
+  switchPage(1)
   sizeTable.value = sizePage
-  pageTable.value = 1
+  emit('switchSizePage', sizeTable.value)
 }
 function isEqualsValue(column:IColumnPrivate, columnValue:any, value: any): boolean {
   if (columnValue === null || columnValue === undefined) { return false }
@@ -615,7 +725,7 @@ function setSummary(summary:ISummaryPrivate):string{
     return String(summary?.displayFormat).replace(/\{0}/g, result)
   }
 }
-function setCell(column:IColumnPrivate, value:any):string{
+function setCell(column:IColumnPrivate, value:any, data?:any):string{
   function toMask () {
     if (column?.mask === "phone") {
       return convertToPhone(String(value))
@@ -634,6 +744,8 @@ function setCell(column:IColumnPrivate, value:any):string{
   let valueCell
   if (value === null || value === undefined) {
     valueCell = null
+  } else if ("setCellValue" in column) {
+    valueCell = column?.setCellValue(column, value, data)
   } else {
     switch (column.type) {
       case "string": valueCell = toMask();break
@@ -653,7 +765,7 @@ function setMarker (column:IColumnPrivate, valueCell:any):string {
   }
   return valueCell
 }
-function noEmptyFilters(filter: object) {
+function noEmptyFilters(filter: object):Array<any> {
   return Object.keys(filter).filter(i=>
     filter[i] !== undefined &&
     filter[i] !== null &&
@@ -664,6 +776,7 @@ function clearFilter() {
   Object.keys(filterColumns).map(filter=>sorting(filter, null))
   Object.keys(filterColumns).map(filter=>filtering(filter, null))
   searching("")
+  emit('clearFilter')
 }
 // ---RESIZE-COLUMN-----------------------
 const defaultWidthColumn = ref<string>('max-width: 600px;min-width:100px;')
@@ -672,28 +785,28 @@ function resizeColumn($event: MouseEvent, columnId: string) {
   if (columnEl) {
     const column = <IColumnPrivate>dataColumns.value.find(item=>item.id === columnId)
     const rect = columnEl.getBoundingClientRect();
-    let newW = $event.pageX - rect.left - 5
+    let newW = $event.pageX - rect.left
     const maxW = column.maxWidth
     if (newW > maxW && maxW) { newW = maxW }
     const minW = column.minWidth ?? 100
     if (newW < minW && minW) { newW = minW }
-    widthsColumns[column.dataField] = newW
+    widthsColumns[column.dataField] = Math.round(newW)
   }
 }
 const editableColumn = ref<string|null>(null)
-function move(ev: MouseEvent) {
+function moveResizedColumns(ev: MouseEvent) {
   resizeColumn(ev, editableColumn.value??"");
 }
 function startResizeColumn($event: MouseEvent, column: IColumnPrivate["id"]) {
   if($event.stopPropagation) $event.stopPropagation();
   if($event.preventDefault) $event.preventDefault();
   editableColumn.value = column
-  window.addEventListener('mousemove', move);
+  window.addEventListener('mousemove', moveResizedColumns);
   window.addEventListener('mouseup', stopResizeColumn);
 }
 function stopResizeColumn() {
   editableColumn.value = null
-  window.removeEventListener('mousemove', move);
+  window.removeEventListener('mousemove', moveResizedColumns);
 }
 // ---------------------------------------
 </script>
@@ -807,7 +920,7 @@ function stopResizeColumn() {
                       <BarsArrowUpIcon v-if="iconSort === 'Bars' && [null, 'asc'].includes(sortColumns[column?.dataField])" class="ml-1 h-4 w-4 text-gray-400"/>
                       <BarsArrowDownIcon v-if="iconSort === 'Bars' && sortColumns[column?.dataField] === 'desc'" class="ml-1 h-4 w-4 text-gray-400"/>
                     </div>
-                    <div v-if="!unchangedColumns" class="resizable absolute z-10 inset-y-0 flex items-center hover:opacity-100 px-2 cursor-ew-resize transition-opacity duration-500 "
+                    <div v-if="resizedColumns" class="resizable absolute z-10 inset-y-0 flex items-center hover:opacity-100 px-2 cursor-ew-resize transition-opacity duration-500 "
                          :class="[dataColumns.length-1 > key ? '-right-3' : 'right-3', editableColumn === column.id ? 'opacity-100': 'opacity-0']"
                          @mousedown="startResizeColumn($event, column.id)" @mouseup="stopResizeColumn">
                       <div class="h-8 w-1.5 rounded-full bg-neutral-300 dark:bg-neutral-600"></div>
@@ -849,12 +962,12 @@ function stopResizeColumn() {
                         max-width: ${widthsColumns[column.dataField]}px;`">
                       <div v-if="!column?.cellTemplate" :class="[column.class?.cellText]"
                            :style="`min-height: ${heightCell}rem;max-height: ${(heightCell*5)*16+2}px;`"
-                           v-html="setMarker(column, setCell(column, data[column.dataField]))"/>
+                           v-html="setMarker(column, setCell(column, data[column.dataField], data))"/>
                       <div v-else :class="[column.class?.cellText]"
                            :style="`min-height: ${heightCell}rem;max-height: ${(heightCell*5)*16+2}px;`">
                         <slot :name="column?.cellTemplate"
-                              :column="column" :rowData="data" :value="setCell(column, data[column.dataField])"
-                              :value-with-marker="setMarker(column, setCell(column, data[column.dataField]))"/>
+                              :column="column" :rowData="data" :value="setCell(column, data[column.dataField], data)"
+                              :value-with-marker="setMarker(column, setCell(column, data[column.dataField], data))"/>
                       </div>
                     </td>
                   </template>
@@ -909,17 +1022,17 @@ function stopResizeColumn() {
   <!-- -------------------------------- -->
         <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-          <div v-if="!isLoading && !dataOriginal?.length"
+          <div v-if="!isLoading && !allData?.length"
                class="absolute top-[40%] left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500" v-html="noData"/>
         </transition>
         <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-          <div v-if="!isLoading && dataOriginal?.length && !dataColumns?.length"
+          <div v-if="!isLoading && allData?.length && !dataColumns?.length"
                class="absolute top-[50%] left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500" v-html="noColumn"/>
         </transition>
         <transition leave-active-class="transition-all ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition-all ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-          <div v-if="!isLoading && dataOriginal?.length && dataColumns?.length && !dataSource.length"
+          <div v-if="!isLoading && allData?.length && dataColumns?.length && !dataSource.length"
                class="absolute top-[40%] flex flex-col items-center left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500">
             <FunnelIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
             <div v-html="noFilter"/>

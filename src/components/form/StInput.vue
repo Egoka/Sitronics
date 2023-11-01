@@ -26,8 +26,8 @@ const props = defineProps<IInput>()
 const emit = defineEmits<{
   (event: 'clear', payload: string): void;
   (event: 'update:modelValue', payload: string): void;
+  (event: 'change:modelValue', payload: string): void;
   (event: 'update:isInvalid', payload: boolean): void;
-  (event: 'change:modelValue', payload: boolean): void;
   (event: 'isActive', payload: boolean): void;
 }>();
 const slots = useSlots()
