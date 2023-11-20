@@ -308,7 +308,7 @@ function clear () {
          @focusin="focus(true)"
          @focusout="focus(false)"
          @click="open">
-      <div v-if="datePicker?.isRange" class="flex flex-wrap items-center z-10 max-h-max cursor-default">
+      <div v-if="datePicker?.isRange" class="flex flex-wrap items-center z-10 max-h-max cursor-default leading-3 mt-3">
         {{(visibleDate as IRangeValue)?.start}}
         <ArrowLongRightIcon
           v-if="separator === 'arrow' &&(visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"

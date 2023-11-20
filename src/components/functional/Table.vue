@@ -1,32 +1,34 @@
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, reactive, Ref, ref, UnwrapRef, useSlots, watch} from "vue";
+import {computed, onMounted, onUnmounted, reactive, ref, useSlots, watch} from "vue";
+import type {Ref, UnwrapRef} from "vue";
 import {
   ArrowLongUpIcon, ArrowLongDownIcon,
   BarsArrowUpIcon, BarsArrowDownIcon,
-  MagnifyingGlassIcon, FunnelIcon
+  MagnifyingGlassIcon, FunnelIcon,TableCellsIcon
 } from "@heroicons/vue/20/solid";
 import * as LData from "lodash";
 import dayjs from 'dayjs'
-import Loading from "@/components/functional/Loading.vue";
+import isBetween from 'dayjs/plugin/isBetween'
 import Button from "@/components/functional/Button.vue";
 import Tooltip from "@/components/functional/Tooltip.vue";
+import Loading from "@/components/functional/Loading.vue";
 import Pagination, {type IPagination} from "@/components/functional/Pagination.vue";
 import StInput, {type IDataInput} from "@/components/form/StInput.vue";
 import StSelect, {type IDateSelect} from "@/components/form/StSelect.vue";
 import StCalendar, {type IDatePicker, type IRangeValue} from "@/components/form/StCalendar.vue";
-import isBetween from 'dayjs/plugin/isBetween'
 import {convertToNumber, convertToPhone} from "@/helpers/numbers";
 import type {StyleClass, IMode} from "@/components/BaseTypes";
-// ---------------------------------------
+// ---TYPES-------------------------------
 type DataType = "string"|"number"|"select"|"date"
 type Sort = "asc"|"desc"|null
 type Search = string
 type Page = number
+type Loading = boolean
 type Sorted = { [dataField:string]: Sort }
 type Widths = { [dataField:string]: number }
 type Filters = { [dataField:string]: any }
 type ResultData = { [dataField:string]: Array<any> }
-// ---------------------------------------
+// ---INTERFACES--------------------------
 export interface IToolbar {
   visible?:boolean
   search?:boolean
@@ -35,12 +37,12 @@ export interface ISort {
   visible?:boolean
   icon?:"Bars"|"Arrow"
 }
-export interface IFilter{
+export interface IFilter {
   visible?:boolean
   noFilter?:string
   isClearAllFilter?:boolean
 }
-export interface IGrouping{
+export interface IGrouping {
   visible?:boolean
   groupField?:string
 }
@@ -83,20 +85,21 @@ export interface ISummary {
   name?: string
   displayFormat?: string|"Sum: {0}"|"Min: {0}"|"Max: {0}"|"Avg: {0}"|"Count: {0}"
   type?: "sum"|"min"|"max"|"avg"|"count"
-  dataType: DataType
+  dataType?: DataType
   customizeText?(summary:ISummary, result:string):string
 }
 interface ISummaryPrivate extends ISummary {
   id: string
+  dataType: DataType
 }
 export interface ITablePagination extends Omit<IPagination, 'total'|'modelValue'> {
   visible?:boolean
   startPage?:number
 }
-export interface IStyles {
+export interface ITableStyles {
   class?: {
     body?: StyleClass|'p-1.5'
-    toolbar?: StyleClass|'justify-end'
+    toolbar?: StyleClass|'justify-end items-end'
     bodyTable?: StyleClass
     slotHeader?: StyleClass
     slotFooter?: StyleClass
@@ -113,6 +116,7 @@ export interface IStyles {
   horizontalLines?:boolean
   verticalLines?:boolean
   borderRadiusPx?: number
+  heightCell?:number
   filterLines?:boolean
   maskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
   border?: string|'border-neutral-200 dark:border-neutral-800'|'border-0 border-b-0 border-t-0 border-r-0'|{
@@ -120,13 +124,13 @@ export interface IStyles {
     header?: string|'border-neutral-200 dark:border-neutral-800'|'border-b-0'
     filter?: string|'border-neutral-200 dark:border-neutral-800'|'border-r-0'
     head?: string|'border-neutral-200 dark:border-neutral-800'|'border-b-0'
-    cell?: string|'border-neutral-200 dark:border-neutral-800'|'border-0'
+    cell?: string|'border-neutral-200 dark:border-neutral-800'|'border-r-0 border-b-0'
     summary?: string|'border-neutral-200 dark:border-neutral-800'|'border-t-0'
     pagination?: string|'border-neutral-200 dark:border-neutral-800'|'border-t-0'
     footer?: string|'border-neutral-200 dark:border-neutral-800'|'border-t-0'
   }
 }
-export interface IStylesPrivate extends Omit<IStyles, 'border|hoverRows|class'> {
+export interface IStylesPrivate extends Omit<ITableStyles, 'border|hoverRows|class'> {
   class: {
     body: StyleClass
     toolbar: StyleClass
@@ -166,15 +170,14 @@ export interface ITable {
   columns?: boolean|Array<IColumn>
   summary?: boolean|Array<ISummary>
   countVisibleRows?: number
-  heightCell?:number
   noData?:string
   noColumn?:string
-  noFilter?:string
   resizedColumns?:boolean
   countDataOnLoading?:number|100|1000|10000
-  styles?:IStyles
+  totalCount?:number
+  styles?:ITableStyles
 }
-// ---------------------------------------
+// ---PROPS-EMITS-SLOTS-------------------
 const props = defineProps<ITable>()
 const emit = defineEmits<{
   (event: 'sort', payload: {dataColumns:Array<IColumn>, sortedFields:Sorted}): void
@@ -202,12 +205,13 @@ const sizeTable = ref<Page>(5)
 const widthsColumns = reactive<Widths>({})
 const sortColumns = reactive<Sorted>({})
 const filterColumns = reactive<Filters>({})
-const allData = ref<ITable["dataSource"]>(props.dataSource ?? [])
-const isLoading = ref<boolean>(false)
+const allData = ref<ITable["dataSource"]>([])
+const isLoading = ref<Loading>(false)
+const heightTable = ref<string>("height: auto;")
 // ---PROPS-------------------------------
 const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode ?? "outlined")
-const isVisibleToolbar = computed<boolean>(()=> isSearch.value ?? (props.toolbar as IToolbar)?.visible ?? (!!props.toolbar ?? !!(Object.keys(props.toolbar).length)) ?? false)
-const isSearch = computed<boolean>(()=> props.search ?? (props?.toolbar as IToolbar)?.search ?? false)
+const isVisibleToolbar = computed<boolean>(()=> (isSearch.value || !!props.toolbar) && ((props.toolbar as IToolbar)?.visible ?? true ))
+const isSearch = computed<boolean>(()=> (props?.toolbar as IToolbar)?.search ?? props.search ?? false)
 const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearAllFilter ?? false) && (!!noEmptyFilters(filterColumns).length || !!queryTable.value.length))
 const isColumns = computed<boolean>(()=> typeof props.columns === "boolean" ? props.columns : Array.isArray(props.columns))
 const isSummary = computed<boolean>(()=> typeof props.summary === "boolean" ? props.summary : Array.isArray(props.summary))
@@ -215,10 +219,10 @@ const countDataOnLoading = computed<ITable["countDataOnLoading"]>(()=> props.cou
 const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.styles?.maskQuery ?? "font-bold text-primary-700 dark:text-primary-400")
 const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData ?? "Нет данных")
 const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn ?? "Нет колонок")
-const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> props.noFilter ?? "Не найдено подходящих данных")
+const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> (props.filter as IFilter)?.noFilter ?? "Не найдено подходящих данных")
 const iconSort = computed<ISort["icon"]>(()=>(props?.sort as ISort)?.icon ?? "Arrow")
 const resizedColumns = computed<ITable["resizedColumns"]>(()=>props.resizedColumns)
-const lengthData = computed<number>(()=> dataSource.value.length)
+const lengthData = computed<number>(()=> props.totalCount ?? dataSource.value.length)
 const groupField = computed<IGrouping["groupField"]|null>(()=>typeof props?.grouping === "object"
   ? typeof props?.grouping?.groupField === "string" ? props.grouping.groupField : null
   : typeof props?.grouping === "string" ? props.grouping : null )
@@ -231,11 +235,11 @@ const isSort = computed<boolean>(()=>typeof props?.sort === "object"
 const isGroup = computed<boolean>(()=>typeof props?.grouping === "object"
   ? typeof props?.grouping?.visible === "boolean" ? props.grouping.visible : true
   : typeof props?.grouping === "string" ? !!props.grouping.length : false )
-const isPagination = computed<boolean>(()=>typeof props?.pagination === "object"
-  ? typeof props?.pagination?.visible === "boolean" ? props.pagination.visible : true
-  : typeof props?.pagination === "boolean" ? props.pagination : false )
+const isPagination = computed<boolean>(()=> countVisibleRows.value > 0 && (typeof props?.pagination === "object"
+    ? typeof props?.pagination?.visible === "boolean" ? props.pagination.visible : true
+    : typeof props?.pagination === "boolean" ? props.pagination : false) )
 // ---PAGINATION--------------------------
-const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=>(props.pagination as ITablePagination).startPage ?? 1)
+const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=> (props.pagination as ITablePagination).startPage ?? 1)
 const modePagination = computed<NonNullable<ITablePagination["mode"]>>(()=>(props.pagination as ITablePagination).mode ?? mode.value)
 const sizePage = computed<NonNullable<ITablePagination["sizePage"]>>(()=>(props.pagination as ITablePagination).sizePage??countVisibleRows.value)
 const visibleNumberPages = computed<ITablePagination["visibleNumberPages"]>(()=>(props.pagination as ITablePagination).visibleNumberPages)
@@ -244,16 +248,13 @@ const isInfoText = computed<ITablePagination["isInfoText"]>(()=>(props.paginatio
 const isPageSizeSelector = computed<ITablePagination["isPageSizeSelector"]>(()=>(props.pagination as ITablePagination).isPageSizeSelector ?? false)
 const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationButtons"]>(()=>(props.pagination as ITablePagination).isHiddenNavigationButtons ?? false)
 // ---CELL--------------------------------
-const heightCell = computed<number>(()=> props.heightCell ?? 1.5)
+const heightCell = computed<number>(()=> props.styles?.heightCell ?? 24)
 const heightRow = computed<number>(()=> {
   const tagTr = (tbody.value as HTMLElement)?.querySelector("tr")
   if (tagTr) { return tagTr.offsetHeight
-  } else { const basePadding = 2;return basePadding * 16 + heightCell.value * 16 + 1 }
+  } else { const basePadding = 2;return basePadding * 16 + heightCell.value + 1 }
 })
 const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows ?? 0)
-const heightTable = computed<string>(()=> {
-  return countVisibleRows.value > 0 ? `${(thead.value?.clientHeight ?? 0) + (tfoot.value?.clientHeight ?? 0) + countVisibleRows.value * (heightRow.value||2 * 16 + heightCell.value * 16 + 1) -1}px`: 'auto'
-})
 // ---DATA--------------------------------
 const dataSource = computed<Array<any>>(()=> {
   let data = allData.value
@@ -289,7 +290,7 @@ const dataSource = computed<Array<any>>(()=> {
     switchPage(1)
     emit('search', queryTable.value)
   }
-  isLoading.value = false
+  stopLoading()
   return data ?? []
 })
 const resultDataSource = computed<ResultData>(()=> {
@@ -457,7 +458,7 @@ const styles = computed<IStylesPrivate>(()=>{
   return {
     class: {
       body: st?.body ?? "p-1.5",
-      toolbar: st?.toolbar ?? "justify-end",
+      toolbar: st?.toolbar ?? "justify-end items-end",
       bodyTable: st?.bodyTable ?? "",
       slotHeader: st?.slotHeader ?? "",
       slotFooter: st?.slotFooter ?? "",
@@ -470,7 +471,7 @@ const styles = computed<IStylesPrivate>(()=>{
       pagination: st?.pagination ?? "",
     },
     hoverRows: hoverRows,
-    borderRadiusPx: props.styles?.borderRadiusPx ?? mode.value === 'underlined'? 0 : 7,
+    borderRadiusPx: props.styles?.borderRadiusPx ?? (mode.value === 'underlined'? 0 : 7),
     isStripedRows: props.styles?.isStripedRows ?? false,
     horizontalLines: props.styles?.horizontalLines ?? true,
     verticalLines: props.styles?.verticalLines ?? false,
@@ -487,9 +488,8 @@ const styles = computed<IStylesPrivate>(()=>{
     }
   }
 })
-const tableBodyStyle = computed<string>(()=>`height: ${
-  heightTable.value};${!(slots.header) ? `border-top-left-radius: ${styles.value.borderRadiusPx}px;border-top-right-radius: ${styles.value.borderRadiusPx}px;`:''}${
-  !(isPagination.value || slots.footer) ? `border-bottom-left-radius: ${styles.value.borderRadiusPx}px;border-bottom-right-radius: ${styles.value.borderRadiusPx}px;`:''}`)
+const tableBodyStyle = computed<string>(()=> `${!(slots.header) ? `border-top-left-radius: ${styles.value.borderRadiusPx}px;border-top-right-radius: ${styles.value.borderRadiusPx}px;` : ''}${
+    !(isPagination.value || slots.footer) ? `border-bottom-left-radius: ${styles.value.borderRadiusPx}px;border-bottom-right-radius: ${styles.value.borderRadiusPx}px;` : ''}`)
 const modeStyle = computed<string>(()=> (mode.value === 'filled') ? 'bg-stone-100 dark:bg-stone-900' :
   (mode.value === 'outlined') ? 'bg-white dark:bg-neutral-950' :
   (mode.value === 'underlined') ? 'bg-stone-50 dark:bg-stone-950' : '')
@@ -570,6 +570,8 @@ export interface ITableExpose {
   searching(value:Search):void
   switchPage(page:Page):void
   switchSizePage(sizePage:Page):void
+  startLoading():void
+  stopLoading():void
   clearFilter():void
 }
 defineExpose<ITableExpose>({
@@ -587,7 +589,7 @@ defineExpose<ITableExpose>({
   // ---STYLE-------------------------------
   styles,tableBodyStyle,modeStyle,isDark,
   // ---METHODS-----------------------------
-  getColumn,sorting,filtering,searching,switchPage,switchSizePage,clearFilter
+  getColumn,sorting,filtering,searching,switchPage,switchSizePage,clearFilter,startLoading, stopLoading
 })
 // ---------------------------------------
 onMounted(()=>{
@@ -598,18 +600,28 @@ onMounted(()=>{
   Object.assign(filterColumns, Object.fromEntries(new Map(resultFilter)))
   const resultWidths = dataColumns.value.map((column)=>[column.dataField,column.width??column.maxWidth??column.minWidth])
   Object.assign(widthsColumns, Object.fromEntries(new Map(resultWidths)))
+  setTimeout(()=>setHeightTable(),10)
 })
 onUnmounted(()=>{
   tableObserver.disconnect();
 })
 // ---------------------------------------
+watch(countVisibleRows,()=>{ setHeightTable() })
+watch(()=>props.dataSource,()=>{
+  allData.value = props.dataSource ?? []
+},{immediate: true})
 watch(startPage,(numberPage:number)=>{
-  switchPage(numberPage)
+  setTimeout(()=>switchPage(numberPage),10)
 }, {immediate: true})
 watch(sizePage,(sizePageValue:number)=>{
   switchSizePage (sizePageValue ?? sizePage.value)
 }, {immediate: true})
 // ---METHODS-----------------------------
+function setHeightTable() {
+  if (countVisibleRows.value) {
+    heightTable.value = `height: ${(thead.value?.clientHeight ?? 0) + (tfoot.value?.clientHeight ?? 0) + countVisibleRows.value * (heightRow.value || (2 * 16 + heightCell.value + 1)) - 1}px;`
+  } else { heightTable.value = "height: auto;" }
+}
 function getColumn(dataField:IColumn["dataField"], index?:number):IColumnPrivate {
   return dataColumns.value.find((column, item)=>dataField ? column.dataField === dataField : item === index)
 }
@@ -620,30 +632,28 @@ function sorting(dataField:IColumn["dataField"], value?:Sort) {
         : sortColumns[dataField] === "asc" ? "desc"
         : sortColumns[dataField] === "desc" ? null : null) }
   let timeout = lengthData.value > countDataOnLoading.value ? 800 : 10
-  if (timeout > 100){
-    isLoading.value = true
-  }
+  if (timeout > 100){ startLoading() }
   setTimeout(()=>{
     sortColumns[dataField] = (value as Sort)
   },timeout)
 }
 function filtering(dataField:IColumn["dataField"], value:any) {
   if (!dataField){ return }
+  const isLoading = typeof value === "object" || typeof value === "number"? true
+    : (filterColumns[dataField] as string|Array<any>)?.length > (value as string|Array<any>)?.length
   let timeout = (allData.value?.length > countDataOnLoading.value)
-    ? lengthData.value > countDataOnLoading.value||value === null||value === "" ? 800 : 0 : 0
-  if (timeout > 100){
-    isLoading.value = true
-  }
+    ? ((lengthData.value > countDataOnLoading.value)||value === null||value === ""||isLoading) && filterColumns[dataField] !== value
+      ? 800 : 0 : 0
+  if (timeout > 100){ startLoading() }
   setTimeout(()=>{
     filterColumns[dataField] = value
   },timeout)
 }
 function searching(value:Search|null) {
+  const isLoading = queryTable.value?.length > value?.length
   let timeout = allData.value?.length > countDataOnLoading.value
-    ? lengthData.value > countDataOnLoading.value||value === null||value === "" ? 800 : 0 : 0
-  if (timeout > 100){
-    isLoading.value = true
-  }
+    ? lengthData.value > countDataOnLoading.value||value === null||value === ""||isLoading ? 800 : 0 : 0
+  if (timeout > 100){ startLoading() }
   setTimeout(()=>{
     queryTable.value = value??""
   },timeout)
@@ -778,6 +788,8 @@ function clearFilter() {
   searching("")
   emit('clearFilter')
 }
+function startLoading() { isLoading.value = true }
+function stopLoading() { isLoading.value = false }
 // ---RESIZE-COLUMN-----------------------
 const defaultWidthColumn = ref<string>('max-width: 600px;min-width:100px;')
 function resizeColumn($event: MouseEvent, columnId: string) {
@@ -812,26 +824,28 @@ function stopResizeColumn() {
 </script>
 
 <template>
-  <div class="inline-block align-middle relative w-full" :class="styles.class.body">
-    <div v-if="isVisibleToolbar" class="toolbar flex mb-2 transition-transform" :class="styles.class.toolbar">
+  <div class="classBody inline-block align-middle relative w-full" :class="styles.class.body">
+    <div v-if="isVisibleToolbar" class="classToolbar toolbar flex mb-2 transition-transform" :class="styles.class.toolbar">
       <div v-if="slots.toolbar" class="w-full">
         <slot name="toolbar"/>
       </div>
-      <StInput
-        v-if="isSearch"
-        :model-value="queryTable"
-        label="Найти..."
-        clear
-        :mode="mode"
-        label-mode="vanishing"
-        :params-input="{autocomplete: 'off', classInput: 'max-w-[5rem] focus:max-w-[10rem] sm:focus:max-w-[20rem] transition-all duration-500'}"
-        :class-body="`sticky top-1 rounded-md ease-out ${modeStyle}`"
-        @change:model-value="(v)=>searching(v)"
-        @update:model-value="(v)=>lengthData > 100||searching(v)">
-        <template #before>
-          <MagnifyingGlassIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
-        </template>
-      </StInput>
+      <div class="ml-1">
+        <StInput
+          v-if="isSearch"
+          :model-value="queryTable"
+          label="Найти..."
+          clear
+          :mode="mode"
+          label-mode="vanishing"
+          :params-input="{autocomplete: 'off', classInput: 'min-w-[5rem] max-w-[5rem] focus:max-w-[8rem] focus:min-w-[8rem] sm:focus:max-w-[15rem] sm:focus:min-w-[15rem] transition-all duration-500'}"
+          :class-body="`sticky top-1 rounded-md ease-out ${modeStyle}`"
+          @change:model-value="(v)=>searching(v)"
+          @update:model-value="(v)=>lengthData > 100||searching(v)">
+          <template #before>
+            <MagnifyingGlassIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
+          </template>
+        </StInput>
+      </div>
       <transition leave-active-class="transition ease-in duration-1000" leave-from-class="opacity-100" leave-to-class="opacity-0"
                   enter-active-class="transition ease-in duration-1000" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <Button v-if="isFilterClear" class="group rounded-md ml-2 h-[38px] min-w-[38px] px-2 bg-stone-100 dark:bg-stone-900" @click="clearFilter">
@@ -846,17 +860,17 @@ function stopResizeColumn() {
            class="min-h-[1.5rem] text-gray-500"
            :class="[!(isSummary||isPagination)||'relative', modeStyle]"
            :style="`border-top-left-radius: ${styles.borderRadiusPx}px;border-top-right-radius: ${styles.borderRadiusPx}px;`">
-        <div class="p-2 border-b" :class="[styles.class.slotHeader, styles.border?.header]">
+        <div class="classSlotHeader p-2 border-b-2" :class="[styles.class.slotHeader, styles.border?.header]">
           <slot name="header"/>
         </div>
       </div>
       <div class="relative">
-        <div ref="tableBody" class="overflow-x-auto" :class="styles.class.bodyTable" :style="tableBodyStyle">
-          <table ref="table" class="min-w-full border-separate border-spacing-0" :class="styles.class.table">
+        <div ref="tableBody" class="classBodyTable overflow-x-auto " :class="[styles.class.bodyTable, countVisibleRows > 0 ?'':'min-h-[15rem]']" :style="[tableBodyStyle, heightTable]">
+          <table ref="table" class="classTable min-w-full border-separate border-spacing-0" :class="styles.class.table">
   <!-- -------------------------------- -->
             <thead v-if="isColumns"
                    ref="thead"
-                   class="sticky top-0 z-10"
+                   class="classTHead sticky top-0 z-10"
                    :class="[styles.class.thead, modeStyle]">
             <tr>
               <template v-for="(column, key) in dataColumns" :key="column.id">
@@ -866,8 +880,8 @@ function stopResizeColumn() {
                     `width: ${widthsColumns[column.dataField]}px;
                     min-width: ${widthsColumns[column.dataField]}px;
                     max-width: ${widthsColumns[column.dataField]}px;`">
-                  <div class="group relative flex w-full cursor-pointer" :class="[styles.filterLines ? 'border-r group-last/th:border-r-0' : '', styles.border?.filter]">
-                    <div v-if="column.isFilter" class="w-full" :class="[column.class?.colFilter]">
+                  <div class="group relative flex w-full" :class="[styles.filterLines ? 'border-r group-last/th:border-r-0' : '', styles.border?.filter]">
+                    <div v-if="column.isFilter" class="w-full cursor-pointer" :class="[column.class?.colFilter, (column.isSort||isSort)||'px-1' ]">
                       <StInput
                         v-if="column.type === 'string'||column.type === 'number'"
                         :model-value="filterColumns[column?.dataField]"
@@ -912,7 +926,7 @@ function stopResizeColumn() {
                       {{ column.caption }}
                     </div>
                     <div v-if="column.isSort||isSort"
-                         class="flex items-center transition-opacity duration-500 pr-1"
+                         class="flex items-center transition-opacity duration-500 pr-1 cursor-pointer"
                          :class="[sortColumns[column?.dataField] === null ? 'opacity-0 group-hover:opacity-100' : 'opacity-100']"
                          @click="sorting(column?.dataField)">
                       <ArrowLongUpIcon v-if="iconSort === 'Arrow' && [null, 'asc'].includes(sortColumns[column?.dataField])" class="ml-1 h-4 w-4 text-gray-400"/>
@@ -920,10 +934,13 @@ function stopResizeColumn() {
                       <BarsArrowUpIcon v-if="iconSort === 'Bars' && [null, 'asc'].includes(sortColumns[column?.dataField])" class="ml-1 h-4 w-4 text-gray-400"/>
                       <BarsArrowDownIcon v-if="iconSort === 'Bars' && sortColumns[column?.dataField] === 'desc'" class="ml-1 h-4 w-4 text-gray-400"/>
                     </div>
-                    <div v-if="resizedColumns" class="resizable absolute z-10 inset-y-0 flex items-center hover:opacity-100 px-2 cursor-ew-resize transition-opacity duration-500 "
+                    <div v-if="resizedColumns" class="resizable absolute z-10 inset-y-0 flex items-center hover:opacity-100 px-2 cursor-ew-resize transition-opacity duration-500"
                          :class="[dataColumns.length-1 > key ? '-right-3' : 'right-3', editableColumn === column.id ? 'opacity-100': 'opacity-0']"
                          @mousedown="startResizeColumn($event, column.id)" @mouseup="stopResizeColumn">
-                      <div class="h-8 w-1.5 rounded-full bg-neutral-300 dark:bg-neutral-600"></div>
+                      <div :class="['h-8 w-1.5 bg-neutral-300 dark:bg-neutral-600',
+                      !(mode === 'filled')||'rounded-full',
+                      !(mode === 'outlined')||'rounded-full',
+                      !(mode === 'underlined')||'rounded-none']"></div>
                     </div>
                   </div>
                 </th>
@@ -931,16 +948,16 @@ function stopResizeColumn() {
             </tr>
             </thead>
   <!-- -------------------------------- -->
-            <tbody ref="tbody" class="overflow-y-auto" :class="styles.class.tbody">
+            <tbody ref="tbody" class="classTBody overflow-y-auto" :class="styles.class.tbody">
               <template v-for="(group, key) in resultDataSource" :key="key">
                 <tr v-if="isGroup">
                   <th :colspan="dataColumns.length" scope="colgroup"
                       :style="`top:${thead?.clientHeight-1}px`"
-                      :class="['sticky','border-t-2 border-b', 'font-medium text-base whitespace-nowrap',
+                      :class="['classGroup sticky','border-t-2 border-b', 'font-medium text-base whitespace-nowrap',
                       styles.class?.group, styles.border?.cell, modeStyle]">
-                    <div class="sticky"
+                    <div class="sticky classGroupText"
                          :class="[styles.class.groupText]"
-                         :style="`min-height: ${heightCell}rem`">
+                         :style="`min-height: ${heightCell}px`">
                       <slot name="group" :item="key" :length="group.length">
                         {{key}}
                       </slot>
@@ -949,22 +966,25 @@ function stopResizeColumn() {
                 </tr>
                 <tr v-for="(data, index) in group" :key="index" class="group/tr"
                     :class="[!styles.hoverRows?.length||`${styles.hoverRows} transition-colors duration-100`, !styles.isStripedRows||
-                    ((mode === 'filled') ? 'odd:bg-stone-100 even:bg-stone-50 dark:odd:bg-stone-900 dark:even:bg-stone-950' :
-                    (mode === 'outlined') ? 'odd:bg-white even:bg-neutral-50 dark:odd:bg-neutral-950 dark:even:bg-neutral-900' :
+                    ((mode === 'filled') ? 'even:bg-stone-50 dark:even:bg-stone-950' :
+                    (mode === 'outlined') ? 'even:bg-neutral-50 dark:even:bg-neutral-900' :
                     (mode === 'underlined') ? 'odd:bg-stone-50 even:bg-stone-100 dark:odd:bg-stone-950 dark:even:bg-neutral-900' : '')]">
                   <template v-for="(column, key) in dataColumns" :key="`${index}-${key}`">
                     <td v-if="column.visible"
-                        class="text-sm font-medium border-b border-r last:border-r-0 group-last/tr:border-b-0"
-                        :class="[column.class?.td, styles.border?.cell, styles.verticalLines ? 'border-r-px': 'border-r-0', styles.horizontalLines ? 'border-b-px': 'border-b-0']"
+                        :class="['text-sm font-medium border-b border-r first:border-l-0 group-first/tr:border-t-0 last:border-r-0 group-last/tr:border-b-0',
+                        column.class?.td,
+                        styles.border?.cell,
+                        styles.verticalLines ? 'border-r-px': 'border-r-0',
+                        styles.horizontalLines ? 'border-b-px': 'border-b-0']"
                         :style="!widthsColumns[column.dataField] ? defaultWidthColumn :
                         `width: ${widthsColumns[column.dataField]}px;
                         min-width: ${widthsColumns[column.dataField]}px;
                         max-width: ${widthsColumns[column.dataField]}px;`">
                       <div v-if="!column?.cellTemplate" :class="[column.class?.cellText]"
-                           :style="`min-height: ${heightCell}rem;max-height: ${(heightCell*5)*16+2}px;`"
+                           :style="`min-height: ${heightCell}px;max-height: ${(heightCell*5)+2}px;`"
                            v-html="setMarker(column, setCell(column, data[column.dataField], data))"/>
                       <div v-else :class="[column.class?.cellText]"
-                           :style="`min-height: ${heightCell}rem;max-height: ${(heightCell*5)*16+2}px;`">
+                           :style="`min-height: ${heightCell}px;max-height: ${(heightCell*5)+2}px;`">
                         <slot :name="column?.cellTemplate"
                               :column="column" :rowData="data" :value="setCell(column, data[column.dataField], data)"
                               :value-with-marker="setMarker(column, setCell(column, data[column.dataField], data))"/>
@@ -978,7 +998,7 @@ function stopResizeColumn() {
             <tr v-if="footerPaddingHeight" class="border-none" :style="`height: ${footerPaddingHeight-1}px`"></tr>
   <!-- -------------------------------- -->
             <tfoot v-if="isSummary && Object.keys(summaryColumns).length"
-                   ref="tfoot" class="sticky bottom-0"
+                   ref="tfoot" class="classTFoot sticky bottom-0"
                    :class="[styles.class.tfoot, modeStyle]">
             <tr>
               <template v-for="column in dataColumns" :key="column.id">
@@ -995,7 +1015,7 @@ function stopResizeColumn() {
           </table>
         </div>
   <!-- -------------------------------- -->
-        <div v-if="isPagination" ref="pager"
+        <div v-if="isPagination && allData?.length " ref="pager"
              :class="[!isSummary||'relative sm:px-5', modeStyle]"
              :style="!slots.footer ?`border-bottom-left-radius: ${styles.borderRadiusPx}px;border-bottom-right-radius: ${styles.borderRadiusPx}px;`:''">
           <Pagination :model-value="pageTable"
@@ -1007,7 +1027,7 @@ function stopResizeColumn() {
                       :sizes-selector="sizesSelector"
                       :is-page-size-selector="isPageSizeSelector"
                       :is-hidden-navigation-buttons="isHiddenNavigationButtons"
-                      :class="['border-t', styles.class.pagination, styles.border?.pagination]"
+                      :class="['border-t sm:px-2', styles.class.pagination, styles.border?.pagination]"
                       @update:model-value="switchPage"
                       @update:size-page="switchSizePage"/></div>
   <!-- -------------------------------- -->
@@ -1023,7 +1043,10 @@ function stopResizeColumn() {
         <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <div v-if="!isLoading && !allData?.length"
-               class="absolute top-[40%] left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500" v-html="noData"/>
+               class="absolute top-[40%] flex flex-col items-center left-0 w-full my-5 pointer-events-none text-center text-sm text-gray-500">
+            <TableCellsIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
+            <div v-html="noData"/>
+          </div>
         </transition>
         <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
@@ -1044,7 +1067,7 @@ function stopResizeColumn() {
            class="min-h-[1.5rem] -mt-[1px] text-gray-500"
            :class="[!(isSummary||isPagination)||'relative sm:px-5', modeStyle]"
            :style="`border-bottom-left-radius: ${styles.borderRadiusPx}px;border-bottom-right-radius: ${styles.borderRadiusPx}px;`">
-        <div class="p-2 border-t" :class="[styles.class.slotFooter, styles.border?.footer]">
+        <div class="p-2 border-t-2" :class="[styles.class.slotFooter, styles.border?.footer]">
           <slot name="footer"/>
         </div>
       </div>

@@ -1,2 +1,2 @@
-export type IMode = "outlined"|"underlined"|"filled"
+export type IMode = "filled"|"outlined"|"underlined"
 export type StyleClass = string|Array<string>

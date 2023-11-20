@@ -11,8 +11,8 @@ type IDataItem = {[key:string]: any}
 type BaseDataItem = string|number|IDataItem
 export interface IDateSelect {
   dataSelect?: Array<BaseDataItem>
-  keySelect?: string
-  valueSelect?: string
+  keySelect?: string|"id"
+  valueSelect?: string|"value"
   multiple?:boolean
   maxVisible?:number
   noData?: string
@@ -32,8 +32,8 @@ const props = defineProps<ISelect>()
 // ---------------------------------------
 const emit = defineEmits<{
   (event: 'update:isInvalid', payload: ISelect["isInvalid"]): void;
-  (event: 'update:modelValue', payload: ISelect["modelValue"]): void;
-  (event: 'change:modelValue', payload: ISelect["modelValue"]): void;
+  (event: 'update:modelValue', selectValue: ISelect["modelValue"] | null, selectItem?: Array<any>): void;
+  (event: 'change:modelValue', selectValue: ISelect["modelValue"] | null, selectItem?: Array<any>): void;
 }>()
 const slots = useSlots()
 export interface ISelectExpose {
@@ -54,9 +54,13 @@ const query = ref<string>("")
 const isOpenList = ref(false)
 const classLayout =  ref<ILayout["class"]>()
 // ---------------------------------------
+const value = ref<ISelect["modelValue"]>(props.modelValue ?? "")
+watch(()=>props.modelValue,()=>{
+  value.value = props.modelValue ?? ""
+})
+// ---------------------------------------
 const id = ref(props.id ?? getCurrentInstance()?.uid)
 const visibleValue = ref<Array<any>>([])
-const value = computed<ISelect["modelValue"]>(()=>props.modelValue)
 const valueKeys = computed<Array<any>>(()=>visibleValue.value.map(item=>item[keySelect.value]))
 const keySelect = computed<IDateSelect["keySelect"] | null>(()=> {
   if (props.paramsSelect?.dataSelect && props.paramsSelect?.dataSelect.length) {
@@ -76,7 +80,7 @@ const valueSelect = computed<IDateSelect["valueSelect"] | null>(()=> {
     } else { return "value" }
   } else { return null }
 })
-const dataSelect = computed<IDateSelect["dataSelect"]>(()=> ( keySelect.value && valueSelect.value
+const dataSelect = computed<IDateSelect["dataSelect"]>(()=> ( !!keySelect.value && !!valueSelect.value
   ? (props.paramsSelect?.dataSelect as Array<IDataItem>).map(item=>{
     return { [(keySelect.value as string)]: typeof item === "object" ? item[(keySelect.value as string)] : item,
              [(valueSelect.value as string)]: typeof item === "object" ? item[(valueSelect.value as string)] : item }})
@@ -96,7 +100,7 @@ const animate = computed<NonNullable<IDateSelect["animate"]>>(()=> props.paramsS
 // ---------------------------------------
 const valueLayout = computed<string|null>(()=> visibleValue.value?.map(v => v[valueSelect.value])?.join(", ")||null)
 // ---------------------------------------
-const inputLayout = computed(()=>{return{isValue: isValue.value, mode: mode.value, classBody: props.classBody, class: props.class,
+const inputLayout = computed(()=>{ return {isValue: isValue.value, mode: mode.value, classBody: props.classBody, class: props.class,
   label: props.label, labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear}})
 // ---------------------------------------
@@ -149,7 +153,7 @@ function closeSelect(evt:MouseEvent) {
   if (isOpenList.value && select && list) {
     isOpenList.value = evt.composedPath().includes(select) || evt.composedPath().includes(list)
     if (isOpenList.value === false) {
-      emit('change:modelValue', valueKeys.value.length ? valueKeys.value : null)
+      emit('change:modelValue', value.value, visibleValue.value)
     }
   }
 }
@@ -164,8 +168,9 @@ function select(selectValue:BaseDataItem|null) {
       visibleValue.value.push(selectValue)
     }
   } else { visibleValue.value = [] }
+  value.value = valueKeys.value.length ? isMultiple.value ? valueKeys.value : valueKeys.value[0] : null
   emit('update:isInvalid', false)
-  emit('update:modelValue', valueKeys.value.length ? isMultiple.value ? valueKeys.value : valueKeys.value[0] : null)
+  emit('update:modelValue', value.value, visibleValue.value)
 }
 // ---------------------------------------
 const dataList = computed<object>(()=> {

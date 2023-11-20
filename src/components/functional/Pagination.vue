@@ -15,7 +15,7 @@ export interface IPagination {
   mode?: IMode
   sizePage?: number|5|15|20|50|100|150
   sizesSelector?: [5,15,20,50,100,150]|Array<number>
-  visibleNumberPages?:number
+  visibleNumberPages?:5|6|7|8|9|10|11
   total?: number
   isInfoText?:boolean
   isPageSizeSelector?:boolean
@@ -31,7 +31,7 @@ const emit = defineEmits<{
 const selectPageSize = ref<ISelectExpose|null>()
 // ---------------------------------------
 const activePage = computed<Page>(()=>props.modelValue ?? pages[0])
-const sizePage = computed<IPagination["sizePage"]>(()=>props.sizePage ?? 5)
+const sizePage = computed<IPagination["sizePage"]>(()=>props.sizePage > 0 ? props.sizePage : 5)
 const visibleNumberPages = computed<IPagination["visibleNumberPages"]>(()=>(props.visibleNumberPages >= 5 ? props.visibleNumberPages : 5) ?? 5)
 const total = computed<IPagination["total"]>(()=>props.total ?? 0)
 const isInfoText = computed<IPagination["isInfoText"]>(()=>props.isInfoText ?? false)

@@ -25,7 +25,7 @@ export interface ILayout {
   disabled?:boolean
   help?: string
   clear?: boolean
-  classBody?: string|Array<string|null>
+  classBody?: string|Array<string|null>|'mb-6 rounded-md'
   class?: string|Array<string|null>
 }
 // ---------------------------------------
