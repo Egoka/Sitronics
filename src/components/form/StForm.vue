@@ -29,7 +29,7 @@ interface IFormFields {[key:string]:any}
 const calculatedFieldsInput = ["typeComponent", "classCol", "modelValue", "isInvalid", "name", "rules",
   "beforeIcon", "beforeText", "afterIcon", "afterText"]
 export interface IFieldsInput extends IFields, IInput {
-  typeComponent: "StInput"
+  typeComponent: "Input"
   rules?: IRulesInput
   beforeIcon?: string
   beforeText?: string
@@ -37,7 +37,7 @@ export interface IFieldsInput extends IFields, IInput {
   afterText?: string
 }
 export interface IFieldsAria extends IFields, IAria {
-  typeComponent: "StAria"
+  typeComponent: "Aria"
   rules?: IRulesInput
   beforeIcon?: string
   beforeText?: string
@@ -45,7 +45,7 @@ export interface IFieldsAria extends IFields, IAria {
   afterText?: string
 }
 export interface IFieldsSelect extends IFields, ISelect {
-  typeComponent: "StSelect"
+  typeComponent: "Select"
   rules?: IRulesSelect
   beforeIcon?: string
   beforeText?: string
@@ -53,7 +53,7 @@ export interface IFieldsSelect extends IFields, ISelect {
   afterText?: string
 }
 export interface IFieldsCalendar extends IFields, ICalendar {
-  typeComponent: "StCalendar"
+  typeComponent: "Calendar"
   rules?: IRulesSelect
   beforeIcon?: string
   beforeText?: string
@@ -61,7 +61,7 @@ export interface IFieldsCalendar extends IFields, ICalendar {
   afterText?: string
 }
 export interface IFieldsTextEditor extends IFields, ITextEditor {
-  typeComponent: "StTextEditor"
+  typeComponent: "TextEditor"
   rules?: IRulesSelect
   beforeIcon?: string
   beforeText?: string
@@ -69,7 +69,7 @@ export interface IFieldsTextEditor extends IFields, ITextEditor {
   afterText?: string
 }
 export interface IFieldsSwitch extends IFields, ISwitch {
-  typeComponent: "StSwitch"
+  typeComponent: "Switch"
 }
 export type IFieldsTypeKeys = keyof IFieldsInput|keyof IFieldsAria|keyof IFieldsSelect|keyof IFieldsCalendar|keyof IFieldsTextEditor|keyof IFieldsSwitch
 export type IFieldsType = IFieldsInput|IFieldsAria|IFieldsSelect|IFieldsCalendar|IFieldsTextEditor|IFieldsSwitch
@@ -85,11 +85,12 @@ export interface IFormStructure {
 export interface IForm {
   name?: string
   structure: Array<IFormStructure>
+  formFields?: IFormFields
   class?: StyleClass
   modeStyle?: IMode
   modeLabel?: ILabelMode
   modeValidate?: "onSubmit"|"onChange"|"onInput"
-  submitButton?: string
+  submitButton?: string|"Save"
   structureClass?: "border-b border-gray-900/10 pb-12" | string
   structureClassGrid?: "grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 mt-10" | string
   disabled?:boolean
@@ -100,9 +101,10 @@ const props = defineProps<IForm>()
 // ---------------------------------------
 const emit = defineEmits<{
   (event: 'update:formFields', payload: IFormFields): void;
+  (event: 'submit', payload: IFormFields):void
 }>()
 // ---------------------------------------
-const arrayFieldsValidate = ["StInput", "StAria", "StSelect", "StCalendar", "StTextEditor"]
+const arrayFieldsValidate = ["Input", "Aria", "Select", "Calendar", "TextEditor"]
 // ---------------------------------------
 const name = computed<IForm["name"]>(()=>props.name ?? "")
 const modeStyle = computed<IMode|undefined>(()=>props.modeStyle)
@@ -114,6 +116,7 @@ const modeValidate = computed(()=>props.modeValidate ?? "onChange")
 const formFields = reactive<IFormFields>({})
 const formInvalidFields = reactive<{[key:string]: boolean}>({})
 const formStructure = computed<Array<IFormStructure>>(()=>getStructure(props.structure))
+const submitButton = computed<IForm["submitButton"]>(()=>props.submitButton ?? 'Save')
 // ---------------------------------------
 export interface IFormExpose {
   formFields:IFormFields,
@@ -121,7 +124,7 @@ export interface IFormExpose {
   setFieldParam(fieldName:string, param: IFieldsTypeKeys, value:any): void
   getField(fieldName:string): IFieldsType|null
   setStructureParam(indexStructure:number, param:keyof IFormStructure, value: any): void
-  validateFields(nameField?:Array<string>|string):void
+  validateFields(nameField?:Array<string>|string):boolean
 }
 defineExpose<IFormExpose>({
   formFields,
@@ -195,8 +198,8 @@ function getStructure (structures:Array<IFormStructure>):Array<IFormStructure> {
 }
 // ---------------------------------------
 onMounted(()=>{
-  props.structure?.map(item=>item.fields?.map(field=> {
-    formFields[field.name] = field.modelValue
+  props.structure?.map(item=>item.fields?.map((field:IFieldsType)=> {
+    formFields[field.name] = props.formFields?.[field.name] ?? field.modelValue
   }))
 })
 watch(formFields, (value:IFormFields)=>{
@@ -223,7 +226,7 @@ async function validateField (field: IFieldsType) {
     }
   }
 }
-function validateFields(nameField?:Array<string>|string) {
+function validateFields(nameField?:Array<string>|string):boolean {
   props.structure?.map(item=>item.fields?.map(field=> {
     if (nameField) {
       if ([nameField].flat().find((item:string)=>item === field.name)){
@@ -235,8 +238,13 @@ function validateFields(nameField?:Array<string>|string) {
       }
     }
   }))
-  setTimeout(()=>document.querySelector(".is-invalid")
-    ?.scrollIntoView({block: "start", behavior: "smooth"}),10)
+  const isValidateForm = !(Object.values(formInvalidFields).filter(i=>i)?.length > 0 ?? false)
+  if (isValidateForm) {
+    setTimeout(()=>
+      document.querySelector(".is-invalid")?.scrollIntoView({block: "start", behavior: "smooth"})
+      ,10)
+    return isValidateForm
+  } else { return isValidateForm }
 }
 // ---------------------------------------
 function inputField(field:any) {
@@ -250,7 +258,9 @@ function changeField(field:any) {
   }
 }
 function submit(){
-  validateFields()
+  if (validateFields()) {
+    emit('submit', formFields)
+  }
 }
 </script>
 
@@ -267,9 +277,8 @@ function submit(){
                 <transition leave-active-class="transition ease-in-out duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
                             enter-active-class="transition ease-in-out duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
                   <div v-if="!field.isHidden">
-                    <!-- Input -->
                     <StInput
-                      v-if="field.typeComponent === 'StInput'"
+                      v-if="field.typeComponent === 'Input'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
                       v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
@@ -284,9 +293,8 @@ function submit(){
                         <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                       </template>
                     </StInput>
-                    <!-- Aria -->
                     <StAria
-                      v-if="field.typeComponent === 'StAria'"
+                      v-if="field.typeComponent === 'Aria'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
                       v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
@@ -301,9 +309,8 @@ function submit(){
                         <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                       </template>
                     </StAria>
-                    <!-- Text Editor -->
                     <StTextEditor
-                      v-if="field.typeComponent === 'StTextEditor'"
+                      v-if="field.typeComponent === 'TextEditor'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
                       v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
@@ -318,9 +325,8 @@ function submit(){
                         <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                       </template>
                     </StTextEditor>
-                    <!-- Select -->
                     <StSelect
-                      v-if="field.typeComponent === 'StSelect'"
+                      v-if="field.typeComponent === 'Select'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
                       v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
@@ -346,13 +352,11 @@ function submit(){
                         <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                       </template>
                     </StSelect>
-                    <!-- Calendar -->
                     <StCalendar
-                      v-if="field.typeComponent === 'StCalendar'"
+                      v-if="field.typeComponent === 'Calendar'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
                       v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
-                      @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)">
                       <template #footerPicker></template>
                       <template #before>
@@ -364,9 +368,8 @@ function submit(){
                         <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
                       </template>
                     </StCalendar>
-                    <!-- Switch -->
                     <StSwitch
-                      v-if="field.typeComponent === 'StSwitch'"
+                      v-if="field.typeComponent === 'Switch'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
                       v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
@@ -382,9 +385,7 @@ function submit(){
     </div>
     <div class="mt-6 flex items-center justify-end gap-x-6">
       <slot name="footer">
-        <Button v-if="props.submitButton" type="submit">
-          {{ props.submitButton ?? 'Save' }}
-        </Button>
+        <Button v-if="submitButton" type="submit">{{ submitButton }}</Button>
       </slot>
     </div>
   </form>

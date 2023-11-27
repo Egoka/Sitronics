@@ -18,7 +18,7 @@ const mobileMenuOpen = ref(false)
 </script>
 
 <template>
-  <header class="fixed inset-x-0 top-0 z-20">
+  <header class="fixed inset-x-0 top-0 z-50">
     <nav class="flex items-center justify-between p-4 lg:px-8 transition-all" :class="[!isScroll||'bg-white/50 dark:bg-black/50 backdrop-blur-lg rounded']" aria-label="Global">
       <div class="flex lg:flex-1">
         <a href="/" class="-m-1.5 p-1.5">

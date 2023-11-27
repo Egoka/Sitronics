@@ -16,7 +16,7 @@ const structures = ref<Array<IFormStructure>>([
     subTitle: "Эта информация будет отображаться публично, поэтому будьте осторожны с тем, чем вы делитесь.",
     fields:[
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "name",
         label:"Имя",
         clear: true,
@@ -27,7 +27,7 @@ const structures = ref<Array<IFormStructure>>([
         }
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "nameDop",
         label:"Имя",
         clear: true,
@@ -38,7 +38,7 @@ const structures = ref<Array<IFormStructure>>([
         }
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "surname",
         modelValue: "Bonda",
         paramsInput: {
@@ -57,7 +57,7 @@ const structures = ref<Array<IFormStructure>>([
         beforeIcon: "User"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "age",
         modelValue: "25",
         label: "Возраст",
@@ -74,7 +74,7 @@ const structures = ref<Array<IFormStructure>>([
         beforeIcon: "manage_accounts",
       },
       {
-        typeComponent: "StSelect",
+        typeComponent: "Select",
         name: "professionType",
         label: "Профессия",
         beforeIcon: "BookOpen",
@@ -102,7 +102,7 @@ const structures = ref<Array<IFormStructure>>([
         },
       },
       {
-        typeComponent: "StSelect",
+        typeComponent: "Select",
         name: "professionType1",
         label: "Профессия",
         beforeIcon: "BookOpen",
@@ -131,7 +131,7 @@ const structures = ref<Array<IFormStructure>>([
         },
       },
       {
-        typeComponent: "StCalendar",
+        typeComponent: "Calendar",
         name: "birthday1",
         label: "День рождения",
         modelValue: "2023-08-02T21:00:00.000Z",
@@ -146,7 +146,7 @@ const structures = ref<Array<IFormStructure>>([
         clear: true,
       },
       {
-        typeComponent: "StCalendar",
+        typeComponent: "Calendar",
         name: "birthday",
         // disabled: true,
         // modelValue: "2023-08-09T21:00:00.000Z",
@@ -159,7 +159,7 @@ const structures = ref<Array<IFormStructure>>([
         clear: true
       },
       {
-        typeComponent: "StAria",
+        typeComponent: "Aria",
         name: "about",
         label: "About",
         beforeIcon: "BiChatLeftQuote",
@@ -179,7 +179,7 @@ const structures = ref<Array<IFormStructure>>([
         // disabled: true
       },
       {
-        typeComponent: "StTextEditor",
+        typeComponent: "TextEditor",
         name: "text",
         modelValue: "<h2>Тестовый </h2><p>текст с описанием </p><p>Этот текст тоже должен быть скопирован</p>",
         label: "Приложенные правила",
@@ -187,7 +187,7 @@ const structures = ref<Array<IFormStructure>>([
         beforeIcon: "attach_file"
       },
       {
-        typeComponent: "StSwitch",
+        typeComponent: "Switch",
         name: "isInfo",
         paramsSwitch: {
           switchingType: "switch",
@@ -212,7 +212,7 @@ const structures = ref<Array<IFormStructure>>([
     isHidden: true,
     fields: [
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "price",
         modelValue: "",
         label: "Стоимость услуги",
@@ -228,7 +228,7 @@ const structures = ref<Array<IFormStructure>>([
         // classCol: "sm:col-span-3"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "phone",
         modelValue: "79992397588",
         label: "Номер телевона",
@@ -246,7 +246,7 @@ const structures = ref<Array<IFormStructure>>([
         beforeIcon: "Phone"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "email",
         modelValue: "",
         label: "Почта",
@@ -263,7 +263,7 @@ const structures = ref<Array<IFormStructure>>([
         beforeIcon: "Envelope"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "isNumeric",
         modelValue: "",
         label: "Возраст",
@@ -291,7 +291,7 @@ const structures = ref<Array<IFormStructure>>([
     subTitle: "Эти данные необходимы вам будут для входа. Логин это ваша почта, а пароль должен быть надежным и не должен повторяться в других местах.",
     fields: [
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "login",
         modelValue: "",
         label: "Логин",
@@ -314,7 +314,7 @@ const structures = ref<Array<IFormStructure>>([
         }
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "password",
         modelValue: "",
         label: "Пароль",
@@ -352,7 +352,7 @@ const structures = ref<Array<IFormStructure>>([
         }
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "verificationPassword",
         modelValue: "",
         label: "Пароль для проерки",

@@ -9,6 +9,7 @@ export type IInputType = 'text'|'number'|'email'|'password'
 export type IInputMask = 'phone'|'number'|'price'
 export interface IDataInput {
   type?: NonNullable<IInputType>
+  autoFocus?: boolean
   placeholder?: string
   autocomplete?: "on"|"off"
   mask?: IInputMask
@@ -32,18 +33,21 @@ const emit = defineEmits<{
 }>();
 const slots = useSlots()
 // ---------------------------------------
+const inputRef = ref<HTMLElement>()
+// ---------------------------------------
 const classLayout = ref<ILayout["class"]>()
 const isActiveInput = ref<boolean>(false)
-const value = ref<string>(String(props.modelValue ?? ""))
-watch(()=>props.modelValue,()=>{
-  value.value = String(props.modelValue? toMask(props.modelValue) : "")
-})
+const value = ref<IInput["modelValue"]>()
+const mask = computed<IDataInput["mask"]|null>(()=> props.paramsInput?.mask ?? null)
+watch(()=>props.modelValue,(modelValue)=>{
+  value.value = String(modelValue ? toMask(modelValue) : modelValue ?? "")
+},{immediate: true})
 // ---------------------------------------
 const id = ref<NonNullable<IInput["id"]>>(String(props.id ?? getCurrentInstance()?.uid))
 const type = ref<IDataInput["type"]>(props.paramsInput?.type && arrayInputType.includes(props.paramsInput.type) ? props.paramsInput?.type : "text")
+const autoFocus = computed<NonNullable<IDataInput["autoFocus"]>>(()=> props.paramsInput?.autoFocus ?? false)
 const placeholder = computed<NonNullable<IDataInput["placeholder"]>>(()=> String(props.paramsInput?.placeholder ?? ""))
 const autocomplete = computed<NonNullable<IDataInput["autocomplete"]>>(()=> props.paramsInput?.autocomplete ?? "on")
-const mask = computed<IDataInput["mask"]|null>(()=> props.paramsInput?.mask ?? null)
 const lengthInteger = computed<NonNullable<IDataInput["lengthInteger"]>>(()=> +(props.paramsInput?.lengthInteger ?? 20))
 const lengthDecimal = computed<NonNullable<IDataInput["lengthDecimal"]>>(()=> +(props.paramsInput?.lengthDecimal ?? 0))
 const isValue = computed<boolean>(()=> !!value.value || isActiveInput.value)
@@ -58,19 +62,21 @@ const inputLayout = computed(()=>{return {isValue: isValue.value, mode: mode.val
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
   classBody: props.classBody, class: props.class}})
 // ---------------------------------------
+onMounted(()=>{
+  if (autoFocus.value) { inputRef.value?.focus() }
+})
+// ---------------------------------------
 function toMask(value:string|number):string {
-  if (mask.value === "phone"){
+  if (mask?.value || mask?.value === null){
+    return String(value)
+  } else if (mask?.value === "phone"){
     return convertToPhone(String(value))
-  } else if (mask.value === "number"){
+  } else if (mask?.value === "number"){
     return convertToNumber(value, lengthInteger.value, lengthDecimal.value, "")
-  } else if (mask.value === "price"){
+  } else if (mask?.value === "price"){
     return convertToNumber(value, lengthInteger.value, lengthDecimal.value, " ")
   } else { return String(value) }
 }
-// ---------------------------------------
-onMounted(()=>{
-  value.value = toMask(value.value)
-})
 // ---------------------------------------
 watch(isActiveInput, (value)=>{
   classLayout.value = (props.class??"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
@@ -106,6 +112,7 @@ function clear() {
     v-bind="inputLayout"
     @clear="clear">
     <input
+      ref="inputRef"
       :id="id"
       :name="id"
       :type="type"
@@ -114,11 +121,10 @@ function clear() {
       :autocomplete="autocomplete"
       :value="value"
       :class="props.paramsInput?.classInput"
-      class="block w-full ring-0 border-0 bg-transparent p-1 h-[28px] my-1 rounded-md text-gray-900 dark:text-gray-100
-      transition-all
+      class="classInput flex w-full ring-0 border-0 bg-transparent p-1 h-[28px] my-1 rounded-md text-gray-900 dark:text-gray-100
       placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600
       [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-      focus:outline-0 focus:ring-0"
+      focus:outline-0 focus:ring-0 transition-all"
       @focus="isActiveInput = true"
       @blur="isActiveInput = false"
       @input="inputEvent"

@@ -113,7 +113,7 @@ function close() {
         </div>
         <div class="ml-3">
           <h3 v-if="title?.length" :class="['text-sm font-medium', style.title]">{{ title }}</h3>
-          <div v-if="subtitle?.length" :class="['text-sm', !title?.length||'mt-2', style.subtitle]" v-html="subtitle"/>
+          <div v-if="subtitle" :class="['text-sm', !title?.length||'mt-2', style.subtitle]" v-html="subtitle"/>
           <div v-if="!!$slots?.default" :class="['text-sm', !title?.length||'mt-2', style.subtitle]"><slot/></div>
         </div>
         <div v-if="isCloseButton || displayTime === 0" class="ml-auto pl-3">

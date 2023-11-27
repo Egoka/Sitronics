@@ -105,7 +105,8 @@ const range = ref({
 <!--    formFields{{formFields['isInfo']}}-->
 <!--    </div>-->
     {{formFields['isInfo']}}
-    <StCalendar v-model:model-value="formFields['isInfo']" :params-date-picker="{isRange: true}" clear>
+    <StCalendar v-model:model-value="formFields['isInfo']" :params-date-picker="{isRange: false}" clear/>
+    <StCalendar :model-value="formFields['isInfo']" :params-date-picker="{isRange: true}" clear>
 <!--      <template #footerPicker>-->
 <!--        <div class="w-full flex justify-center">-->
 <!--          <button-->

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, ref, useSlots, watch} from "vue";
+import {computed, getCurrentInstance, onMounted, ref, useSlots, watch} from "vue";
 // ---------------------------------------
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import { ArrowLongRightIcon, EllipsisVerticalIcon } from '@heroicons/vue/24/outline'
@@ -20,6 +20,7 @@ import type {Attribute} from "v-calendar/dist/types/src/utils/attribute";
 import type {Theme} from "v-calendar/dist/types/src/utils/theme";
 // ---------------------------------------
 import {getParamsStructure} from "@/helpers/object";
+import type {StyleClass} from "@/components/BaseTypes";
 // ---------------------------------------
 
 type DateValueCalendar = Date | number | string | null
@@ -138,7 +139,11 @@ export interface IRangeValue {
   repeat: Partial<DateRepeatConfig>;
 }
 export interface IDatePicker {
-  classPicker: string|Array<string|null>
+  autoFocus: boolean
+  isNotCloseOnDateChange: boolean
+  classDataPicker: StyleClass
+  classPicker: StyleClass
+  classDateText: StyleClass
   ///Calendar//////////////////////
   borderless: boolean
   transparent: boolean
@@ -181,13 +186,15 @@ const props = defineProps<ICalendar>()
 // ---------------------------------------
 const emit = defineEmits<{
   (event: 'update:isInvalid', payload: ICalendar["isInvalid"]): void;
-  (event: 'update:modelValue', payload: ICalendar["modelValue"]): void;
+  (event: 'change:modelValue', payload: ICalendar["modelValue"]): void;
   (event: 'getCalendar', payload: ICalendarPicker): void;
+  (event: 'isActive', payload: boolean): void;
 }>()
 const slots = useSlots()
 // ---------------------------------------
-const inputBody = ref<HTMLElement>()
-const isOpenPicker = ref(false)
+const dataPicker = ref<HTMLElement>()
+const picker = ref<HTMLElement>()
+const isOpenPicker = ref<boolean>(false)
 // ---------------------------------------
 const datePicker = computed<Partial<IDatePicker>>(()=>{return {
   borderless: true,
@@ -207,10 +214,15 @@ const classLayout = ref<ILayout["class"]>()
 const calendar = ref<ICalendarPicker>();
 const input = ref<HTMLElement|undefined>()
 const id = ref(props.id ?? getCurrentInstance()?.uid)
-const value = ref<ICalendar["modelValue"]>(
-  (!!(props.modelValue as Partial<IRangeValue>)?.start && !!(props.modelValue as Partial<IRangeValue>)?.end)
-  ?  props.paramsDatePicker?.isRange ? props.modelValue : null
-  : !props.paramsDatePicker?.isRange ? props.modelValue ?? "" : {start: null, end: null} )
+// ---------------------------------------
+const value = ref<ICalendar["modelValue"]>()
+const visibleDate = ref<ICalendarPicker["inputValue"]>()
+watch(()=>props.modelValue,(modelValue)=>{
+  value.value = (!!(modelValue as Partial<IRangeValue>)?.start && !!(modelValue as Partial<IRangeValue>)?.end)
+    ?  props.paramsDatePicker?.isRange ? modelValue : null
+    : !props.paramsDatePicker?.isRange ? modelValue ?? "" : {start: null, end: null}
+},{immediate: true})
+// ---------------------------------------
 const isValue = computed<boolean>(()=> {
   if (props.paramsDatePicker?.isRange) {
     return !!(visibleDate.value as Partial<IRangeValue>)?.start && !!(visibleDate.value as Partial<IRangeValue>)?.end || isOpenPicker.value
@@ -218,6 +230,8 @@ const isValue = computed<boolean>(()=> {
     return !!visibleDate.value || isOpenPicker.value
   }
 })
+const autoFocus = computed<NonNullable<IDatePicker["autoFocus"]>>(()=> props.paramsDatePicker?.autoFocus ?? false)
+const isNotCloseOnDateChange = computed<NonNullable<IDatePicker["isNotCloseOnDateChange"]>>(()=> props.paramsDatePicker?.isNotCloseOnDateChange ?? false)
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
 const placeholder = computed<IDatePicker["placeholder"]> (()=> String(props.paramsDatePicker?.placeholder ?? ""))
 const isLoading = computed<NonNullable<ILayout["loading"]>>(()=> props.loading ?? false)
@@ -225,7 +239,6 @@ const isDisabled = computed<NonNullable<ILayout["disabled"]>>(()=> props.disable
 const isInvalid = computed<NonNullable<ILayout["isInvalid"]>>(()=> !isDisabled.value ? props.isInvalid : false)
 const messageInvalid = computed<NonNullable<ILayout["messageInvalid"]>>(()=> props.messageInvalid ?? "")
 const separator = computed<NonNullable<IDatePicker["separator"]>>(()=> props.paramsDatePicker?.separator ?? "arrow")
-const visibleDate = ref<ICalendarPicker["inputValue"]>()
 const valueLayout = computed<string>(()=>datePicker.value?.isRange
     ? (visibleDate.value as IRangeDate)?.start && (visibleDate.value as IRangeDate)?.end
         ? `${(visibleDate.value as IRangeDate)?.start} > ${(visibleDate.value as IRangeDate)?.end}` : ''
@@ -239,25 +252,30 @@ const baseDate = computed<Date|SimpleDateRange|null>(()=>{
 })
 // ---------------------------------------
 const inputLayout = computed(()=>{return{isValue: isValue.value, mode: mode.value, label: props.label,
-  labelMode: props.labelMode, isInvalid: props.isInvalid, messageInvalid: props.messageInvalid,
+  labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
   classBody: props.classBody, class: props.class}})
 // ---------------------------------------
-watch(()=>props.modelValue, (modelValue)=>{
-  value.value = modelValue
-},{deep: true})
+onMounted(()=>{
+  if (autoFocus.value) { openCalendar() }
+  setTimeout(()=>{
+    visibleDate.value = <ICalendarPicker["inputValue"]>(calendar.value?.inputValue as ICalendarPicker["inputValue"])
+  },1)
+})
+// ---------------------------------------
 watch(calendar, ()=>{
   emit('getCalendar', (calendar.value as ICalendarPicker))
 },{deep: true})
 watch(isOpenPicker, (value)=>{
   if (value) {
-    document.addEventListener("click", closeCalendar)
+    document.addEventListener("mousedown", closeCalendar)
     document.addEventListener("keydown", keydownCalendar)
   } else {
-    document.removeEventListener("click", closeCalendar);
+    document.removeEventListener("mousedown", closeCalendar);
     document.removeEventListener("keydown", keydownCalendar)
   }
   focus(value)
+  emit('isActive', value)
 })
 // ---------------------------------------
 function keydownCalendar(evt:KeyboardEvent){
@@ -266,32 +284,32 @@ function keydownCalendar(evt:KeyboardEvent){
   if (isEscape) { isOpenPicker.value = false }
 }
 function closeCalendar(evt:MouseEvent) {
-  visibleDate.value = <ICalendarPicker["inputValue"]>(calendar.value?.inputValue as ICalendarPicker["inputValue"])
-  const dataPicker = document.getElementById(`dataPicker${id.value}`)
-  const picker = document.getElementById(`picker${id.value}`)
-  if (isOpenPicker.value && dataPicker && picker) {
-    isOpenPicker.value = evt.composedPath().includes(dataPicker) || evt.composedPath().includes(picker)
+  if ((isOpenPicker.value ?? false) && ((dataPicker.value ?? false) || ((picker.value ?? false)))) {
+    isOpenPicker.value = evt.composedPath().includes(dataPicker.value as HTMLElement) ||
+                         evt.composedPath().includes(picker.value as HTMLElement)
   }
 }
 // ---------------------------------------
 function changeDate (date:ICalendarPicker["inputValue"]) {
   visibleDate.value = date
-  isOpenPicker.value=false
+  if (!isNotCloseOnDateChange.value) {
+    isOpenPicker.value=false
+  }
   emit('update:isInvalid', false)
-  emit('update:modelValue', baseDate.value)
+  emit('change:modelValue', baseDate.value)
 }
 function focus (isFocus:boolean=true) {
   classLayout.value = (props.class??"") +
     (isFocus ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
 }
-function open () {
+function openCalendar () {
   if (isDisabled.value) { return }
-  isOpenPicker.value=true
+  isOpenPicker.value = true
 }
 function clear () {
-  isOpenPicker.value=false
+  isOpenPicker.value = false
   emit('update:isInvalid', false)
-  emit('update:modelValue', null)
+  emit('change:modelValue', null)
 }
 </script>
 
@@ -301,14 +319,12 @@ function clear () {
     :class="classLayout"
     v-bind="inputLayout"
     @clear="clear">
-    <div :id="`dataPicker${id}`"
-         ref="inputBody"
-         tabindex="0"
-         class="flex w-full min-h-[36px] max-h-16 overflow-auto focus:outline-0 focus:ring-0"
+    <div ref="dataPicker" tabindex="0"
+         :class="['flex w-full min-h-[36px] max-h-16 overflow-auto focus:outline-0 focus:ring-0', props.paramsDatePicker?.classDataPicker]"
          @focusin="focus(true)"
          @focusout="focus(false)"
-         @click="open">
-      <div v-if="datePicker?.isRange" class="flex flex-wrap items-center z-10 max-h-max cursor-default leading-3 mt-3">
+         @click="openCalendar">
+      <div v-if="datePicker?.isRange" :class="['flex flex-wrap items-center z-10 max-h-max cursor-default leading-3', props.paramsDatePicker?.classDateText]">
         {{(visibleDate as IRangeValue)?.start}}
         <ArrowLongRightIcon
           v-if="separator === 'arrow' &&(visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"
@@ -322,8 +338,9 @@ function clear () {
         <div v-if="!(visibleDate as IRangeValue)?.start && !(visibleDate as IRangeValue)?.end&&isOpenPicker" class="text-gray-400 dark:text-gray-600">{{placeholder}}</div>
         {{(visibleDate as IRangeValue)?.end}}
       </div>
-      <div v-else :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '']"
-           class="block flex-1 border-0 w-full bg-transparent py-1.5 pl-1 cursor-default text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6 transition-all">
+      <div v-else :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '',
+      'block flex-1 border-0 w-full bg-transparent py-1.5 pl-1 cursor-default text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6',
+      props.paramsDatePicker?.classDateText]">
         <span v-if="!visibleDate&&isOpenPicker" class="text-gray-400 dark:text-gray-600">{{placeholder}}</span>
         {{visibleDate}}
       </div>
@@ -331,8 +348,7 @@ function clear () {
     <template #body>
       <transition leave-active-class="transition ease-in-out duration-200" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-5"
                         enter-active-class="transition ease-in-out duration-200" enter-from-class="opacity-0 -translate-y-5" enter-to-class="opacity-100 translate-y-0">
-        <div v-show="isOpenPicker"
-             :id="`picker${id}`"
+        <div v-show="isOpenPicker" ref="picker"
              class="vc-primary absolute z-50 mt-1 w-min min-w-min max-w-lg max-h-max overflow-auto text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm"
              :class="[ props.paramsDatePicker?.classPicker,
                !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',

@@ -61,13 +61,16 @@ export {
 // ---------------------------------------
 const emptyData = [undefined, null, ""]
 // ---------------------------------------
-function required(value:boolean|string|number|{[index:string]:any}|[any]) {
-  if (value && Array.isArray(value)) { return !!(value) && value?.length
-  }else if (Object.prototype.toString.call(value) === '[object Date]'){
-    return true
-  } else if (value && !Object.keys(value)?.filter(i=>(value as any)[i]).length) {
-    return Object.keys(value)?.filter(i=>(value as any)[i]).length
-  } else { return !!(value) }
+function required(value:boolean|string|number|{[index:string]:any}|[any]):boolean {
+  if (value){
+    if (Array.isArray(value) || typeof value === "string") {
+      return !!(value?.length)
+    }else if (Object.prototype.toString.call(value) === '[object Date]' || typeof value === "number"){
+      return true
+    } else if (!!Object.values(value)?.filter(i=>i).length) {
+      return !!Object.values(value)?.filter(i=>i).length
+    } else { return !!(value) }
+  } return false
 }
 function email(value:string) {
   if (emptyData.includes(value)) { return false }

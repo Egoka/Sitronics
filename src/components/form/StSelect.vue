@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, ref, reactive, watch, useSlots} from "vue";
+import {computed, getCurrentInstance, ref, reactive, watch, useSlots, onMounted} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import {CheckIcon, MagnifyingGlassIcon, FunnelIcon} from "@heroicons/vue/20/solid";
 import StInput from "@/components/form/StInput.vue";
@@ -11,6 +11,7 @@ type IDataItem = {[key:string]: any}
 type BaseDataItem = string|number|IDataItem
 export interface IDateSelect {
   dataSelect?: Array<BaseDataItem>
+  autoFocus?: boolean
   keySelect?: string|"id"
   valueSelect?: string|"value"
   multiple?:boolean
@@ -34,6 +35,7 @@ const emit = defineEmits<{
   (event: 'update:isInvalid', payload: ISelect["isInvalid"]): void;
   (event: 'update:modelValue', selectValue: ISelect["modelValue"] | null, selectItem?: Array<any>): void;
   (event: 'change:modelValue', selectValue: ISelect["modelValue"] | null, selectItem?: Array<any>): void;
+  (event: 'isActive', payload: boolean): void;
 }>()
 const slots = useSlots()
 export interface ISelectExpose {
@@ -51,13 +53,13 @@ defineExpose<ISelectExpose>({
 // ---------------------------------------
 const inputBody = ref<HTMLElement>()
 const query = ref<string>("")
-const isOpenList = ref(false)
+const isOpenList = ref<boolean>(false)
 const classLayout =  ref<ILayout["class"]>()
 // ---------------------------------------
-const value = ref<ISelect["modelValue"]>(props.modelValue ?? "")
+const value = ref<ISelect["modelValue"]>()
 watch(()=>props.modelValue,()=>{
   value.value = props.modelValue ?? ""
-})
+},{immediate: true})
 // ---------------------------------------
 const id = ref(props.id ?? getCurrentInstance()?.uid)
 const visibleValue = ref<Array<any>>([])
@@ -85,6 +87,7 @@ const dataSelect = computed<IDateSelect["dataSelect"]>(()=> ( !!keySelect.value 
     return { [(keySelect.value as string)]: typeof item === "object" ? item[(keySelect.value as string)] : item,
              [(valueSelect.value as string)]: typeof item === "object" ? item[(valueSelect.value as string)] : item }})
   : props.paramsSelect?.dataSelect)|| [])
+const autoFocus = computed<NonNullable<IDateSelect["autoFocus"]>>(()=> props.paramsSelect?.autoFocus ?? false)
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
 const isDisabled = computed<NonNullable<ILayout["disabled"]>>(()=> props.disabled ?? false)
 const isLoading = computed<NonNullable<ILayout["isInvalid"]>>(()=> props.loading ?? false)
@@ -98,11 +101,15 @@ const isQuery = computed<NonNullable<IDateSelect["noQuery"]>>(()=> !props.params
 const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery ?? "font-bold text-primary-700 dark:text-primary-300")
 const animate = computed<NonNullable<IDateSelect["animate"]>>(()=> props.paramsSelect?.animate ?? "-translate-y-5")
 // ---------------------------------------
-const valueLayout = computed<string|null>(()=> visibleValue.value?.map(v => v[valueSelect.value])?.join(", ")||null)
+const valueLayout = computed<string|null>(()=> visibleValue.value?.map(item => item[valueSelect.value])?.join(", ")||null)
 // ---------------------------------------
 const inputLayout = computed(()=>{ return {isValue: isValue.value, mode: mode.value, classBody: props.classBody, class: props.class,
   label: props.label, labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear}})
+// ---------------------------------------
+onMounted(()=>{
+  if (autoFocus.value) { openSelect() }
+})
 // ---------------------------------------
 watch(isOpenList, (value)=>{
   if (value) {
@@ -113,6 +120,7 @@ watch(isOpenList, (value)=>{
     document.removeEventListener("keydown", keydownSelect)
   }
   focusSelect(value)
+  emit('isActive', value)
 })
 watch(value, ()=>{
   if (value.value) {
@@ -153,6 +161,7 @@ function closeSelect(evt:MouseEvent) {
   if (isOpenList.value && select && list) {
     isOpenList.value = evt.composedPath().includes(select) || evt.composedPath().includes(list)
     if (isOpenList.value === false) {
+      console.log(value.value, visibleValue.value)
       emit('change:modelValue', value.value, visibleValue.value)
     }
   }
@@ -198,10 +207,8 @@ function onEnter(el:any, done:any) {
     onComplete: done
   })
 }
-const lastLength = ref()
 const delay = computed<number>(():number=> {
-  const d = lastLength.value ?? dataList.value?.length
-  lastLength.value = dataList.value?.length
+  const d = dataSelect.value?.length
   if (d>=0 && d<10) { return 0.15
   } else if (d>=10 && d<30) { return 0.05
   } else if (d>=30 && d<80) { return 0.01
@@ -225,8 +232,9 @@ function onLeave(el:any, done:any) {
     <div :id="`select${id}`"
          ref="inputBody"
          tabindex="0"
-         class="focus:outline-0 focus:ring-0"
-         :class="['classSelect flex w-full min-h-[38px] max-h-16 overflow-auto cursor-pointer', props.paramsSelect?.classSelect]"
+         :class="[
+           'classSelect flex w-full min-h-[36px] max-h-16 overflow-auto cursor-pointer focus:outline-0 focus:ring-0',
+            props.paramsSelect?.classSelect]"
          @focusin="focusSelect(true)"
          @focusout="focusSelect(false)"
          @click="openSelect">

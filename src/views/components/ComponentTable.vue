@@ -3,6 +3,7 @@ import ComponentViews from "@/components/ComponentViews.vue";
 import Table from "@/components/functional/Table.vue";
 import type {IColumn, ISummary, ITable, ITableExpose, ITableStyles} from "@/components/functional/Table.vue";
 import Badge from "@/components/functional/Badge.vue";
+import Button from "@/components/functional/Button.vue";
 import { StarIcon as InStar } from "@heroicons/vue/24/outline";
 import { StarIcon as OutStar } from "@heroicons/vue/24/solid";
 import {onMounted, reactive, ref} from "vue";
@@ -12,6 +13,10 @@ import type {IMode} from "@/components/BaseTypes";
 import dayjs from "dayjs";
 import StSwitch from "@/components/form/StSwitch.vue";
 import {useRoute, useRouter} from "vue-router";
+import Dialog from "@/components/functional/Dialog.vue";
+import StForm, {IFormStructure} from "@/components/form/StForm.vue";
+import openAlert from "@/components/functional/Alert";
+import {XMarkIcon, PlusIcon} from "@heroicons/vue/20/solid";
 onMounted(()=>{
   const route = useRoute();
   if (route.hash) {
@@ -72,7 +77,8 @@ const baseSummaryData = ref([
   {"name": "pear", t1: 1000, t2: 1, t3: 47, date: '2023-10-14T19:09:01.833Z'},
   {"name": "grape", t1: 10000, t2: 2, t3: 42, date: '2023-10-16T19:09:01.833Z'},
 ])
-const countVisibleRows = ref<number>(3)
+const countVisibleRowsExampleOne = ref<number>(3)
+const countVisibleRowsExampleTwo = ref<number>(3)
 const mode = ref<IMode>("filled")
 const styles = reactive<ITableStyles>({})
 const summary = <Array<ISummary>>[
@@ -96,13 +102,28 @@ const summary = <Array<ISummary>>[
 const table = ref<ITableExpose>()
 const entries = ref()
 async function getEntries() {
-  table.value?.startLoading()
-  const response = await fetch("https://api.publicapis.org/entries")
-  const result = await response.json()
-  entries.value = result.entries
-  table.value?.stopLoading()
-  console.log(entries.value)
+  try {
+    table.value?.startLoading()
+    const response = await fetch("https://api.publicapis.org/entries")
+    const result = await response.json()
+    entries.value = result.entries
+  } catch (e) {
+    openAlert({title:"Не удалось загрузить данные таблицы", type: "error", displayTime: 3000, subtitle: e})
+  } finally {
+    table.value?.stopLoading()
+  }
 }
+function switchSizePage() {
+  getEntries()
+}
+const columnsApi = ref<Array<IColumn>>([
+  {type: 'select'},
+  {},
+  {type: 'select'},
+  {cellTemplate:'https', class:{cellText: "flex justify-center items-center whitespace-pre-line overflow-auto"}},
+  {cellTemplate:'cors', type: 'select'},
+  {cellTemplate:'link'},{}
+])
 const styleOne = reactive({
   gray: "m-1 text-xs bg-gray-100 text-gray-600 ring-gray-500/10 dark:bg-gray-950 dark:text-gray-400 dark:ring-gray-500/10",
   red: "m-1 text-xs bg-red-50 text-red-700 ring-red-600/10 dark:bg-red-950 dark:text-red-300 dark:ring-red-400/10",
@@ -124,7 +145,7 @@ const borderDataSelect = ref([
   {id: 'footer', value: 'footer', key: {footer:'border-t-2 border-primary-300 dark:border-primary-800'},},
 ])
 const classesDataSelect = ref([
-  {id: 'body', value: 'body', key: {body:'p-1.5 bg-primary-300 dark:bg-primary-800'}},
+  {id: 'body', value: 'Тело компонента', key: {body:'p-1.5 bg-primary-300 dark:bg-primary-800'}},
   {id: 'toolbar', value: 'toolbar', key: {toolbar:'justify-end items-end bg-primary-300 dark:bg-primary-800'}},
   {id: 'bodyTable', value: 'bodyTable', key: {bodyTable:'bg-primary-300 dark:bg-primary-800'}},
   {id: 'slotHeader', value: 'slotHeader', key: {slotHeader:'bg-primary-300 dark:bg-primary-800'}},
@@ -136,6 +157,97 @@ const classesDataSelect = ref([
   {id: 'group', value: 'group', key: {group:'text-left text-gray-800 dark:text-gray-300 px-6 py-2 pr-3 pl-10 sm:pl-12 bg-primary-300 dark:bg-primary-800'}},
   {id: 'groupText', value: 'groupText', key: {groupText:'left-10 sm:left-12 flex items-center w-fit min-h-[2.5rem] truncate bg-primary-300 dark:bg-primary-800'}},
   {id: 'pagination', value: 'pagination', key: {pagination:'bg-primary-300 dark:bg-primary-800'}},
+])
+const activeRow = ref()
+function clickRow(params) {
+  if(params){
+    const activeTr = params.eventEl.parentElement.querySelector(".active-tr")
+    if (activeTr) {
+      activeTr.classList.remove("active-tr", "!bg-primary-100", "dark:!bg-primary-900")
+    }
+    params.eventEl.classList.add("active-tr", "!bg-primary-100", "dark:!bg-primary-900")
+    dialog.value = true
+    activeRow.value = params.data._key
+    formFields.value = params.data
+  }
+}
+function addRow(){
+  dialog.value = true
+  formFields.value = {}
+}
+function deleteRow(key) {
+  tableEdit.value?.deleteRow(key)
+}
+function submit(fields) {
+  if (fields) {
+    dialog.value = false
+    if (activeRow.value) {
+      tableEdit.value?.updateRow(activeRow.value, fields)
+    } else {
+      tableEdit.value?.addRow(fields)
+    }
+  }
+}
+const tableEdit = ref<ITableExpose>()
+const dialog = ref(false)
+const formFields = ref()
+const structureDialog = ref<Array<IFormStructure>>([
+  {
+    title: "Данные записи",
+    subTitle: "Эта информация будет отображаться публично, поэтому будьте осторожны с тем, чем вы делитесь.",
+    fields:[
+      {
+        name: "key",
+        typeComponent: "Input",
+        label: "Идентификатор",
+        classCol: "sm:col-span-2",
+        required: true
+      },
+      {
+        name: "name",
+        typeComponent: "Input",
+        label: "Имя",
+        classCol: "sm:col-span-3",
+        required: true
+      },
+      {
+        name: "age",
+        typeComponent: "Calendar",
+        classCol: "sm:col-span-3",
+        label: "Дата"
+      },
+      {
+        name: "etc",
+        typeComponent: "Input",
+        classCol: "sm:col-span-3",
+        label: "ЕТС"
+      },
+      {
+        name: "t1",
+        typeComponent: "Input",
+        classCol: "sm:col-span-1",
+        label: "T1"
+      },
+      {
+        name: "t2",
+        typeComponent: "Input",
+        classCol: "sm:col-span-1",
+        label: "T2"
+      },
+      {
+        name: "t3",
+        typeComponent: "Input",
+        classCol: "sm:col-span-1",
+        label: "T3"
+      },
+      {
+        name: "t4",
+        typeComponent: "Input",
+        classCol: "sm:col-span-1",
+        label: "T4"
+      },
+    ]
+  }
 ])
 </script>
 
@@ -165,7 +277,7 @@ const classesDataSelect = ref([
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
         <div class=" col-span-full m-5">
-          <Table no-data="Текст при отсутствии данных"></Table>
+          <Table no-data="Текст при отсутствии данных" ></Table>
         </div>
       </div>
     </div>
@@ -423,9 +535,9 @@ const classesDataSelect = ref([
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">countVisibleRows</Badge>: Число, указывающее количество видимых строк в таблице.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
         <div class=" col-span-full m-5">
-          <Table :data-source="data.generateData100" toolbar :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]" :pagination="{isInfoText:true}" :count-visible-rows="countVisibleRows">
+          <Table :data-source="data.generateData100" toolbar :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]" :pagination="{isInfoText:true}" :count-visible-rows="countVisibleRowsExampleOne">
             <template #toolbar>
-              <StSelect label="Count visible rows" v-model="countVisibleRows" :params-select="{dataSelect:[3, 5, 10, 15]}"></StSelect>
+              <StSelect label="Количество видимых строк" v-model="countVisibleRowsExampleOne" :params-select="{dataSelect:[3, 5, 10, 15]}"></StSelect>
             </template>
           </Table>
         </div>
@@ -516,7 +628,7 @@ const classesDataSelect = ref([
           <Table
             key="Table"
             :data-source="data.generateData1000"
-            :count-visible-rows="5"
+            :count-visible-rows="countVisibleRowsExampleTwo ?? 5"
             filter
             sort
             resized-columns
@@ -526,23 +638,28 @@ const classesDataSelect = ref([
             :pagination="{sizePage:100}"
             toolbar
             :count-data-on-loading="100.0"
-            :styles="styles"
+            :styles="{...styles}"
           >
             <template #header>
-              <div class="flex flex-wrap">
+              <div class="flex flex-wrap m-2">
                 <StSwitch label="Горизонтальные линии" v-model="styles.horizontalLines" :params-switch="{switchingType: 'switch'}"></StSwitch>
                 <StSwitch label="Вертикальные линии" v-model="styles.verticalLines" :params-switch="{switchingType: 'switch'}"></StSwitch>
                 <StSwitch label="Разделители заголовков" v-model="styles.filterLines" :params-switch="{switchingType: 'switch'}"></StSwitch>
                 <StSwitch label="Выделение при наведении" v-model="styles.hoverRows" :params-switch="{switchingType: 'switch'}"></StSwitch>
                 <StSwitch label="Чередующиеся строки" v-model="styles.isStripedRows" :params-switch="{switchingType: 'switch'}"></StSwitch>
               </div>
-              <div class="flex flex-wrap">
-                <StSelect label="Радиус" :params-select="{dataSelect:[1, 3, 5, 7, 9, 13, 17, 25, 30], noQuery:true}" v-model="styles.borderRadiusPx" class-body="mx-2 w-[9rem] mb-0 rounded-md" clear/>
-                <StSelect label="Высота ячейки" :params-select="{dataSelect:[20, 30, 40, 60, 80, 100], noQuery:true}" v-model="styles.heightCell" class-body="mx-2 w-[9rem] mb-0 rounded-md" clear/>
-                <StSelect label="Рамка" class-body="mx-2 w-[9rem] mb-0 rounded-md" clear :params-select="{multiple: true, maxVisible: 0, noQuery:true, dataSelect:borderDataSelect}"
+              <div class="flex flex-wrap m-2">
+                <StSelect label="Радиус" :params-select="{dataSelect:[1, 3, 5, 7, 9, 13, 17, 25, 30], noQuery:true}" v-model="styles.borderRadiusPx" class-body="m-2 w-[9rem] mb-0 rounded-md" clear/>
+                <StSelect label="Высота ячейки" :params-select="{dataSelect:[20, 30, 40, 60, 80, 100], noQuery:true}" v-model="styles.heightCell" class-body="m-2 w-[9rem] mb-0 rounded-md" clear/>
+                <StSelect label="Рамка" class-body="m-2 w-[9rem] mb-0 rounded-md" clear :params-select="{multiple: true, maxVisible: 0, noQuery:true, dataSelect:borderDataSelect}"
                           @update:model-value="(value)=>styles.border = (value as [])?.reduce((result,item)=>Object.assign(result, borderDataSelect.find(i=>i.id===item).key),{})"/>
-                <StSelect label="Зоны таблицы" class-body="mx-2 w-[9rem] mb-0 rounded-md" clear :params-select="{multiple: true, maxVisible: 0, noQuery:true, dataSelect:classesDataSelect}"
+                <StSelect label="Зоны таблицы" class-body="m-2 w-[9rem] mb-0 rounded-md" clear :params-select="{multiple: true, maxVisible: 0, noQuery:true, dataSelect:classesDataSelect}"
                           @update:model-value="(value)=>styles.class = (value as [])?.reduce((result,item)=>Object.assign(result, classesDataSelect.find(i=>i.id===item).key),{})"/>
+              </div>
+              <div class="flex flex-wrap m-2">
+                <StSelect label="Ширина" :params-select="{dataSelect:[400, 500, 700, 900, 1300, 1700, 2500, 3000], noQuery:true}" v-model="styles.width" class-body="m-2 w-[9rem] mb-0 rounded-md" clear/>
+                <StSelect label="Высота" :params-select="{dataSelect:[600, 700, 900, 1300, 1700, 2500, 3000], noQuery:true}" v-model="styles.height" class-body="m-2 w-[9rem] mb-0 rounded-md" clear/>
+                <StSelect label="Количество видимых строк" :params-select="{dataSelect:[1, 3, 5, 7, 9, 13, 17, 25, 30], noQuery:true}" v-model="countVisibleRowsExampleTwo" class-body="m-2 w-[15rem] mb-0 rounded-md" clear/>
               </div>
             </template>
             <template #footer>
@@ -558,5 +675,92 @@ const classesDataSelect = ref([
         </div>
       </div>
     </div>
+    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
+      <h2 id="styles" class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Редактирование данных</h2>
+<!--      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">mode</Badge>: Режим стилизации таблицы. Доступно три разных стиля: filled, outlined, underlined</p></p>-->
+      <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
+        <div class="col-span-full m-5">
+          <div class="flex flex-wrap my-2">
+          </div>
+          <Table filter sort edit resized-columns
+            :columns="[{width: 110, isEdit: true},{width: 110},{width: 125, type:'date'},{type:'select'},{type:'select'},{type:'select'},{type:'select'},{type:'select'}]"
+            :data-source="data.generateData100"
+            :count-visible-rows="7"
+            :styles="{ verticalLines: true}"
+          />
+          <Table
+            ref="tableEdit"
+            :data-source="data.generateData1000"
+            :count-visible-rows="7" filter sort resized-columns search
+            :columns="[{},{width: 110},{type:'date'},{type:'select'},{type:'select'},{type:'select'},{type:'select'},{type:'select'},{dataField: 'delete',caption: '', cellTemplate:'delete', maxWidth: 50, class:{td:'px-0 py-0 text-gray-800 dark:text-gray-300 sticky right-0', cellText: 'flex justify-center items-center whitespace-pre-line overflow-auto'}, isFilter: false, isSort: false, isResized: false}]"
+            :pagination="{sizePage:50, isHiddenNavigationButtons: true, isInfoText: true}"
+            toolbar
+            :count-data-on-loading="100.0"
+            @clickRow="clickRow"
+          >
+            <template #toolbar>
+                <Button mode="neutral" class="h-9" @click.stop="addRow">
+                  Создать
+                  <PlusIcon aria-hidden="true" class="ml-1 h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>
+                </Button>
+            </template>
+            <template #delete="{key}">
+              <div class="bg-stone-50 dark:bg-stone-950 rounded-lg">
+              <Button mode="ghost" class="px-[5px] h-9 w-9 m-0" @click.stop="deleteRow(key)">
+                <XMarkIcon aria-hidden="true" class="h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>
+              </Button>
+              </div>
+            </template>
+          </Table>
+        </div>
+      </div>
+    </div>
+    <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5">
+      <div class="col-span-full ms:m-5">
+          <Button @click="switchSizePage">Загрузить таблицу</Button>
+      </div>
+    </div>
+    <Table ref="table"
+           :data-source="entries"
+           :columns="columnsApi"
+           filter
+           resized-columns
+           :count-visible-rows="6"
+           :pagination="{sizePage: 50, isInfoText: true, isPageSizeSelector: true}"
+           no-data="Загрузите данные"
+           :styles="{verticalLines: true, horizontalLines: false}"
+    >
+      <template #cors="{value}">
+        <Badge v-if="value === 'yes'" mode="neutral" :class="styleOne.green">yes</Badge>
+        <Badge v-else-if="value === 'no'" mode="neutral" :class="styleOne.red">no</Badge>
+        <Badge v-else-if="value === 'unknown'" mode="neutral" :class="styleOne.gray">unknown</Badge>
+      </template>
+      <template #link="{value}">
+        <a :href="value">{{value.replace('https://', '').replace('http://', '')}}</a>
+      </template>
+      <template #https="{value}">
+        <span v-if="value==='true'" class="flex relative h-3 w-3 ml-1">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </span>
+        <span v-else-if="value==='false'" class="flex relative h-3 w-3 ml-1">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+        </span>
+      </template>
+    </Table>
+    <Dialog v-model="dialog" close-button>
+      <StForm :structure="structureDialog"
+              :form-fields="formFields"
+              submit-button="Сохранить"
+              structure-class="border-b border-gray-300/50 dark:border-gray-600/50 pb-0 mt-10"
+              structure-class-grid="grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5"
+              @submit="submit">
+        <template #itemTitle="{structure}">
+          <h2 v-if="structure?.title?.length" class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">{{ structure?.title }}</h2>
+          <p v-if="structure?.subTitle?.length" class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">{{ structure?.subTitle }}</p>
+        </template>
+      </StForm>
+    </Dialog>
   </ComponentViews>
 </template>

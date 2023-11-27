@@ -18,7 +18,7 @@ export interface IAlert {
 export default function openAlert(optionsAlert:IAlert) {
   /////////////////////////////////////////////////////////
   // SET options
-  const options:IAlert = JSON.parse(JSON.stringify(optionsAlert))
+  const options:IAlert = Object.assign({},optionsAlert)
   /////////////////////////////////////////////////////////
   // SET alertId
   const max = 1000; const min = 100
