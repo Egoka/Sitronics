@@ -161,7 +161,6 @@ function closeSelect(evt:MouseEvent) {
   if (isOpenList.value && select && list) {
     isOpenList.value = evt.composedPath().includes(select) || evt.composedPath().includes(list)
     if (isOpenList.value === false) {
-      console.log(value.value, visibleValue.value)
       emit('change:modelValue', value.value, visibleValue.value)
     }
   }
@@ -332,6 +331,6 @@ function onLeave(el:any, done:any) {
       <slot/>
     </template>
     <template v-if="slots.before" #before><slot name="before"/></template>
-    <template #after><slot name="after"/></template>
+    <template v-if="slots.after" #after><slot name="after"/></template>
   </InputLayout>
 </template>

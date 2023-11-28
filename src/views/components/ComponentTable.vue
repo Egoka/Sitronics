@@ -26,7 +26,6 @@ onMounted(()=>{
       hash.scrollIntoView({ block: "center", behavior: "smooth" })
     }
   }
-  console.log(useRouter(), useRoute());
 })
 function generateData (size:number) {
   return LData.times(size, (item) => {
@@ -80,7 +79,7 @@ const baseSummaryData = ref([
 const countVisibleRowsExampleOne = ref<number>(3)
 const countVisibleRowsExampleTwo = ref<number>(3)
 const mode = ref<IMode>("filled")
-const styles = reactive<ITableStyles>({})
+const styles = reactive<ITableStyles>({horizontalLines:false})
 const summary = <Array<ISummary>>[
   {
     dataField: "name",
@@ -135,14 +134,14 @@ const styleOne = reactive({
   pink: "m-1 text-xs bg-pink-50 text-pink-700 ring-pink-700/10 dark:bg-pink-950 dark:text-pink-300 dark:ring-pink-300/10",
 })
 const borderDataSelect = ref([
-  {id: 'table', value: 'table', key: {table:'border-2 border-primary-300 dark:border-primary-800'},},
-  {id: 'header', value: 'header', key: {header:'border-b-2 border-primary-300 dark:border-primary-800'},},
-  {id: 'filter', value: 'filter', key: {filter:'border-r-2 border-primary-300 dark:border-primary-800'},},
-  {id: 'head', value: 'head', key: {head:'border-b-2 border-primary-300 dark:border-primary-800'},},
-  {id: 'cell', value: 'cell', key: {cell:'border-r-2 border-b-2 border-primary-300 dark:border-primary-800'},},
-  {id: 'summary', value: 'summary', key: {summary:'border-t-2 border-primary-300 dark:border-primary-800'},},
-  {id: 'pagination', value: 'pagination', key: {pagination:'border-t-2 border-primary-300 dark:border-primary-800'},},
-  {id: 'footer', value: 'footer', key: {footer:'border-t-2 border-primary-300 dark:border-primary-800'},},
+  {id: 'table', value: 'table', key: {table:'border-2 border-primary-200 dark:border-primary-700'},},
+  {id: 'header', value: 'header', key: {header:'border-b-2 border-primary-200 dark:border-primary-700'},},
+  {id: 'filter', value: 'filter', key: {filter:'border-r-2 border-primary-200 dark:border-primary-700'},},
+  {id: 'head', value: 'head', key: {head:'border-b-2 border-primary-200 dark:border-primary-700'},},
+  {id: 'cell', value: 'cell', key: {cell:'border-r-2 border-b-2 border-primary-200 dark:border-primary-700'},},
+  {id: 'summary', value: 'summary', key: {summary:'border-t-2 border-primary-200 dark:border-primary-700'},},
+  {id: 'pagination', value: 'pagination', key: {pagination:'border-t-2 border-primary-200 dark:border-primary-700'},},
+  {id: 'footer', value: 'footer', key: {footer:'border-t-2 border-primary-200 dark:border-primary-700'},},
 ])
 const classesDataSelect = ref([
   {id: 'body', value: 'Тело компонента', key: {body:'p-1.5 bg-primary-300 dark:bg-primary-800'}},
@@ -267,7 +266,7 @@ const structureDialog = ref<Array<IFormStructure>>([
         <p>Для базового использования достаточно просто подать данные.</p>
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData"></Table>
         </div>
       </div>
@@ -276,7 +275,7 @@ const structureDialog = ref<Array<IFormStructure>>([
         <p>Не подав в таблицу данных она выдаст сообщение об отсутствии данных</p>
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table no-data="Текст при отсутствии данных" ></Table>
         </div>
       </div>
@@ -289,7 +288,7 @@ const structureDialog = ref<Array<IFormStructure>>([
         </p>
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" columns></Table>
         </div>
       </div>
@@ -305,7 +304,7 @@ const structureDialog = ref<Array<IFormStructure>>([
         </p>
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" :columns="[{dataField: 'name'}, {dataField: 'shape'}, {dataField:'color'}]"></Table>
         </div>
       </div>
@@ -316,7 +315,7 @@ const structureDialog = ref<Array<IFormStructure>>([
         </p>
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" :columns="[{dataField: 'name', isSort:true}, {dataField: 'shape', isSort:true}, {dataField:'color', isSort:true}]"></Table>
         </div>
       </div>
@@ -326,19 +325,19 @@ const structureDialog = ref<Array<IFormStructure>>([
         </p>
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table class="min-h-[23rem]" :data-source="baseData" :columns="[{dataField: 'name', isFilter:true}, {dataField: 'shape', isFilter:true}, {dataField:'color', isFilter:true}]"></Table>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">caption</Badge>: Свойство caption позволяет установить заголовок или метку для колонки. Обычно оно используется для предоставления понятного описания колонки для пользователя.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" :columns="[{dataField: 'name', caption: 'Название'}, {dataField: 'shape', caption: 'Форма'}, {dataField:'color', caption: 'Цвет'}]"></Table>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">type</Badge>: Свойство type определяет тип данных колонки. Оно может использоваться для проверки данных или форматирования отображаемых данных.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table class="min-h-[23rem]" :data-source="baseTypeData" :columns="[
             {dataField: 'name', caption: 'Название', type: 'string', isSort:true, isFilter:true},
             {dataField: 'color', caption: 'Цвет', type: 'select', isSort:true, isFilter:true},
@@ -349,7 +348,7 @@ const structureDialog = ref<Array<IFormStructure>>([
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">cellTemplate</Badge>: Свойство cellTemplate позволяет задать пользовательский шаблон для ячейки колонки.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table class="min-h-[23rem]" :data-source="baseCellData" :columns="[
             {dataField: 'name', caption: 'Название', type: 'string', isSort:true, isFilter:true, width: 130},
             {dataField: 'color', caption: 'Цвет', type: 'select', isSort:true, isFilter:true},
@@ -385,7 +384,7 @@ const structureDialog = ref<Array<IFormStructure>>([
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Работа с данными</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">toolbar</Badge>: Свойство toolbar позволяет настроить панель инструментов для интерфейса. Вы можете указать объект с свойствами visible и search для определения видимости и наличия поля поиска в панели инструментов. Если вы установите значение в true, будет отображена стандартная панель инструментов.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" columns toolbar>
             <template #toolbar>
               <div class="border-2 rounded-lg border-primary-100 dark:border-primary-950 dark:bg-primary-800 dark:text-neutral-300">
@@ -397,28 +396,28 @@ const structureDialog = ref<Array<IFormStructure>>([
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">sort</Badge>: Свойство sort позволяет включить сортировку данных в интерфейсе. Вы можете указать объект с свойствами visible и icon для определения видимости и вида иконки сортировки. Возможные значения для свойства icon: "Bars" или "Arrow".</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" columns sort>
           </Table>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">filter</Badge>: Свойство filter позволяет включить фильтрацию данных в интерфейсе. Вы можете указать объект с свойствами visible, noFilter и isClearAllFilter для определения видимости, отображения вашего сообщения в случае пустого результата поиска и возможности очистки всех фильтров. Если вы установите значение в true, будет использована стандартная фильтрация.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" columns toolbar :filter="{isClearAllFilter: true, visible: true}">
           </Table>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">search</Badge>: Свойство search позволяет включить поиск данных в интерфейсе. Если вы установите значение в true, будет отображено поле поиска, в которое пользователь может вводить ключевые слова для поиска соответствующих данных.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" columns search>
           </Table>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">grouping</Badge>: Свойство grouping позволяет включить группировку данных в интерфейсе. Вы можете указать объект с свойствами visible и groupField или строку, чтобы определить видимость и поле группировки. Группировка позволяет пользователю сгруппировать данные по определенным критериям.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" columns grouping="color">
           </Table>
         </div>
@@ -428,14 +427,14 @@ const structureDialog = ref<Array<IFormStructure>>([
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Cводная информация</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">summary</Badge>: параметр сводной информации в таблице. Может передавать булево значение или массив настроек для столбцов. При значении true включает итоговую информацию по умолчанию</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" columns summary>
           </Table>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">dataField</Badge>: Строка, указывающая поле данных, для которого будет рассчитана сводная информация.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseData" columns :summary="[{dataField:'name'}]"/>
         </div>
       </div>
@@ -443,48 +442,48 @@ const structureDialog = ref<Array<IFormStructure>>([
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">dataType</Badge>: Перечисление DataType, указывающее тип данных для сводного столбца.</p></p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">type</Badge>: Строка, указывающая тип сводной информации. Возможные значения: "sum" (сумма), "min" (минимум), "max" (максимум), "avg" (среднее значение), "count" (количество).</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseSummaryData" :columns="[{},{type:'number'},{type:'number'},{type:'number'},{type:'date'}]" :summary="[{dataField:'name', type:'count'}, {dataField:'t1', type: 'max'}, {dataField:'t2', type:'avg'}, {dataField:'t3', type:'sum'}, {dataField:'date', type:'max', dataType: 'date'}]"/>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">displayFormat</Badge>: Строка, определяющая формат отображения сводной информации. Возможные значения: "Sum: {0}", "Min: {0}", "Max: {0}", "Avg: {0}", "Count: {0}". В этих строках "{0}" будет заменено на фактическое значение сводной информации.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="baseSummaryData"
                  :columns="[{},{type:'number'},{type:'number'},{type:'number'},{type:'date'}]"
                  :summary="[{dataField:'name', type:'count', displayFormat: 'Количество: {0}'}, {dataField:'t1', type: 'min', displayFormat:'Минимальное: {0}'}, {dataField:'t2', type:'avg', displayFormat:'Среднее: {0}'}, {dataField:'t3', type:'sum', displayFormat:'Сумма: {0}'}, {dataField:'date', type:'max', dataType: 'date', displayFormat:'Максимальное: {0}'}]"/>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">customizeText</Badge>: Функция, которая позволяет настроить текст отображения сводной информации. Принимает два параметра: summary (объект ISummary) и result (строка с фактическим значением сводной информации). Функция должна вернуть строку, которая будет отображаться вместо фактического значения.</p></p>
-      <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6"><div class=" col-span-full m-5"></div></div>
+      <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6"><div class=" col-span-full my-5"></div></div>
     </div>
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Пагинация</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">Pagination</Badge>: параметр пагинации в таблице. Может передавать булево значение или объект настроек. При значении true включает пагинацию по умолчанию</p></p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">visible</Badge>: Булево значение, указывающее, видима ли пагинация в таблице. Если установлено значение true, пагинация будет отображаться, в противном случае - скрыта.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData1000" :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]" pagination :count-visible-rows="3">
           </Table>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">startPage</Badge>: Число, указывающее начальную страницу пагинации.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData1000" :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]" :pagination="{startPage:20}" :count-visible-rows="3">
           </Table>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">sizePage</Badge>: Число или предопределенное значение (5, 15, 20, 50, 100, 150), указывающее количество элементов на странице.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData1000" :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]" :pagination="{sizePage:20}" :count-visible-rows="3">
           </Table>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">visibleNumberPages</Badge>: Число, указывающее количество видимых номеров страниц в пагинации.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData1000"
                  :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]"
                  :pagination="{sizePage:20,visible:true,startPage:20,visibleNumberPages:9}"
@@ -493,7 +492,7 @@ const structureDialog = ref<Array<IFormStructure>>([
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">isInfoText</Badge>: Булево значение, указывающее, должен ли быть отображен текст с информацией о текущей странице и общем количестве элементов.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData1000"
                  :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]"
                  :pagination="{sizePage:20,visible:true,startPage:20,isInfoText:true}"
@@ -502,7 +501,7 @@ const structureDialog = ref<Array<IFormStructure>>([
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">isHiddenNavigationButtons</Badge>: Булево значение, указывающее, должны ли быть скрыты кнопки навигации (предыдущая/следующая страница).</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData1000"
                  :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]"
                  :pagination="{sizePage:20,visible:true,startPage:20,isHiddenNavigationButtons:true}"
@@ -511,7 +510,7 @@ const structureDialog = ref<Array<IFormStructure>>([
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">isPageSizeSelector</Badge>: Булево значение, указывающее, должен ли быть отображен селектор для выбора количества элементов на странице.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData1000"
                  :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]"
                  :pagination="{sizePage:20,visible:true,startPage:20,isPageSizeSelector:true}"
@@ -520,7 +519,7 @@ const structureDialog = ref<Array<IFormStructure>>([
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">sizesSelector</Badge>: Массив чисел или предопределенный массив ([5, 15, 20, 50, 100, 150]), определяющий доступные варианты количества элементов на странице.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData1000"
                  :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]"
                  :pagination="{sizePage:3,visible:true,startPage:20,sizesSelector:[3,6,9]}"
@@ -528,13 +527,13 @@ const structureDialog = ref<Array<IFormStructure>>([
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">mode</Badge>: Объект типа IMode, определяющий визуальный стиль пагинации.</p></p>
-      <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6"><div class=" col-span-full m-5"></div></div>
+      <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6"><div class=" col-span-full my-5"></div></div>
     </div>
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
       <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Дополнительные настройки</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">countVisibleRows</Badge>: Число, указывающее количество видимых строк в таблице.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData100" toolbar :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]" :pagination="{isInfoText:true}" :count-visible-rows="countVisibleRowsExampleOne">
             <template #toolbar>
               <StSelect label="Количество видимых строк" v-model="countVisibleRowsExampleOne" :params-select="{dataSelect:[3, 5, 10, 15]}"></StSelect>
@@ -544,13 +543,13 @@ const structureDialog = ref<Array<IFormStructure>>([
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">resizedColumns</Badge>: Булево значение, указывающее, должны ли быть изменяемы размеры столбцов таблицы.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData5" :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]" resized-columns/>
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">countDataOnLoading</Badge>: Число или предопределенное значение (100, 1000, 10000), указывающее количество данных, при котором начнет работать анимация загрузки.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class=" col-span-full m-5">
+        <div class=" col-span-full my-5">
           <Table :data-source="data.generateData1000" filter resized-columns
                  :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]"
                  :count-visible-rows="5"
@@ -565,7 +564,7 @@ const structureDialog = ref<Array<IFormStructure>>([
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">#header</Badge>: Шаблон, который позволяет настроить отображение заголовка таблицы. В этом слоте можно определить, какие столбцы будут отображаться в заголовке и какие элементы управления будут доступны для сортировки и фильтрации данных.</p></p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">#footer</Badge>: Шаблон, который позволяет настроить отображение подвала таблицы. В этом слоте можно разместить дополнительную информацию или элементы управления, связанные с таблицей.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class="col-span-full m-5">
+        <div class="col-span-full my-5">
           <Table :data-source="data.generateData100"
                  search
                  toolbar
@@ -592,7 +591,7 @@ const structureDialog = ref<Array<IFormStructure>>([
       <h2 id="styles" class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Стилизация</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">mode</Badge>: Режим стилизации таблицы. Доступно три разных стиля: filled, outlined, underlined</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class="col-span-full m-5">
+        <div class="col-span-full my-5">
           <Table
             key="TableMode"
             :data-source="data.generateData1000"
@@ -624,9 +623,8 @@ const structureDialog = ref<Array<IFormStructure>>([
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">class</Badge>: Объект, содержащий классы стилей для различных элементов таблицы. Внутри объекта можно задать классы для следующих элементов: body, toolbar, bodyTable, slotHeader, slotFooter, table, thead, tbody, tfoot, group, groupText, pagination.</p></p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">border</Badge>: Строка или объект, определяющий стили границ таблицы и ее элементов. Может принимать значения "border-neutral-200 dark:border-neutral-800" для применения стандартной границы, "border-0 border-b-0 border-t-0 border-r-0" для отключения границы, или объект с ключами table, header, filter, head, cell, summary, pagination, footer, определяющими стили границ для соответствующих элементов таблицы.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class="col-span-full m-5">
+        <div class="col-span-full my-5">
           <Table
-            key="Table"
             :data-source="data.generateData1000"
             :count-visible-rows="countVisibleRowsExampleTwo ?? 5"
             filter
@@ -672,6 +670,13 @@ const structureDialog = ref<Array<IFormStructure>>([
               </div>
             </template>
           </Table>
+          <div class="col-span-full my-5">
+            <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Пример таблицы без интерфейсов управления</p>
+            <Table
+              :data-source="data.generateData100" :count-visible-rows="5"
+              :columns="[{},{width: 110},{type:'date'},{type:'select'},{type:'select'},{type:'select'},{type:'select'},{type:'select'}]"
+              :styles="{horizontalLines: false, verticalLines: true, class: {thead: 'hidden'}, borderRadiusPx: 3}"/>
+          </div>
         </div>
       </div>
     </div>
@@ -679,11 +684,11 @@ const structureDialog = ref<Array<IFormStructure>>([
       <h2 id="styles" class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Редактирование данных</h2>
 <!--      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">mode</Badge>: Режим стилизации таблицы. Доступно три разных стиля: filled, outlined, underlined</p></p>-->
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
-        <div class="col-span-full m-5">
+        <div class="col-span-full my-5">
           <div class="flex flex-wrap my-2">
           </div>
           <Table filter sort edit resized-columns
-            :columns="[{width: 110, isEdit: true},{width: 110},{width: 125, type:'date'},{type:'select'},{type:'select'},{type:'select'},{type:'select'},{type:'select'}]"
+            :columns="[{width: 110, edit: true},{width: 110},{width: 125, type:'date'},{type:'select'},{type:'select'},{type:'select'},{type:'select'},{type:'select'}]"
             :data-source="data.generateData100"
             :count-visible-rows="7"
             :styles="{ verticalLines: true}"

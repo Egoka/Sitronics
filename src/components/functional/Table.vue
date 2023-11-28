@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, reactive, ref, useSlots, watch} from "vue";
+import {computed, onMounted, onUnmounted, reactive, ref, toRaw, useSlots, watch} from "vue";
 import type {Ref, UnwrapRef} from "vue";
 import {
   ArrowLongUpIcon, ArrowLongDownIcon,
@@ -20,15 +20,16 @@ import StCalendar, {type IDatePicker, type IRangeValue} from "@/components/form/
 import {convertToNumber, convertToPhone} from "@/helpers/numbers";
 import type {StyleClass, IMode, IWidth, IHeight} from "@/components/BaseTypes";
 // ---TYPES-------------------------------
+type DataField = string
 type DataType = "string"|"number"|"select"|"date"
 type Sort = "asc"|"desc"|null
 type Search = string
 type Page = number
 type Loading = boolean
-type Sorted = { [dataField:string]: Sort }
-type Widths = { [dataField:string]: number }
-type Filters = { [dataField:string]: any }
-type ResultData = { [dataField:string]: Array<any> }
+type Sorted = { [dataField:DataField]: Sort }
+type Widths = { [dataField:DataField]: number }
+type Filters = { [dataField:DataField]: any }
+type ResultData = { [dataField:DataField]: Array<any> }
 // ---INTERFACES--------------------------
 export interface IToolbar {
   visible?:boolean
@@ -47,8 +48,14 @@ export interface IGrouping {
   visible?:boolean
   groupField?:string
 }
+interface EditorCell {
+  isEdit?:boolean
+  paramsInput?: IDataInput
+  paramsSelect?: IDateSelect
+  paramsDatePicker?: Partial<IDatePicker>
+}
 export interface IColumn {
-  dataField?:string
+  dataField?:DataField
   name?:string
   caption?:string
   type?:DataType
@@ -59,7 +66,7 @@ export interface IColumn {
   isFilter?:boolean
   isSort?:boolean
   isResized?:boolean
-  isEdit?:boolean
+  edit?: boolean | EditorCell
   defaultFilter?: any
   defaultSort?: Sort
   mask?:IDataInput["mask"]
@@ -80,9 +87,15 @@ export interface IColumn {
     sumText?: StyleClass|"text-left text-gray-400 dark:text-gray-500"
   }
 }
-interface IColumnPrivate extends Omit<IColumn, 'dataField'> {
+interface IColumnPrivate extends Omit<IColumn, 'dataField'|'edit'> {
   id: string
   dataField:string
+  isEdit: boolean
+  edit: {
+    paramsInput?: IDataInput
+    paramsSelect?: IDateSelect
+    paramsDatePicker?: Partial<IDatePicker>
+  }
 }
 export interface ISummary {
   dataField?: string
@@ -172,9 +185,11 @@ export interface ITable {
   mode?:IMode
   dataSource?: Array<any>|[]
   toolbar?: IToolbar|boolean
+  edit?:boolean
   sort?: ISort|boolean
   filter?: IFilter|boolean
   grouping?: IGrouping|string
+  resizedColumns?:boolean
   pagination?: ITablePagination|boolean
   search?:boolean
   columns?: boolean|Array<IColumn>
@@ -182,8 +197,6 @@ export interface ITable {
   countVisibleRows?: number
   noData?:string
   noColumn?:string
-  resizedColumns?:boolean
-  edit?:boolean
   countDataOnLoading?:number|100|1000|10000
   totalCount?:number
   styles?:ITableStyles
@@ -193,13 +206,19 @@ const props = defineProps<ITable>()
 const emit = defineEmits<{
   (event: 'sort', payload: {dataColumns:Array<IColumn>, sortedFields:Sorted}): void
   (event: 'filter', payload: {dataColumns:Array<IColumn>, filteredFields: Filters}): void
-  (event: 'filter', payload: {dataColumns:Array<IColumn>, filteredFields: Filters}): void
   (event: 'search', payload: Search)
   (event: 'result-data', payload: ResultData)
   (event: 'switch-page', payload: Page)
   (event: 'switch-size-page', payload: Page)
+  (event: 'before-edit-cell', payload: {newValue: any, oldValue: any, _key: uuid, column:IColumn})
+  (event: 'after-edit-cell', payload: {newValue: any, oldValue: any, _key: uuid, column:IColumn})
+  (event: 'before-edit-row', payload: {newValue: any, oldValue: any, _key: uuid})
+  (event: 'after-edit-row', payload: {newValue: any, oldValue: any, _key: uuid})
+  (event: 'add-row', payload: {value: any, index: number, _key: uuid})
+  (event: 'delete-row', payload: {value: any, index: number, _key: uuid})
   (event: 'click-row', payload: { eventEl:HTMLElement, data:any, indexRow:number })
   (event: 'click-cell', payload: { eventEl:HTMLElement, column:IColumn, value:any, valueWithMarker:any, data:any, indexRow:number })
+  (event: 'loading', payload:boolean)
   (event: 'clear-filter')
 }>();
 const slots = useSlots()
@@ -269,47 +288,30 @@ const heightCell = computed<number>(()=> props.styles?.heightCell ?? 24)
 const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows ?? 0)
 // ---DATA--------------------------------
 const dataSource = computed<Array<any>>(()=> {
-  let data
-  if (allData.value && allData.value?.length){
-    data = allData.value
-  }
+  if (!(allData.value && allData.value?.length)){ return [] }
+  let data = toRaw(allData.value)
   // Sort
   if (data && Object.keys(sortColumns).filter(i=>sortColumns[i] !== null).length){
-    const sortedFields = Object.keys(sortColumns).reduce((result, column)=>{
-      if (sortColumns[column] === "asc" || sortColumns[column] === "desc"){
-        result[column] = sortColumns[column] }
-      return result }, {})
-    data = LData.orderBy(data, Object.keys(sortedFields), Object.values(sortedFields))
-    emit('sort', {dataColumns: dataColumns.value, sortedFields: (sortedFields as Sorted)})
-  }
+    const sortedFields = getSorted(sortColumns) as any
+    data = LData.orderBy(data, Object.keys(sortedFields), Object.values(sortedFields)) }
   // Filter
   if (data && noEmptyFilters(filterColumns).length){
-    const filter = noEmptyFilters(filterColumns)
-      .reduce((result, column)=> {
-        result[column] = filterColumns[column]
-        return result
-      }, {})
+    const filter = getFilters(filterColumns)
     data = LData.filter(data,(row) => Object.keys(filter)
       .filter(item => {
         const column = dataColumns.value.find(col=>col.dataField === item)
         return isEqualsValue(column, row[column.dataField], filter[column.dataField])
-      }).length === Object.keys(filter).length)
-    switchPage(1)
-    emit('filter', {dataColumns: dataColumns.value, filteredFields: (filter as Filters)})
-  }
+      }).length === Object.keys(filter).length) }
   // Search
   if (data && queryTable.value.length){
     data = LData.filter(data,(row) => !!dataColumns.value
       .filter(item => item.visible)
-      .filter(item => isEqualsValue(item, row[item.dataField], queryTable.value)).length)
-    switchPage(1)
-    emit('search', queryTable.value)
-  }
+      .filter(item => isEqualsValue(item, row[item.dataField], queryTable.value)).length) }
   stopLoading()
   return data ?? []
 })
 const resultDataSource = computed<ResultData>(()=> {
-  let resultData:any = dataSource.value
+  let resultData:any = toRaw(dataSource.value)
   if (isPagination.value) {
     if (isGroup.value) {
       resultData = Object.values(LData.groupBy(resultData, (item) => item[groupField.value])).flat() }
@@ -324,7 +326,7 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
     return <Array<IColumnPrivate>>props.columns
       .map((column, index)=>{
         const fieldName = column.dataField ?? listFields[index] ?? ""
-        if (fieldName === ""){ return false}
+        if (fieldName === ""){ return false }
         const options = <IColumnPrivate>{
           ...column,
           id: `Col-${fieldName}-${index}`,
@@ -337,7 +339,8 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
           isFilter: typeof column.isFilter === "boolean" ? column.isFilter : isFilter.value,
           isSort: typeof column.isSort === "boolean" ? column.isSort : isSort.value,
           isResized: typeof column.isResized === "boolean" ? column.isResized : resizedColumns.value,
-          isEdit: typeof column.isEdit === "boolean" ? column.isEdit : isEditCells.value,
+          isEdit: typeof column.edit === "boolean" ? column.edit : column?.edit?.isEdit ?? isEditCells.value,
+          edit: {},
           type: column.type ?? "string",
           class: {
             ...column.class,
@@ -351,15 +354,23 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
         }
         switch (options.type) {
           case "string": {
-            options.paramsInput = <IDataInput>{
-              autocomplete: "off",
-              ...column.paramsInput};break
+            options.paramsInput = <IDataInput>{autocomplete: "off", ...column.paramsInput};
+            options.edit.paramsInput = <IDataInput>{
+              ...options.paramsInput,
+              autoFocus:true,
+              ...(column?.edit as EditorCell)?.paramsInput}
+            break
           }
           case "number": {
             options.paramsInput = <IDataInput>{
               autocomplete: "off",
               mask: "number",
-              ...column.paramsInput};break
+              ...column.paramsInput};
+            options.edit.paramsInput = <IDataInput>{
+              ...options.paramsInput,
+              autoFocus:true,
+              ...(column?.edit as EditorCell)?.paramsInput}
+            break
           }
           case "select": {
             options.paramsSelect = <IDateSelect>{
@@ -368,7 +379,13 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
               classSelect: 'normal-case font-normal max-h-[25rem]',
               classSelectList: 'normal-case font-normal',
               dataSelect: LData.compact(LData.uniq(LData.map(allData.value, options.dataField ?? ""))) ?? [],
-              ...column.paramsSelect};break
+              ...column.paramsSelect};
+            options.edit.paramsSelect = <IDataInput>{
+              ...options.paramsSelect,
+              autoFocus:true,
+              multiple: false,
+              ...(column?.edit as EditorCell)?.paramsSelect}
+            break
           }
           case "date": {
             options.paramsDatePicker = {
@@ -382,6 +399,11 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
               mask: column.paramsDatePicker?.masks?.modelValue ?? "DD.MM.YYYY",
               ...column.paramsDatePicker
             };
+            options.edit.paramsDatePicker = <IDataInput>{
+              ...options.paramsDatePicker,
+              autoFocus:true,
+              isRange: false,
+              ...(column?.edit as EditorCell)?.paramsDatePicker}
             break
           }
         }
@@ -593,7 +615,7 @@ export interface ITableExpose {
   addRow(data:any):number
   deleteRow(_key:uuid):false|any
   updateRow(_key:uuid, data:any):false|any
-  updateCell(_key:uuid, column:string, value: any):false|any
+  updateCell(_key:uuid, column:IColumn, value: any):false|any
   getColumn(dataField:IColumn["dataField"], index?:number):IColumn
   sorting(dataField:IColumn["dataField"], value?:Sort):void
   filtering(dataField:IColumn["dataField"], value:any):void
@@ -650,6 +672,17 @@ watch(()=>[countVisibleRows.value, styles.value.height],(value, oldValue)=> {
 watch(()=>props.dataSource,()=>{
   allData.value = props.dataSource?.length ? props.dataSource?.map(item => { return {...item, _key: uuidv4()} }) : []
 },{immediate: true})
+watch(()=>sortColumns, ()=> {
+  emit('sort', {dataColumns: dataColumns.value, sortedFields: getSorted(sortColumns)})
+}, {deep: true})
+watch(()=>filterColumns, ()=> {
+  switchPage(1)
+  emit('filter', {dataColumns: dataColumns.value, filteredFields: getFilters(filterColumns)})
+}, {deep: true})
+watch(()=>queryTable.value.length, ()=> {
+  switchPage(1)
+  emit('search', queryTable.value)
+})
 watch(startPage,(numberPage:number)=>{
   setTimeout(()=>switchPage(numberPage),10)
 }, {immediate: true})
@@ -831,7 +864,20 @@ function setMarker (column:IColumnPrivate, valueCell:any):string {
   }
   return valueCell
 }
-function noEmptyFilters(filter: object):Array<any> {
+function getSorted(sorted:Sorted):Sorted {
+  return Object.keys(sorted).reduce((result, column)=>{
+    if (sorted[column] === "asc" || sorted[column] === "desc"){
+      result[column] = sorted[column] }
+    return result }, {})
+}
+function getFilters(filters:Filters):Filters {
+  return noEmptyFilters(filters)
+    .reduce((result, column)=> {
+      result[column] = filters[column]
+      return result
+    }, {})
+}
+function noEmptyFilters(filter: Filters):Array<any> {
   return Object.keys(filter).filter(i=>
     filter[i] !== undefined &&
     filter[i] !== null &&
@@ -851,8 +897,14 @@ function clearEditableCell(indexRow: number, indexCol: number) {
     }
   },500)
 }
-function startLoading() { isLoading.value = true }
-function stopLoading() { isLoading.value = false }
+function startLoading() {
+  isLoading.value = true
+  emit( "loading", isLoading.value)
+}
+function stopLoading() {
+  isLoading.value = false
+  emit( "loading", isLoading.value)
+}
 function clickRow(key:string, data:any, indexRow:number) {
   emit( "click-row", {eventEl: (tbody.value as HTMLElement)?.querySelector(`.${key}`) as HTMLElement ?? null, data, indexRow})
 }
@@ -862,12 +914,16 @@ function clickCell(key:string, column:IColumn, value:any, valueWithMarker:any, d
   emit( "click-cell", {eventEl: (tbody.value as HTMLElement)?.querySelector(`.${key}`) as HTMLElement ?? null, column, value, valueWithMarker, data, indexRow})
 }
 function addRow(data:any):number {
-  return allData.value?.push({...data, _key: uuidv4()}) - 1
+  const newValueRow = {...data, _key: uuidv4()}
+  const index:number = allData.value?.push(newValueRow) - 1
+  emit('add-row', {value:newValueRow, index, _key: newValueRow._key})
+  return index
 }
 function deleteRow(_key:uuid):false|any {
   if (_key && allData.value) {
     const index = allData.value?.findIndex(i=>i._key === _key)
     if (index >= 0){
+      emit('delete-row', {value:allData.value[index], index, _key})
       return allData.value?.splice(index as number, 1)
     }
   } return false
@@ -876,16 +932,21 @@ function updateRow(_key:uuid, data:any):false|any {
   if (_key) {
     const index = allData.value?.findIndex(i=>i._key === _key)
     if (index >= 0){
-      allData.value[index] = {...allData.value[index], ...data}
+      const newValueRow = {...allData.value[index], ...data}
+      emit('before-edit-row', {newValue: newValueRow, oldValue: allData.value[index], _key})
+      allData.value[index] = newValueRow
+      emit('after-edit-row', {newValue: allData.value[index], oldValue: newValueRow, _key})
       return allData.value[index] 
     } 
   } return false
 }
-function updateCell(_key:uuid, column:string, value: any):false|any {
+function updateCell(_key:uuid, column:IColumn, value: any):false|any {
   if (_key && column) {
     const index = allData.value?.findIndex(i=>i._key === _key)
-    if (index >= 0 && column in allData.value[index]){
-      allData.value[index][column] = value
+    if (index >= 0 && column.dataField in allData.value[index]){
+      emit('before-edit-cell', {newValue: value, oldValue: allData.value[index][column.dataField], _key, column})
+      allData.value[index][column.dataField] = value
+      emit('after-edit-cell', {newValue: allData.value[index][column.dataField], oldValue: value, _key, column})
       return value
     }
   } return false
@@ -980,7 +1041,7 @@ function stopResizeColumn() {
             <thead v-if="isColumns"
                    ref="thead"
                    class="classTHead sticky top-0 z-20"
-                   :class="[styles.class.thead, modeStyle]">
+                   :class="[styles.class.thead || modeStyle]">
             <tr>
               <template v-for="(column, key) in dataColumns" :key="column.id">
                 <th v-if="column.visible" scope="col"
@@ -993,7 +1054,6 @@ function stopResizeColumn() {
                     <div v-if="column.isFilter" class="w-full cursor-pointer" :class="[column.class?.colFilter, (column.isSort||isSort)||'px-1' ]">
                       <StInput
                         v-if="column.type === 'string'||column.type === 'number'"
-                        :id="`${column.name}-filter`"
                         :model-value="filterColumns[column?.dataField]"
                         :label="column.caption"
                         :mode="mode"
@@ -1008,7 +1068,6 @@ function stopResizeColumn() {
                         @clear="filtering(column?.dataField, null)"/>
                       <StSelect
                         v-if="column.type === 'select'"
-                        :id="`${column.name}-filter`"
                         :model-value="filterColumns[column?.dataField]"
                         :label="column.caption"
                         :params-select="column?.paramsSelect"
@@ -1020,7 +1079,6 @@ function stopResizeColumn() {
                         @update:model-value="(v)=>filtering(column?.dataField, v)"/>
                       <StCalendar
                         v-if="column.type === 'date'"
-                        :id="`${column.name}-filter`"
                         :model-value="filterColumns[column?.dataField]"
                         :label="column.caption"
                         :mode="mode"
@@ -1064,7 +1122,7 @@ function stopResizeColumn() {
                   <th :colspan="dataColumns.length" scope="colgroup"
                       :style="`top:${thead?.clientHeight-1}px`"
                       :class="['classGroup sticky','border-t-2 border-b', 'font-medium text-base whitespace-nowrap',
-                      styles.class?.group, styles.border?.cell, modeStyle]">
+                      styles.class?.group || modeStyle, styles.border?.cell]">
                     <div class="sticky classGroupText"
                          :class="[styles.class.groupText]"
                          :style="`min-height: ${heightCell}px`">
@@ -1104,45 +1162,52 @@ function stopResizeColumn() {
                             :model-value="data[column.dataField]"
                             :label="column.caption"
                             :mode="mode"
-                            :params-input="{autoFocus:true, classInput: `pt-[5px] pl-[10px] ${styles.class?.cellText}`}"
+                            :params-input="{
+                              ...column.edit.paramsInput,
+                              classInput: `pt-[5px] pl-[10px] ${styles.class?.cellText} ${column.edit.paramsInput?.classInput}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-0 -my-3 w-full"
                             label-mode="vanishing"
                             @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
-                            @change:model-value="(value)=>updateCell(data?._key, column.dataField, value)"/>
+                            @change:model-value="(value)=>updateCell(data?._key, column, value)"/>
                           <StSelect
                             v-if="column.type === 'select'"
                             :model-value="data[column.dataField]"
                             :label="column.caption"
                             :mode="mode"
-                            :params-select="{...column?.paramsSelect, multiple: false, maxVisible: 15, autoFocus:true, classSelect: `pl-[10px] ${styles.class?.cellText}`}"
+                            :params-select="{
+                              ...column.edit.paramsSelect,
+                              classSelect: `pl-[10px] ${styles.class?.cellText} ${column.edit.paramsSelect?.classSelect}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-[2px] -my-3 w-full"
                             label-mode="vanishing"
                             @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
-                            @change:model-value="(value)=>updateCell(data?._key, column.dataField, value)"
+                            @change:model-value="(value)=>updateCell(data?._key, column, value)"
                             />
                           <StCalendar
                             v-if="column.type === 'date'"
                             :model-value="data[column.dataField]"
                             :label="column.caption"
                             :mode="mode"
-                            :params-date-picker="{...column?.paramsDatePicker, isRange: false, autoFocus: true, classDateText: `pt-[7px] pl-[10px] ${styles.class?.cellText}`}"
+                            :params-date-picker="{
+                              ...column.edit.paramsDatePicker,
+                              classDateText: `pt-[7px] pl-[10px] ${styles.class?.cellText} ${column.edit.paramsDatePicker?.classDateText}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-0 -my-3 w-full"
                             label-mode="vanishing"
                             @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
-                            @change:model-value="(value)=>updateCell(data?._key, column.dataField, value)"/>
+                            @change:model-value="(value)=>updateCell(data?._key, column, value)"/>
                         </template>
                       </div>
-                      <div v-else :class="[column.class?.cellText]"
+                      <div v-else
+                           :class="[column.class?.cellText]"
                            :style="`min-height: ${heightCell}px;max-height: ${(heightCell*5)+2}px;`">
                         <slot :name="column?.cellTemplate"
                               :key="data?._key"
                               :column="column" :rowData="data" :value="setCell(column, data[column.dataField], data)"
                               :value-with-marker="setMarker(column, setCell(column, data[column.dataField], data))"
                               :is-close-editor="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
-                              :edit-valiue="(value)=>updateCell(data?._key, column.dataField, value)"
+                              :edit-valiue="(value)=>updateCell(data?._key, column, value)"
                         />
                       </div>
                     </td>
@@ -1155,7 +1220,7 @@ function stopResizeColumn() {
   <!-- -------------------------------- -->
             <tfoot v-if="isSummary && Object.keys(summaryColumns).length"
                    ref="tfoot" class="classTFoot sticky bottom-0"
-                   :class="[styles.class.tfoot, modeStyle]">
+                   :class="[styles.class.tfoot || modeStyle]">
             <tr>
               <template v-for="column in dataColumns" :key="column.id">
                 <th v-if="column.visible" scope="col" class="px-3 py-3"

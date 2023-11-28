@@ -155,7 +155,7 @@ function ready() {
           <ArrowsPointingOutIcon aria-hidden="true" class="h-5 w-5 mx-2 text-gray-400 dark:text-gray-600"/>
         </div>
       </div>
-      <slot name="after"/></template>
+      <slot v-if="slots.after" name="after"/></template>
   </InputLayout>
 </template>
 <style>

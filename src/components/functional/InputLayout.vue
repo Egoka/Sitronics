@@ -54,7 +54,7 @@ const isInvalid = computed<ILayout["isInvalid"]>(()=>!isDisabled.value ? props.i
 const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid ?? "")
 const help = computed<ILayout["help"]>(()=> String(props.help ?? ""))
 const width = computed<ILayout["width"]>(()=> props?.width ? typeof props?.width === "number" ? `${props?.width}px` : props?.width : "")
-const height = computed<ILayout["height"]>(()=> props?.height ? typeof props?.height === "number" ? `${props?.height}px` : props?.height : `${baseHeight}px`)
+const height = computed<ILayout["height"]>(()=> props?.height ? typeof props?.height === "number" ? `${props?.height}px` : props?.height : "")
 const animation = computed<ILayout["animation"]>(()=> props?.animation ?? "transition-all duration-500")
 // ---------------------------------------
 const emit = defineEmits(["clear"]);
@@ -85,16 +85,20 @@ onUnmounted(()=>{
 })
 // ---------------------------------------
 onMounted(()=>{
-  new ResizeObserver(entries => {
-    for (let entry of entries) {
-      beforeWidth.value = (entry as any).target['offsetWidth']
-    }
-  }).observe((beforeInput.value as HTMLElement));
-  new ResizeObserver(entries => {
-    for (let entry of entries) {
-      afterWidth.value = (entry as any)?.target['offsetWidth']
-    }
-  }).observe((afterInput.value as HTMLElement));
+  if (beforeInput.value) {
+    new ResizeObserver(entries => {
+      for (let entry of entries) {
+        beforeWidth.value = (entry as any).target['offsetWidth']
+      }
+    }).observe((beforeInput.value as HTMLElement));
+  }
+  if (afterInput.value) {
+    new ResizeObserver(entries => {
+      for (let entry of entries) {
+        afterWidth.value = (entry as any)?.target['offsetWidth']
+      }
+    }).observe((afterInput.value as HTMLElement));
+  }
   headerHeight.value = <number>document.querySelector("header")?.offsetHeight
 })
 // ---------------------------------------
@@ -113,7 +117,7 @@ async function copy() {
   <div ref="inputBody"
        :class="['classBody relative transition-all duration-500', !isInvalid||'is-invalid', props.classBody||'mb-6 rounded-md']"
        :style="`scroll-margin-top: ${headerHeight + 10}px;`">
-    <div ref="beforeInput"
+    <div v-if="slots.before" ref="beforeInput"
          :class="['absolute inset-y-0 left-0 flex items-center', !slots.before||' pl-3 pr-1']"
          :style="`height:${height};`">
       <slot name="before"/>
@@ -159,14 +163,12 @@ async function copy() {
       <template v-if="!isDisabled">
         <transition leave-active-class="transition ease-in duration-1000" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-1000" enter-from-class="opacity-0" enter-to-class="opacity-100">
-          <div>
-            <Dropdown v-if="isInvalid&&messageInvalid" :content="messageInvalid">
-              <template #head>
-                <ExclamationCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-red-500 cursor-pointer" aria-hidden="true" />
-                <Tooltip class="text-red-500">{{ messageInvalid }}</Tooltip>
-              </template>
-            </Dropdown>
-          </div>
+          <Dropdown v-if="isInvalid&&messageInvalid" :content="messageInvalid">
+            <template #head>
+              <ExclamationCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-red-500 cursor-pointer" aria-hidden="true" />
+              <Tooltip class="text-red-500">{{ messageInvalid }}</Tooltip>
+            </template>
+          </Dropdown>
         </transition>
         <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">

@@ -106,6 +106,6 @@ function clear() {
                 @change="changeModelValue(($event.target as HTMLInputElement).value)"/>
     <template #body><slot/></template>
     <template v-if="slots.before" #before><slot name="before"/></template>
-    <template #after><slot name="after"/></template>
+    <template v-if="slots.after" #after><slot name="after"/></template>
   </InputLayout>
 </template>

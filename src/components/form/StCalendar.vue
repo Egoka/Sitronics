@@ -362,7 +362,7 @@ function clear () {
       <slot/>
     </template>
     <template v-if="slots.before" #before><slot name="before"/></template>
-    <template #after><slot name="after"/></template>
+    <template v-if="slots.after" #after><slot name="after"/></template>
   </InputLayout>
 </template>
 <style>
