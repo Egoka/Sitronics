@@ -190,7 +190,7 @@ const structures = ref<Array<IFormStructure>>([
         name: "isInfo",
         paramsSwitch: {
           switchingType: "checkbox",
-          rounded: 9,
+          rounded: 4,
           mode: "none"
         },
         modelValue: false,

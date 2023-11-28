@@ -39,9 +39,6 @@ const classLayout = ref<ILayout["class"]>()
 const isActiveInput = ref<boolean>(false)
 const value = ref<IInput["modelValue"]>()
 const mask = computed<IDataInput["mask"]|null>(()=> props.paramsInput?.mask ?? null)
-watch(()=>props.modelValue,(modelValue)=>{
-  value.value = String(modelValue ? toMask(modelValue) : modelValue ?? "")
-},{immediate: true})
 // ---------------------------------------
 const id = ref<NonNullable<IInput["id"]>>(String(props.id ?? getCurrentInstance()?.uid))
 const type = ref<IDataInput["type"]>(props.paramsInput?.type && arrayInputType.includes(props.paramsInput.type) ? props.paramsInput?.type : "text")
@@ -65,17 +62,20 @@ const inputLayout = computed(()=>{return {isValue: isValue.value, mode: mode.val
 onMounted(()=>{
   if (autoFocus.value) { inputRef.value?.focus() }
 })
+watch(()=>props.modelValue,(modelValue)=>{
+  value.value = String(modelValue ? toMask(modelValue) : modelValue ?? "")
+},{immediate: true})
 // ---------------------------------------
-function toMask(value:string|number):string {
-  if (mask?.value || mask?.value === null){
-    return String(value)
+function toMask(baseValue:string|number):string {
+  if (!mask?.value){
+    return String(baseValue)
   } else if (mask?.value === "phone"){
-    return convertToPhone(String(value))
+    return convertToPhone(String(baseValue))
   } else if (mask?.value === "number"){
-    return convertToNumber(value, lengthInteger.value, lengthDecimal.value, "")
+    return convertToNumber(baseValue, lengthInteger.value, lengthDecimal.value, "")
   } else if (mask?.value === "price"){
-    return convertToNumber(value, lengthInteger.value, lengthDecimal.value, " ")
-  } else { return String(value) }
+    return convertToNumber(baseValue, lengthInteger.value, lengthDecimal.value, " ")
+  } else { return String(baseValue) }
 }
 // ---------------------------------------
 watch(isActiveInput, (value)=>{

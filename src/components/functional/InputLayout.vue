@@ -115,10 +115,10 @@ async function copy() {
 
 <template>
   <div ref="inputBody"
-       :class="['classBody relative transition-all duration-500', !isInvalid||'is-invalid', props.classBody||'mb-6 rounded-md']"
+       :class="['classBody relative', animation, !isInvalid||'is-invalid', props.classBody||'mb-6 rounded-md']"
        :style="`scroll-margin-top: ${headerHeight + 10}px;`">
     <div v-if="slots.before" ref="beforeInput"
-         :class="['absolute inset-y-0 left-0 flex items-center', !slots.before||' pl-3 pr-1']"
+         :class="['absolute inset-y-0 left-0 flex items-center', 'pl-3 pr-1']"
          :style="`height:${height};`">
       <slot name="before"/>
     </div>

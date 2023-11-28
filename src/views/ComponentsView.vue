@@ -88,6 +88,16 @@ const items = ref([
     href: baseUrl+'/pagination',
     imageSrc: 'https://horizon-ui.com/components/static/media/pin.4f081dec340b8b2ca36121d797c6c97c.svg',
   },
+  {
+    name: 'Accordion',
+    href: baseUrl+'/accordion',
+    imageSrc: 'https://horizon-ui.com/components/static/media/kanban.cf017f7bd0041d71e562eff33ca7e91a.svg',
+  },
+  {
+    name: 'Menu',
+    href: baseUrl+'/menu',
+    imageSrc: 'https://horizon-ui.com/components/static/media/menu.7249d83e9c1c2d8d55bcfbc0398dcb5d.svg',
+  },
 ])
 </script>
 <template>

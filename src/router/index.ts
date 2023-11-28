@@ -125,6 +125,22 @@ const router = createRouter({
       component: () => import('../views/components/ComponentPagination.vue')
     },
     {
+      path: '/components/accordion',
+      name: 'accordion',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentAccordion.vue')
+    },
+    {
+      path: '/components/menu',
+      name: 'menu',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentMenu.vue')
+    },
+    {
       path: '/components/all',
       name: 'componentsAll',
       meta: {
