@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 
+// @ts-ignore
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 

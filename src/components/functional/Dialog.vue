@@ -80,6 +80,15 @@ const enterAndLeaveClass = computed<StyleClass>(()=> {
 })
 
 // ---------------------------------------
+watch(isOpen,(value)=>{
+  const bodyEl = document.querySelector("body")
+  if (value) {
+    bodyEl.classList.add("overflow-hidden")
+  } else {
+    bodyEl.classList.remove("overflow-hidden")
+  }
+})
+// ---------------------------------------
 function closeModal() {
   emit('update:modelValue', false)
 }
@@ -89,7 +98,7 @@ function closeModal() {
   <Teleport :to="String(toTeleport)">
     <transition  appear leave-active-class="transition-all ease-in-out duration-500" leave-from-class="translate-x-0 opacity-100" :leave-to-class="enterAndLeaveClass"
                 enter-active-class="transition-all ease-in-out duration-500" :enter-from-class="enterAndLeaveClass" enter-to-class="translate-x-0 opacity-100">
-      <div v-if="isOpen" class="fixed top-0 left-0 right-0 bottom-0 z-50 w-full overflow-x-hidden overflow-y-auto inset-0 h-screen max-h-full">
+      <div v-if="isOpen" class="fixed top-0 left-0 right-0 bottom-0 z-[200] w-full overflow-x-hidden overflow-y-auto inset-0 h-screen max-h-full">
         <div v-if="!notCloseBackground" class="fixed inset-0" @click="closeModal"/>
         <div :class="classDialog">
           <slot :closeDialog="closeModal"></slot>
@@ -101,7 +110,7 @@ function closeModal() {
     </transition>
     <transition leave-active-class="transition-opacity ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                   enter-active-class="transition-opacity ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-      <div v-if="isOpen" class="fixed inset-0 z-[49]">
+      <div v-if="isOpen" class="fixed inset-0 z-[99]">
         <slot name="background">
           <div class="fixed inset-0 bg-neutral-500/10 dark:bg-neutral-400/10 backdrop-blur-[3px]" />
         </slot>
