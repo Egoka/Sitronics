@@ -220,7 +220,7 @@ const emit = defineEmits<{
   (event: 'click-cell', payload: { eventEl:HTMLElement, column:IColumn, value:any, valueWithMarker:any, data:any, indexRow:number })
   (event: 'loading', payload:boolean)
   (event: 'clear-filter')
-}>();
+}>()
 const slots = useSlots()
 // ---REF-LINK----------------------------
 const componentTable = ref<HTMLElement>()
@@ -650,7 +650,7 @@ defineExpose<ITableExpose>({
   startLoading,stopLoading,
   updateHeightTable
 })
-// ---------------------------------------
+// ---MOUNT-UNMOUNT-----------------------
 onMounted(()=>{
   if (tbody.value) { tableObserver.observe(tbody.value as Element) }
   const resultSort = dataColumns.value.map((column)=>[column.dataField,column.defaultSort??null])
@@ -909,7 +909,7 @@ function clickRow(key:string, data:any, indexRow:number) {
   emit( "click-row", {eventEl: (tbody.value as HTMLElement)?.querySelector(`.${key}`) as HTMLElement ?? null, data, indexRow})
 }
 function clickCell(key:string, column:IColumn, value:any, valueWithMarker:any, data:any, indexRow:number, indexCol:number) {
-  if (column?.isEdit) {
+  if ((column as IColumnPrivate)?.isEdit) {
     editableCell.value = {indexRow, indexCol} }
   emit( "click-cell", {eventEl: (tbody.value as HTMLElement)?.querySelector(`.${key}`) as HTMLElement ?? null, column, value, valueWithMarker, data, indexRow})
 }
@@ -937,7 +937,7 @@ function updateRow(_key:uuid, data:any):false|any {
       allData.value[index] = newValueRow
       emit('after-edit-row', {newValue: allData.value[index], oldValue: newValueRow, _key})
       return allData.value[index] 
-    } 
+    }
   } return false
 }
 function updateCell(_key:uuid, column:IColumn, value: any):false|any {

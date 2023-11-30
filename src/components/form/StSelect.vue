@@ -51,7 +51,9 @@ defineExpose<ISelectExpose>({
   select
 })
 // ---------------------------------------
-const inputBody = ref<HTMLElement>()
+const selectBody = ref<HTMLElement>()
+const selectList = ref<HTMLElement>()
+const selectSearch = ref<HTMLElement>()
 const query = ref<string>("")
 const isOpenList = ref<boolean>(false)
 const classLayout =  ref<ILayout["class"]>()
@@ -143,9 +145,7 @@ function keydownSelect(evt:KeyboardEvent){
   let isEscape = false;
   if ("key" in evt) { isEscape = (evt.key === "Escape" || evt.key === "Esc") }
   if (isEscape) { isOpenList.value = false
-  } else {
-    document.getElementById(`search${id.value}`)?.focus()
-  }
+  } else { selectSearch.value?.focus() }
 }
 // ---------------------------------------
 function focusSelect(isFocus) {
@@ -156,10 +156,8 @@ function openSelect() {
   isOpenList.value = true
 }
 function closeSelect(evt:MouseEvent) {
-  const select = document.getElementById(`select${id.value}`)
-  const list = document.getElementById(`list${id.value}`)
-  if (isOpenList.value && select && list) {
-    isOpenList.value = evt.composedPath().includes(select) || evt.composedPath().includes(list)
+  if (isOpenList.value && selectBody.value && selectList) {
+    isOpenList.value = evt.composedPath().includes(selectBody.value as HTMLElement) || evt.composedPath().includes(selectList.value as HTMLElement)
     if (isOpenList.value === false) {
       emit('change:modelValue', value.value, visibleValue.value)
     }
@@ -228,9 +226,7 @@ function onLeave(el:any, done:any) {
     :class="classLayout"
     v-bind="inputLayout"
     @clear="select(null)">
-    <div :id="`select${id}`"
-         ref="inputBody"
-         tabindex="0"
+    <div ref="selectBody" tabindex="0"
          :class="[
            'classSelect flex w-full min-h-[36px] max-h-16 overflow-auto cursor-pointer focus:outline-0 focus:ring-0',
             props.paramsSelect?.classSelect]"
@@ -271,8 +267,7 @@ function onLeave(el:any, done:any) {
     <template #body>
       <transition leave-active-class="transition ease-in-out duration-200" leave-from-class="opacity-100" :leave-to-class="`opacity-0 ${animate}`"
                   enter-active-class="transition ease-in-out duration-200" :enter-from-class="`opacity-0 ${animate}`" enter-to-class="opacity-100">
-        <div v-show="isOpenList"
-             :id="`list${id}`"
+        <div v-show="isOpenList" ref="selectList"
              :class="['classSelectList overflow-auto overscroll-y-contain absolute z-50 min-w-[10rem] mt-1 w-full max-h-60',
              'text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm',
              props.paramsSelect?.classSelectList,
@@ -285,8 +280,8 @@ function onLeave(el:any, done:any) {
             !(mode === 'underlined')||'from-stone-50 dark:from-stone-950 via-stone-50 dark:via-stone-950',
             !(mode === 'filled')||'from-stone-100 dark:from-stone-900 via-stone-100 dark:via-stone-900']"/>
           <StInput
-            :id="`search${id}`"
             v-if="isQuery"
+            ref="selectSearch"
             v-model="query"
             label="Найти..."
             :mode="mode"

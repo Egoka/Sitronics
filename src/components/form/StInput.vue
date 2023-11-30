@@ -19,7 +19,7 @@ export interface IDataInput {
 }
 export interface IInput extends Omit<ILayout, "value"|"isValue">{
   id?: string
-  modelValue?: string|number|null|undefined,
+  modelValue?: string|number|null|undefined
   paramsInput?: Partial<IDataInput>
 }
 // ---------------------------------------
