@@ -20,17 +20,17 @@ const structures = ref<Array<IFormStructure>>([
                 <span class="${badgesClass}">Underlined</span>`,
     fields:[
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "baseOutlined",
         mode: "outlined"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "baseFilled",
         mode: "filled"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "baseUnderlined",
         mode: "underlined"
       }
@@ -41,19 +41,19 @@ const structures = ref<Array<IFormStructure>>([
     subTitle: `Каждому полю ввода можно добавить параметр <span class="${badgesClass}">label</span>.`,
     fields:[
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "labelOutlined",
         label: "Название outlined",
         mode: "outlined"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "labelFilled",
         label: "Название filled",
         mode: "filled"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "labelUnderlined",
         label: "Название underlined",
         mode: "underlined"
@@ -70,31 +70,31 @@ const structures = ref<Array<IFormStructure>>([
                 <span class="${badgesClass}">vanishing</span>`,
     fields:[
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "labelModeOffsetDynamic",
         label: "offsetDynamic",
         labelMode: "offsetDynamic",
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "labelModeOutlinedOffsetStatic",
         label: "offsetStatic",
         labelMode: "offsetStatic",
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "labelModeDynamic",
         label: "dynamic",
         labelMode: "dynamic",
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "labelModeStatic",
         label: "static",
         labelMode: "static",
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "labelModeVanishing",
         label: "vanishing",
         labelMode: "vanishing",
@@ -106,13 +106,13 @@ const structures = ref<Array<IFormStructure>>([
     subTitle: `В любом поле ввода можно размещать в начало или конец любой <span class="${badgesClass}">текст</span> или <span class="${badgesClass}">значки</span>`,
     fields:[
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "before",
         label: "Имя",
         beforeIcon: "user-circle"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "after",
         label: "Стоимость",
         afterIcon: "circle-stack",
@@ -123,7 +123,7 @@ const structures = ref<Array<IFormStructure>>([
         }
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "beforeAndAfter",
         label: "ник",
         beforeIcon: "CoVk",
@@ -137,7 +137,7 @@ const structures = ref<Array<IFormStructure>>([
     subTitle: `В любом поле ввода можно добавить атрибут <span class="${badgesClass}">autocomplete</span> для автозаполнения, <span class="${badgesClass}">Placeholder</span> для примера заполнения,<span class="${badgesClass}">clear</span> для очищения ввода, <span class="${badgesClass}">help</span> для любой вспомогательной инструкции и <span class="${badgesClass}">required</span> для выставления звездочки обязательного поля`,
     fields:[
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "autocomplete",
         label: "Отсутствие автозаполнения ↓",
         paramsInput: {
@@ -145,7 +145,7 @@ const structures = ref<Array<IFormStructure>>([
         }
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "placeholder",
         label: "Пример заполнения ↓",
         paramsInput: {
@@ -153,19 +153,19 @@ const structures = ref<Array<IFormStructure>>([
         }
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "clear",
         label: "Введите текст и появится крестик →",
         clear: true
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "help",
         label: "Сложный инпут с подсказкой →",
         help: `Вспомогательная инструкция. Которая может состоять из сложнного текста. <span class="${badgesClass}">Например такой</span>`
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "required",
         label: "Обязательный инпут со звездочкой →",
         required: true
@@ -176,7 +176,7 @@ const structures = ref<Array<IFormStructure>>([
     subTitle: `Еще в любое поле ввода можно добавить атрибут <span class="${badgesClass}">disabled</span> для деактивации поля ввода`,
     fields:[
       {
-        typeComponent: "StSwitch",
+        typeComponent: "Switch",
         name: "switch",
         label: "Переключить",
         modelValue: false,
@@ -185,20 +185,20 @@ const structures = ref<Array<IFormStructure>>([
         }
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "disabled1",
         label: "outlined",
         mode: "outlined",
         disabled: false
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "disabled2",
         label: "filled",
         mode: "filled",
         disabled: false
       },      {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "disabled3",
         label: "underlined",
         mode: "underlined",
@@ -215,7 +215,7 @@ const structures = ref<Array<IFormStructure>>([
 Для ввода номера телефона также уже установлены маски телефонов для <span class="${badgesClass}">России (7)</span>, <span class="${badgesClass}">Китая (86)</span>, <span class="${badgesClass}">США (1)</span>, <span class="${badgesClass}">Японии (81)</span>, <span class="${badgesClass}">Южной Кореи (82)</span>`,
     fields:[
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "number",
         label: "number",
         paramsInput: {
@@ -226,7 +226,7 @@ const structures = ref<Array<IFormStructure>>([
         beforeIcon: "MdDiscount"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "price",
         label: "price",
         paramsInput: {
@@ -239,7 +239,7 @@ const structures = ref<Array<IFormStructure>>([
         afterText: "рубля"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "phone",
         label: "phone",
         paramsInput: {
@@ -253,7 +253,7 @@ const structures = ref<Array<IFormStructure>>([
     subTitle: `Дополнительно можно указать тип ввода для: <span class="${badgesClass}">text</span> (по умолчанию), <span class="${badgesClass}">number</span>, <span class="${badgesClass}">email</span>, <span class="${badgesClass}">password</span>`,
     fields:[
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "typeText",
         label: "text",
         paramsInput: {
@@ -262,7 +262,7 @@ const structures = ref<Array<IFormStructure>>([
         beforeIcon: "BiBodyText"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "typeNumber",
         label: "number",
         paramsInput: {
@@ -271,7 +271,7 @@ const structures = ref<Array<IFormStructure>>([
         beforeIcon: "OiNumber"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "typeEmail",
         label: "email",
         paramsInput: {
@@ -280,7 +280,7 @@ const structures = ref<Array<IFormStructure>>([
         beforeIcon: "MdAlternateemailSharp"
       },
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "typePassword",
         label: "password",
         paramsInput: {
@@ -295,7 +295,7 @@ const structures = ref<Array<IFormStructure>>([
     subTitle: `Тут приведены примеры как можно через аргументы <span class="${badgesClass}">classInput</span> изменить поле ввода`,
     fields:[
       {
-        typeComponent: "StInput",
+        typeComponent: "Input",
         name: "customOne",
         label: "text",
         paramsInput: {
@@ -308,7 +308,9 @@ const structures = ref<Array<IFormStructure>>([
 ])
 watch(form, ()=>{
   if (form.value["switch"] === true || form.value["switch"] === false){
-    formTest.value?.setFieldParam("disabled", "disabled", form.value["switch"])
+    formTest.value?.setFieldParam("disabled1", "disabled", form.value["switch"])
+    formTest.value?.setFieldParam("disabled2", "disabled", form.value["switch"])
+    formTest.value?.setFieldParam("disabled3", "disabled", form.value["switch"])
   }
 }, {deep: true})
 </script>

@@ -14,7 +14,10 @@ import Button from "@/components/functional/Button.vue";
 <!--        </div>-->
 <!--      </div>-->
       <div class="text-center">
-        <h1 class="font-extrabold text-4xl tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-tr from-primary-300 to-primary-900 dark:from-primary-900 dark:to-primary-300">Разработка для Sitronics</h1>
+        <h1 class="font-extrabold text-6xl tracking-tight text-gray-900 sm:text-6xl bg-clip-text text-transparent bg-gradient-to-tr from-primary-300 to-primary-900 dark:from-primary-900 dark:to-primary-300"
+            style="font-family: 'Istok Web', sans-serif;">
+          Разработка для Sitronic
+        </h1>
         <p class="mt-6 text-lg leading-8 text-gray-600">Демонстрация готовых компонентов с примерами их работы</p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
           <Button link="/components" mode="secondary" class="bg-[#587cec] dark:bg-[#587cec] hover:bg-[#587cec]/80 dark:hover:bg-[#587cec]/80 px-3.5 py-2.5 h-max font-semibold">
@@ -31,3 +34,6 @@ import Button from "@/components/functional/Button.vue";
     </div>
   </div>
 </template>
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Istok+Web:wght@700&display=swap');
+</style>
