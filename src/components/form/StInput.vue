@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, ref, watch, useSlots, onMounted} from "vue";
+import type {Ref, UnwrapRef} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import {convertToNumber, convertToPhone, onkeydown, toNumber, toPhone} from "@/helpers/numbers";
 import {EyeIcon, EyeSlashIcon} from "@heroicons/vue/20/solid";
@@ -26,6 +27,8 @@ export interface IInput extends Omit<ILayout, "value"|"isValue">{
 const props = defineProps<IInput>()
 const emit = defineEmits<{
   (event: 'clear', payload: string): void;
+  (event: 'focus', env: FocusEvent): void;
+  (event: 'blur', env: FocusEvent): void;
   (event: 'update:modelValue', payload: string): void;
   (event: 'change:modelValue', payload: string): void;
   (event: 'update:isInvalid', payload: boolean): void;
@@ -37,8 +40,11 @@ const inputRef = ref<HTMLElement>()
 // ---------------------------------------
 const classLayout = ref<ILayout["class"]>()
 const isActiveInput = ref<boolean>(false)
-const value = ref<IInput["modelValue"]>()
 const mask = computed<IDataInput["mask"]|null>(()=> props.paramsInput?.mask ?? null)
+const value = ref<IInput["modelValue"]>()
+watch(()=>props.modelValue,(modelValue)=>{
+  value.value = String(modelValue ? toMask(modelValue) : modelValue ?? "")
+},{immediate: true})
 // ---------------------------------------
 const id = ref<NonNullable<IInput["id"]>>(String(props.id ?? getCurrentInstance()?.uid))
 const type = ref<IDataInput["type"]>(props.paramsInput?.type && arrayInputType.includes(props.paramsInput.type) ? props.paramsInput?.type : "text")
@@ -53,18 +59,57 @@ const isDisabled = computed<NonNullable<IInput["disabled"]>>(()=> props.disabled
 const isLoading = computed<NonNullable<IInput["isInvalid"]>>(()=> props.loading ?? false)
 const isInvalid = computed<NonNullable<IInput["isInvalid"]>>(()=> !isDisabled.value ? props.isInvalid : false)
 const messageInvalid = computed<NonNullable<IInput["messageInvalid"]>>(()=> props.messageInvalid ?? "")
+// ---EXPOSE------------------------------
+export interface IInputExpose {
+  //---STATE-------------------------
+  // inputRef: Readonly<Ref<UnwrapRef<HTMLElement>>>
+  isActiveInput: Readonly<Ref<UnwrapRef<boolean>>>
+  // ---PROPS-------------------------------
+  id: Readonly<Ref<UnwrapRef<IInput["id"]>>>
+  type: Readonly<Ref<UnwrapRef<IInput["type"]>>>
+  value: Readonly<Ref<UnwrapRef<IInput["modelValue"]>>>
+  autoFocus: Readonly<Ref<UnwrapRef<IInput["autoFocus"]>>>
+  placeholder: Readonly<Ref<UnwrapRef<IInput["placeholder"]>>>
+  autocomplete: Readonly<Ref<UnwrapRef<IInput["autocomplete"]>>>
+  lengthInteger: Readonly<Ref<UnwrapRef<IInput["lengthInteger"]>>>
+  lengthDecimal: Readonly<Ref<UnwrapRef<IInput["lengthDecimal"]>>>
+  isValue: Readonly<Ref<UnwrapRef<boolean>>>
+  mode: Readonly<Ref<UnwrapRef<IInput["mode"]>>>
+  isDisabled: Readonly<Ref<UnwrapRef<IInput["disabled"]>>>
+  isLoading: Readonly<Ref<UnwrapRef<IInput["isInvalid"]>>>
+  isInvalid: Readonly<Ref<UnwrapRef<IInput["isInvalid"]>>>
+  messageInvalid: Readonly<Ref<UnwrapRef<IInput["messageInvalid"]>>>
+  // ---METHODS-----------------------------
+  toMask(baseValue:string|number): string
+  inputModelValue(valueResult:any): void
+  changeModelValue(valueResult:any): void
+  clear(): void
+  focus(env:FocusEvent): void
+  blur(env:FocusEvent): void
+}
+defineExpose<IInputExpose>({
+  //---STATE-------------------------
+  // inputRef,
+  isActiveInput,
+  // ---PROPS-------------------------------
+  id,type,value,autoFocus,placeholder,autocomplete,lengthInteger,lengthDecimal,isValue,mode,isDisabled,isLoading,isInvalid,messageInvalid,
+  // ---METHODS-----------------------------
+  toMask,inputModelValue, changeModelValue, clear, focus, blur
+})
 // ---------------------------------------
-const inputLayout = computed(()=>{return {isValue: isValue.value, mode: mode.value, label: props.label,
+const inputLayout = computed(()=>({isValue: isValue.value, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
-  classBody: props.classBody, class: props.class}})
+  classBody: props.classBody, class: props.class}))
 // ---------------------------------------
 onMounted(()=>{
   if (autoFocus.value) { inputRef.value?.focus() }
 })
-watch(()=>props.modelValue,(modelValue)=>{
-  value.value = String(modelValue ? toMask(modelValue) : modelValue ?? "")
-},{immediate: true})
+// ---------------------------------------
+watch(isActiveInput, (value)=>{
+  classLayout.value = (props.class??"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+  emit('isActive', value)
+})
 // ---------------------------------------
 function toMask(baseValue:string|number):string {
   if (!mask?.value){
@@ -78,12 +123,7 @@ function toMask(baseValue:string|number):string {
   } else { return String(baseValue) }
 }
 // ---------------------------------------
-watch(isActiveInput, (value)=>{
-  classLayout.value = (props.class??"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
-  emit('isActive', value)
-})
-// ---------------------------------------
-function inputEvent ($event:any) {
+function inputEvent ($event:InputEvent) {
   if (mask.value === "phone"){ toPhone($event) }
   if (mask.value === "number"){ toNumber($event, "", lengthInteger.value, lengthDecimal.value) }
   if (mask.value === "price"){ toNumber($event, " ", lengthInteger.value, lengthDecimal.value) }
@@ -102,6 +142,15 @@ function clear() {
   inputModelValue('')
   changeModelValue('')
   emit('clear', '')
+}
+function focus(env:FocusEvent) {
+  inputRef.value?.focus()
+  isActiveInput.value = true
+  emit('focus', env)
+}
+function blur(env:FocusEvent) {
+  isActiveInput.value = false
+  emit('blur', env)
 }
 </script>
 
@@ -125,8 +174,8 @@ function clear() {
       placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600
       [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
       focus:outline-0 focus:ring-0 transition-all"
-      @focus="isActiveInput = true"
-      @blur="isActiveInput = false"
+      @focus="focus"
+      @blur="blur"
       @input="inputEvent"
       @keydown="onkeydown"
       @change="changeModelValue(($event.target as HTMLInputElement).value)"

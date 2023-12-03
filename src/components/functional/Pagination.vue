@@ -40,7 +40,7 @@ const isNavigationButtons = computed<IPagination["isNavigationButtons"]>(()=>!pr
 const arraySizesSelector = computed<Array<{key:number, value: string}>>(()=>
   ((props.sizesSelector ?? [...new Set([+sizePage.value,5,15,20,50,100,150])]) as Array<number>)
     ?.sort((a, b) => a - b)
-    ?.map(size=>{return{key: size, value: `${size} rows`}}))
+    ?.map(size=>({key: size, value: `${size} rows`})))
 const pages = computed<Array<Page>>(()=> {
   const countPages = Math.ceil(total.value / sizePage.value)
   let resultArray = Array(countPages).fill(null).map((_, i) => i + 1)

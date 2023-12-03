@@ -36,7 +36,7 @@ const autocomplete = computed<NonNullable<IDataAria["autocomplete"]>>(()=> props
 const wrap = computed<NonNullable<IDataAria["wrap"]>>(()=> props.paramsAria?.wrap ?? "soft")
 const rows = computed<NonNullable<IDataAria["rows"]>>(()=> props.paramsAria?.rows ?? 3)
 const maxLength = computed<NonNullable<IDataAria["maxLength"]>>(()=> props.paramsAria?.maxLength ?? 9999)
-const isValue = computed<boolean>(()=> Boolean(value.value ? String(value.value).length : value.value ?? isActiveAria.value))
+const isValue = computed<boolean>(()=> !!value.value || isActiveAria.value)
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
 const isDisabled = computed<NonNullable<IAria["disabled"]>>(()=> props.disabled ?? false)
 const isLoading = computed<NonNullable<IAria["isInvalid"]>>(()=> props.loading ?? false)
@@ -46,10 +46,10 @@ const classStyle = computed<NonNullable<ILayout["class"]>>(()=> {
   return props.class ? props.class + additionalStyles.value : additionalStyles.value
 })
 // ---------------------------------------
-const inputLayout = computed(()=>{return{isValue: isValue.value, mode: mode.value, label: props.label,
+const inputLayout = computed(()=>({isValue: isValue.value, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
-  classBody: props.classBody, class: classStyle.value}})
+  classBody: props.classBody, class: classStyle.value}))
 // ---------------------------------------
 watch(isActiveAria, (value)=>{
   if (value) { document.addEventListener("click", closeAria)

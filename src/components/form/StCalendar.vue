@@ -21,6 +21,7 @@ import type {Theme} from "v-calendar/dist/types/src/utils/theme";
 // ---------------------------------------
 import {getParamsStructure} from "@/helpers/object";
 import type {StyleClass} from "@/components/BaseTypes";
+import FixWindow, {type IFixWindow} from "@/components/functional/FixWindow.vue";
 // ---------------------------------------
 
 type DateValueCalendar = Date | number | string | null
@@ -144,6 +145,7 @@ export interface IDatePicker {
   classDataPicker: StyleClass
   classPicker: StyleClass
   classDateText: StyleClass
+  paramsFixWindow: IFixWindow
   ///Calendar//////////////////////
   borderless: boolean
   transparent: boolean
@@ -196,7 +198,7 @@ const dataPicker = ref<HTMLElement>()
 const picker = ref<HTMLElement>()
 const isOpenPicker = ref<boolean>(false)
 // ---------------------------------------
-const datePicker = computed<Partial<IDatePicker>>(()=>{return {
+const datePicker = computed<Partial<IDatePicker>>(()=>({
   borderless: true,
   transparent: true,
   color: "primary",
@@ -208,11 +210,10 @@ const datePicker = computed<Partial<IDatePicker>>(()=>{return {
     input: [props.paramsDatePicker?.mask??'DD MMMM YYYY']
   },
   ...props.paramsDatePicker
-}})
+}))
 // ---------------------------------------
 const classLayout = ref<ILayout["class"]>()
 const calendar = ref<ICalendarPicker>();
-const input = ref<HTMLElement|undefined>()
 const id = ref(props.id ?? getCurrentInstance()?.uid)
 // ---------------------------------------
 const value = ref<ICalendar["modelValue"]>()
@@ -250,11 +251,14 @@ const baseDate = computed<Date|SimpleDateRange|null>(()=>{
     } else if (dates.length === 1) { return dates[0] }
   } else { return null }
 })
+const paramsFixWindow = computed<NonNullable<IDatePicker["paramsFixWindow"]>>(()=> ({
+  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 14, ...props.paramsDatePicker.paramsFixWindow
+}))
 // ---------------------------------------
-const inputLayout = computed(()=>{return{isValue: isValue.value, mode: mode.value, label: props.label,
+const inputLayout = computed(()=>({isValue: isValue.value, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
-  classBody: props.classBody, class: props.class}})
+  classBody: props.classBody, class: props.class}))
 // ---------------------------------------
 onMounted(()=>{
   if (autoFocus.value) { openCalendar() }
@@ -268,10 +272,8 @@ watch(calendar, ()=>{
 },{deep: true})
 watch(isOpenPicker, (value)=>{
   if (value) {
-    document.addEventListener("mousedown", closeCalendar)
     document.addEventListener("keydown", keydownCalendar)
   } else {
-    document.removeEventListener("mousedown", closeCalendar);
     document.removeEventListener("keydown", keydownCalendar)
   }
   focus(value)
@@ -346,10 +348,9 @@ function clear () {
       </div>
     </div>
     <template #body>
-      <transition leave-active-class="transition ease-in-out duration-200" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-5"
-                        enter-active-class="transition ease-in-out duration-200" enter-from-class="opacity-0 -translate-y-5" enter-to-class="opacity-100 translate-y-0">
-        <div v-show="isOpenPicker" ref="picker"
-             class="vc-primary absolute z-50 mt-1 w-min min-w-min max-w-lg max-h-max overflow-auto text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm"
+      <FixWindow v-bind="paramsFixWindow" :model-value="isOpenPicker" class="z-30" @close="env => closeCalendar(env)">
+        <div ref="picker"
+             class="vc-primary mt-1 w-min min-w-min max-w-lg max-h-max overflow-auto text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm"
              :class="[ props.paramsDatePicker?.classPicker,
                !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
                !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
@@ -358,7 +359,7 @@ function clear () {
           <DatePicker v-if="datePicker?.isRange" v-model.range.string="value" v-bind="getParamsStructure(datePicker, ['isRange'])" ref="calendar" @update:modelValue="changeDate"><template #footer><slot name="footerPicker"/></template></DatePicker>
           <DatePicker v-else v-model.string="value" v-bind="getParamsStructure(datePicker, ['isRange'])" ref="calendar" @update:modelValue="changeDate"><template #footer><slot name="footerPicker"/></template></DatePicker>
         </div>
-      </transition>
+      </FixWindow>
       <slot/>
     </template>
     <template v-if="slots.before" #before><slot name="before"/></template>

@@ -379,16 +379,26 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
               classSelect: 'normal-case font-normal max-h-[25rem]',
               classSelectList: 'normal-case font-normal',
               dataSelect: LData.compact(LData.uniq(LData.map(allData.value, options.dataField ?? ""))) ?? [],
+              paramsFixWindow: {
+                position: 'bottom',
+                ...column?.paramsSelect?.paramsFixWindow
+              },
               ...column.paramsSelect};
-            options.edit.paramsSelect = <IDataInput>{
+            options.edit.paramsSelect = <IDateSelect>{
               ...options.paramsSelect,
               autoFocus:true,
               multiple: false,
-              ...(column?.edit as EditorCell)?.paramsSelect}
+              ...(column?.edit as EditorCell)?.paramsSelect,
+              paramsFixWindow: {
+                position: 'bottom',
+                eventClose: "hover",
+                ...(column?.edit as EditorCell)?.paramsSelect?.paramsFixWindow
+              },
+            }
             break
           }
           case "date": {
-            options.paramsDatePicker = {
+            options.paramsDatePicker = <Partial<IDatePicker>>{
               isRange: true,
               attributes: [{
                 highlight: {
@@ -396,14 +406,24 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
                 },
                 dates: LData.compact(LData.uniq(LData.map(allData.value, (item)=> item[options.dataField] ? String(item[options.dataField]) : null ))) ?? [],
               }],
+              paramsFixWindow: {
+                position: 'bottom',
+                ...column?.paramsSelect?.paramsFixWindow
+              },
               mask: column.paramsDatePicker?.masks?.modelValue ?? "DD.MM.YYYY",
               ...column.paramsDatePicker
             };
-            options.edit.paramsDatePicker = <IDataInput>{
+            options.edit.paramsDatePicker = <Partial<IDatePicker>>{
               ...options.paramsDatePicker,
               autoFocus:true,
               isRange: false,
-              ...(column?.edit as EditorCell)?.paramsDatePicker}
+              ...(column?.edit as EditorCell)?.paramsDatePicker,
+              paramsFixWindow: {
+                position: 'bottom',
+                eventClose: "hover",
+                ...(column?.edit as EditorCell)?.paramsSelect?.paramsFixWindow
+              },
+            }
             break
           }
         }
@@ -1177,12 +1197,13 @@ function stopResizeColumn() {
                             :mode="mode"
                             :params-select="{
                               ...column.edit.paramsSelect,
+                              paramsFixWindow: {scrollableEl: tableBody, ...column.edit.paramsSelect?.paramsFixWindow},
                               classSelect: `pl-[10px] ${styles.class?.cellText} ${column.edit.paramsSelect?.classSelect}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-[2px] -my-3 w-full"
                             label-mode="vanishing"
                             @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
-                            @change:model-value="(value)=>updateCell(data?._key, column, value)"
+                            @update:model-value="(value)=>{updateCell(data?._key, column, value)}"
                             />
                           <StCalendar
                             v-if="column.type === 'date'"
@@ -1191,6 +1212,7 @@ function stopResizeColumn() {
                             :mode="mode"
                             :params-date-picker="{
                               ...column.edit.paramsDatePicker,
+                              paramsFixWindow: {scrollableEl: tableBody, ...column.edit.paramsDatePicker?.paramsFixWindow},
                               classDateText: `pt-[7px] pl-[10px] ${styles.class?.cellText} ${column.edit.paramsDatePicker?.classDateText}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-0 -my-3 w-full"

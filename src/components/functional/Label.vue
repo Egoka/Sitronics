@@ -27,9 +27,9 @@ const background = computed(()=> {
 </script>
 
 <template>
-  <div :class="['absolute top-[38px] flex pointer-events-none select-none h-5 rounded-md transition',
-  !(type === 'dynamic')||`peer-focus:-translate-y-[60px] peer-focus:translate-x-4 -translate-y-7 transition-transform`,
-  !(type === 'offsetDynamic')||`peer-focus:-translate-y-[48px] peer-focus:translate-x-4 -translate-y-7 transition-transform px-1 bg-gradient-to-t ${background}`,
+  <div :class="['absolute top-[38px] flex pointer-events-none select-none h-5 rounded-md transition-all duration-200',
+  !(type === 'dynamic')||`peer-focus:-translate-y-[60px] peer-focus:translate-x-4 -translate-y-7`,
+  !(type === 'offsetDynamic')||`peer-focus:-translate-y-[48px] peer-focus:translate-x-4 -translate-y-7 px-1 bg-gradient-to-t ${background}`,
   !(type === 'offsetStatic')||`-translate-y-[48px] translate-x-4 px-1 bg-gradient-to-t ${background} from-50% to-transparent to-55%`,
   !(type === 'static')||'-translate-y-[60px] translate-x-4',
   !(type === 'vanishing')||`-translate-y-[28px]`,

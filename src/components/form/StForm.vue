@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, reactive, watch} from "vue";
+import {computed, onMounted, reactive, ref, watch} from "vue";
 import Icons from "@/components/functional/Icons.vue";
 import StInput, {type IInput} from "@/components/form/StInput.vue";
 import StAria, {type IAria} from "@/components/form/StAria.vue";
@@ -105,6 +105,8 @@ const emit = defineEmits<{
 }>()
 // ---------------------------------------
 const arrayFieldsValidate = ["Input", "Aria", "Select", "Calendar", "TextEditor"]
+// ---------------------------------------
+const formRef = ref<HTMLElement>()
 // ---------------------------------------
 const name = computed<IForm["name"]>(()=>props.name ?? "")
 const modeStyle = computed<IMode|undefined>(()=>props.modeStyle)
@@ -266,7 +268,7 @@ function submit(){
 
 <template>
   <form :name="name" :autocomplete="autocomplete" @submit.prevent="submit">
-    <div :class="props?.class">
+    <div ref="formRef" :class="props?.class">
       <template v-for="(structure, key) in formStructure" :key="key">
         <transition leave-active-class="transition ease-in-out duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in-out duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">

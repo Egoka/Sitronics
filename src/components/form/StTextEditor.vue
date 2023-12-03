@@ -58,12 +58,12 @@ const isInvalid = computed<NonNullable<ITextEditor["isInvalid"]>>(()=> !isDisabl
 const messageInvalid = computed<NonNullable<ITextEditor["messageInvalid"]>>(()=> props.messageInvalid ?? "")
 const classStyle = computed<NonNullable<ILayout["class"]>>(()=> { return props.class ? props.class + additionalStyles.value : additionalStyles.value })
 // ---------------------------------------
-const inputLayout = computed(()=>{return {isValue: isValue.value, mode: mode.value, label: props.label,
+const inputLayout = computed(()=>({isValue: isValue.value, mode: mode.value, label: props.label,
   labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
   required: props.required, loading: isLoading.value, disabled: isDisabled.value, help: props.help, clear: props.clear,
-  classBody: props.classBody, class: classStyle.value}})
+  classBody: props.classBody, class: classStyle.value}))
 // ---------------------------------------
-const paramsQuillEditor = computed<NonNullable<Partial<IDataTextEditor>>>(()=>{return {
+const paramsQuillEditor = computed<NonNullable<Partial<IDataTextEditor>>>(()=>({
   content: value.value,
   readOnly: isDisabled.value,
   contentType: "html",
@@ -88,7 +88,7 @@ const paramsQuillEditor = computed<NonNullable<Partial<IDataTextEditor>>>(()=>{r
     ['clean']                                         // remove formatting button
   ],
   ...props.paramsTextEditor
-} })
+}))
 // ---------------------------------------
 watch(theme, (theme)=>{
   open.value = theme === "snow" ? true : theme === "bubble" ? false : false

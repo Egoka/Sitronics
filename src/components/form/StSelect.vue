@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import {computed, getCurrentInstance, ref, reactive, watch, useSlots, onMounted} from "vue";
+import {computed, getCurrentInstance, ref, watch, useSlots, onMounted} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import {CheckIcon, MagnifyingGlassIcon, FunnelIcon} from "@heroicons/vue/20/solid";
 import StInput from "@/components/form/StInput.vue";
 import * as LData from "lodash";
 import gsap from 'gsap'
 import Badge from "@/components/functional/Badge.vue";
+import FixWindow, {type IFixWindow} from "@/components/functional/FixWindow.vue";
 // ---------------------------------------
 type IDataItem = {[key:string]: any}
 type BaseDataItem = string|number|IDataItem
@@ -21,7 +22,7 @@ export interface IDateSelect {
   classSelect?: string
   classSelectList?: string
   classMaskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
-  animate?: "-translate-y-5"|string
+  paramsFixWindow?: Omit<IFixWindow, "modelValue">
 }
 export interface ISelect extends Omit<ILayout, "value"|"isValue">{
   id?: string
@@ -101,7 +102,9 @@ const maxVisible = computed<IDateSelect["maxVisible"]>(()=> props.paramsSelect?.
 const noData = computed<NonNullable<IDateSelect["noData"]>>(()=> props.paramsSelect?.noData ?? "Нет данных")
 const isQuery = computed<NonNullable<IDateSelect["noQuery"]>>(()=> !props.paramsSelect?.noQuery)
 const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery ?? "font-bold text-primary-700 dark:text-primary-300")
-const animate = computed<NonNullable<IDateSelect["animate"]>>(()=> props.paramsSelect?.animate ?? "-translate-y-5")
+const paramsFixWindow = computed<NonNullable<IDateSelect["paramsFixWindow"]>>(()=> ({
+  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 14, ...props.paramsSelect.paramsFixWindow
+}))
 // ---------------------------------------
 const valueLayout = computed<string|null>(()=> visibleValue.value?.map(item => item[valueSelect.value])?.join(", ")||null)
 // ---------------------------------------
@@ -115,10 +118,8 @@ onMounted(()=>{
 // ---------------------------------------
 watch(isOpenList, (value)=>{
   if (value) {
-    document.addEventListener("mousedown", closeSelect)
     document.addEventListener("keydown", keydownSelect)
   } else {
-    document.removeEventListener("mousedown", closeSelect);
     document.removeEventListener("keydown", keydownSelect)
   }
   focusSelect(value)
@@ -265,15 +266,16 @@ function onLeave(el:any, done:any) {
       </div>
     </div>
     <template #body>
-      <transition leave-active-class="transition ease-in-out duration-200" leave-from-class="opacity-100" :leave-to-class="`opacity-0 ${animate}`"
-                  enter-active-class="transition ease-in-out duration-200" :enter-from-class="`opacity-0 ${animate}`" enter-to-class="opacity-100">
-        <div v-show="isOpenList" ref="selectList"
-             :class="['classSelectList overflow-auto overscroll-y-contain absolute z-50 min-w-[10rem] mt-1 w-full max-h-60',
-             'text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm',
-             props.paramsSelect?.classSelectList,
-             !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
-             !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
-             !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900']">
+      <FixWindow v-bind="paramsFixWindow" :model-value="isOpenList" class="z-30" @close="env => closeSelect(env)">
+        <div ref="selectList"
+             :class="[
+               'classSelectList overflow-auto overscroll-y-contain min-w-[10rem] mt-1 max-h-60',
+               'text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm',
+               props.paramsSelect?.classSelectList,
+               !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
+               !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
+               !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900']"
+             :style="`width: ${(selectBody as HTMLElement)?.clientWidth??0}px`">
           <div :class="[
             'sticky top-[220px] w-full h-5 z-20 bg-gradient-to-t to-transparent pointer-events-none',
             !(mode === 'outlined')||'from-white dark:from-black via-white dark:via-black',
@@ -286,11 +288,12 @@ function onLeave(el:any, done:any) {
             label="Найти..."
             :mode="mode"
             label-mode="vanishing"
-            :class-body="[`m-2 mb-5 sticky top-1 z-20 rounded-md`,
-            (mode === 'outlined') ? 'ring-stone-200 dark:ring-black': '',
-            (mode === 'underlined') ? 'ring-stone-200 dark:ring-stone-950': '',
-            (mode === 'filled') ? 'ring-stone-100 dark:ring-stone-900': '']"
-            clear>
+            clear
+            :class-body="[
+              `m-2 mb-5 sticky top-1 z-20 rounded-md`,
+              (mode === 'outlined') ? 'ring-stone-200 dark:ring-black': '',
+              (mode === 'underlined') ? 'ring-stone-200 dark:ring-stone-950': '',
+              (mode === 'filled') ? 'ring-stone-100 dark:ring-stone-900': '']">
             <template #before>
               <MagnifyingGlassIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
             </template>
@@ -322,7 +325,7 @@ function onLeave(el:any, done:any) {
               <div v-else class="p-4 text-sm text-gray-500" v-html="noData"></div>
           </TransitionGroup>
         </div>
-      </transition>
+      </FixWindow>
       <slot/>
     </template>
     <template v-if="slots.before" #before><slot name="before"/></template>

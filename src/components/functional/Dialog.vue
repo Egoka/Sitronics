@@ -96,7 +96,7 @@ function closeModal() {
 
 <template>
   <Teleport :to="String(toTeleport)">
-    <transition  appear leave-active-class="transition-all ease-in-out duration-500" leave-from-class="translate-x-0 opacity-100" :leave-to-class="enterAndLeaveClass"
+    <transition appear leave-active-class="transition-all ease-in-out duration-500" leave-from-class="translate-x-0 opacity-100" :leave-to-class="enterAndLeaveClass"
                 enter-active-class="transition-all ease-in-out duration-500" :enter-from-class="enterAndLeaveClass" enter-to-class="translate-x-0 opacity-100">
       <div v-if="isOpen" class="fixed top-0 left-0 right-0 bottom-0 z-[200] w-full overflow-x-hidden overflow-y-auto inset-0 h-screen max-h-full">
         <div v-if="!notCloseBackground" class="fixed inset-0" @click="closeModal"/>
