@@ -240,7 +240,7 @@ function validateFields(nameField?:Array<string>|string):boolean {
       }
     }
   }))
-  const isValidateForm = !(Object.values(formInvalidFields).filter(i=>i)?.length > 0 ?? false)
+  const isValidateForm = Object.values(formInvalidFields).filter(i=>i)?.length > 0 ?? false
   if (isValidateForm) {
     setTimeout(()=>
       document.querySelector(".is-invalid")?.scrollIntoView({block: "start", behavior: "smooth"})

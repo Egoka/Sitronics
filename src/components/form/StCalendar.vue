@@ -252,7 +252,7 @@ const baseDate = computed<Date|SimpleDateRange|null>(()=>{
   } else { return null }
 })
 const paramsFixWindow = computed<NonNullable<IDatePicker["paramsFixWindow"]>>(()=> ({
-  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 14, ...props.paramsDatePicker.paramsFixWindow
+  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 14, ...props.paramsDatePicker?.paramsFixWindow
 }))
 // ---------------------------------------
 const inputLayout = computed(()=>({isValue: isValue.value, mode: mode.value, label: props.label,

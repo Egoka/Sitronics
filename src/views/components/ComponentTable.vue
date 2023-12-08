@@ -647,17 +647,27 @@ const structureDialog = ref<Array<IFormStructure>>([
                 <StSwitch label="Чередующиеся строки" v-model="styles.isStripedRows" :params-switch="{switchingType: 'switch'}"></StSwitch>
               </div>
               <div class="flex flex-wrap m-2">
-                <StSelect label="Радиус" :params-select="{dataSelect:[1, 3, 5, 7, 9, 13, 17, 25, 30], noQuery:true}" v-model="styles.borderRadiusPx" class-body="m-2 w-[9rem] mb-0 rounded-md" clear/>
-                <StSelect label="Высота ячейки" :params-select="{dataSelect:[20, 30, 40, 60, 80, 100], noQuery:true}" v-model="styles.heightCell" class-body="m-2 w-[9rem] mb-0 rounded-md" clear/>
+                <StSelect label="Радиус" :params-select="{classSelect:'justify-end pr-px', dataSelect:[1, 3, 5, 7, 9, 13, 17, 25, 30], noQuery:true}" v-model="styles.borderRadiusPx" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
+                  <template v-if="styles.borderRadiusPx" #after>px</template>
+                </StSelect>
+                <StSelect label="Высота ячейки" :params-select="{classSelect:'justify-end pr-px', dataSelect:[20, 30, 40, 60, 80, 100], noQuery:true}" v-model="styles.heightCell" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
+                  <template v-if="styles.heightCell" #after>px</template>
+                </StSelect>
                 <StSelect label="Рамка" class-body="m-2 w-[9rem] mb-0 rounded-md" clear :params-select="{multiple: true, maxVisible: 0, noQuery:true, dataSelect:borderDataSelect}"
                           @update:model-value="(value)=>styles.border = (value as [])?.reduce((result,item)=>Object.assign(result, borderDataSelect.find(i=>i.id===item).key),{})"/>
                 <StSelect label="Зоны таблицы" class-body="m-2 w-[9rem] mb-0 rounded-md" clear :params-select="{multiple: true, maxVisible: 0, noQuery:true, dataSelect:classesDataSelect}"
                           @update:model-value="(value)=>styles.class = (value as [])?.reduce((result,item)=>Object.assign(result, classesDataSelect.find(i=>i.id===item).key),{})"/>
               </div>
               <div class="flex flex-wrap m-2">
-                <StSelect label="Ширина" :params-select="{dataSelect:[400, 500, 700, 900, 1300, 1700, 2500, 3000], noQuery:true}" v-model="styles.width" class-body="m-2 w-[9rem] mb-0 rounded-md" clear/>
-                <StSelect label="Высота" :params-select="{dataSelect:[600, 700, 900, 1300, 1700, 2500, 3000], noQuery:true}" v-model="styles.height" class-body="m-2 w-[9rem] mb-0 rounded-md" clear/>
-                <StSelect label="Количество видимых строк" :params-select="{dataSelect:[1, 3, 5, 7, 9, 13, 17, 25, 30], noQuery:true}" v-model="countVisibleRowsExampleTwo" class-body="m-2 w-[15rem] mb-0 rounded-md" clear/>
+                <StSelect label="Ширина" :params-select="{classSelect:'justify-end pr-px',dataSelect:[400, 500, 700, 900, 1300, 1700, 2500, 3000], noQuery:true}" v-model="styles.width" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
+                  <template v-if="styles.width" #after>px</template>
+                </StSelect>
+                <StSelect label="Высота" :params-select="{classSelect:'justify-end pr-px',dataSelect:[600, 700, 900, 1300, 1700, 2500, 3000], noQuery:true}" v-model="styles.height" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
+                  <template v-if="styles.height" #after>px</template>
+                </StSelect>
+                <StSelect label="Количество видимых строк" :params-select="{classSelect:'justify-end pr-px',dataSelect:[1, 3, 5, 7, 9, 13, 17, 25, 30], noQuery:true}" v-model="countVisibleRowsExampleTwo" class-body="m-2 w-[15rem] mb-0 rounded-md" clear>
+                  <template v-if="countVisibleRowsExampleTwo" #after>строк</template>
+                </StSelect>
               </div>
             </template>
             <template #footer>

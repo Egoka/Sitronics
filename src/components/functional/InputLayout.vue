@@ -119,7 +119,7 @@ async function copy() {
        :style="`scroll-margin-top: ${headerHeight + 10}px;`">
     <div v-if="slots.before" ref="beforeInput"
          :class="['absolute inset-y-0 left-0 flex items-center', 'pl-3 pr-1']"
-         :style="`height:${height};`">
+         :style="`height: ${height};max-height: 4rem;`">
       <slot name="before"/>
     </div>
     <div
@@ -143,7 +143,8 @@ async function copy() {
            :is-disabled="isDisabled"
            :translate-x="beforeWidth||10"
            :max-width="widthInput"/>
-    <span ref="afterInput" class="absolute inset-y-0 right-0 flex items-center h-auto">
+    <span ref="afterInput" class="absolute inset-y-0 right-0 flex items-center"
+          :style="`height: ${height};max-height: 4rem;`">
       <div v-if="slots.after" class="flex pr-2">
         <slot name="after"/>
       </div>

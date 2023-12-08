@@ -19,7 +19,7 @@ export interface IDateSelect {
   maxVisible?:number
   noData?: string
   noQuery?: boolean
-  classSelect?: string
+  classSelect?: string|"justify-end"
   classSelectList?: string
   classMaskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
   paramsFixWindow?: Omit<IFixWindow, "modelValue">

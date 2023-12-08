@@ -340,7 +340,7 @@ watch(form, ()=>{
       mode="filled"
       help="Вспомогательный текст"
       clear
-      class="text-right mb-5"
+      class-body="text-right my-5"
       v-model:is-invalid="isInvalid"
       :message-valid="messageValid"
     >
@@ -361,7 +361,7 @@ watch(form, ()=>{
       mode="outlined"
       help="Вспомогательный текст"
       clear
-      class="text-right mb-5"
+      class-body="text-right my-5"
       v-model:is-invalid="isInvalid"
       :message-valid="messageValid"
     >
