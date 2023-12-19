@@ -10,7 +10,7 @@ const theme = ref<"atom-one-light"|"atom-one-dark">(window.matchMedia('(prefers-
 const colorSchemeQueryList = window.matchMedia('(prefers-color-scheme: dark)');
 const setColorScheme = e => {
   if (e.matches) {
-    theme.value = "atom-one-dark"
+    theme.value = "github-dark"
   } else {
     theme.value = "atom-one-light"
   }
@@ -104,7 +104,7 @@ function click(e) {
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Базовое использование</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       Тут продемонстрированны все варианты параметра <Badge class="mr-4">mode</Badge><br><Badge>Neutral</Badge> по умолчанию</p>
-    <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
+    <div class="flex flex-wrap my-4 p-3 rounded-lg">
       <Button mode="primary" class="m-1" @click="click">Primary</Button>
       <Button mode="secondary" class="m-1">Secondary</Button>
       <Button mode="creative" class="m-1">Creative</Button>
@@ -128,7 +128,7 @@ function click(e) {
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">С иконками</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       В кнопку можно добавлять иконки </p>
-    <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
+    <div class="flex flex-wrap my-4 p-3 rounded-lg">
       <Button mode="primary" class="m-1">
         <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
         Primary
@@ -175,7 +175,7 @@ function click(e) {
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Не активные</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       Чтобы сделать кнопку неактивной необходимо добавить аргумент <Badge>disabled</Badge></p>
-    <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
+    <div class="flex flex-wrap my-4 p-3 rounded-lg">
       <Button mode="primary" disabled class="m-1">
         <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
         Primary
@@ -223,7 +223,7 @@ function click(e) {
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       Всплывающее окно, отображающее информацию, связанную с элементом, когда элемент получает фокус клавиатуры или наводится на него курсором мыши.
     </p>
-    <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
+    <div class="flex flex-wrap my-4 p-3 rounded-lg">
       <Button mode="primary" class="m-1">
         <Tooltip position="left">Кнопка Primary</Tooltip>
         <Icons type="Pencil" class="mr-2 -ml-0.5 h-4 w-4"/>
@@ -268,7 +268,7 @@ function click(e) {
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Только иконки</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       Конпка может быть вовсе без текста. Для ровноси иконки необходимо добавить классы <Badge>px-0</Badge></p>
-    <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
+    <div class="flex flex-wrap my-4 p-3 rounded-lg">
       <Button mode="primary" class="rounded-full m-1 h-9 w-9 px-2">
         <Icons type="Pencil" class="h-4 w-4"/>
       </Button>
@@ -297,7 +297,7 @@ function click(e) {
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Ссылки</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       Кнопку так же можно сделать ссылкой. Для этого необходимо добавить параметр <Badge>link</Badge></p>
-    <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
+    <div class="flex flex-wrap my-4 p-3 rounded-lg">
       <Button link="/components" class="m-1">Primary</Button>
       <Button link="/components" mode="secondary" class="m-1">Secondary</Button>
       <Button link="/components" mode="creative" class="m-1">Creative</Button>
@@ -310,7 +310,7 @@ function click(e) {
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Ссылки без текста</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       Так же как конпки, ссылки можно использовать без текста, оставив только иконку</p>
-    <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
+    <div class="flex flex-wrap my-4 p-3 rounded-lg">
       <Button link="1" class="rounded-full m-1 h-9 w-9 px-0">
         <Icons type="Pencil" class="h-4 w-4"/>
       </Button>
@@ -339,7 +339,7 @@ function click(e) {
     <h2 class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">Разные стили</h2>
     <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
       Тут продиманстированны разные приверы спользования кастомных стилей кнопки</p>
-    <div class="flex flex-wrap my-4 p-3 bg-white dark:bg-black rounded-lg border-primary-500/30 border-2">
+    <div class="flex flex-wrap my-4 p-3 rounded-lg">
       <Button link="/components" mode="primary" class="m-1 bg-blue-600 hover:bg-blue-600/80">Синяя кнопка</Button>
       <Button link="/components" mode="secondary" class="m-1 bg-gradient-to-br from-slate-100 to-stone-400 dark:from-slate-900 dark:to-stone-600">Серая с переливом</Button>
       <Button link="/components" mode="creative" class="m-1 bg-gradient-to-br from-emerald-500 to-lime-400 dark:from-emerald-700 dark:to-lime-800">С зеленым градиентом</Button>

@@ -3,24 +3,20 @@ import {computed, getCurrentInstance, ref, watch, onMounted, onUnmounted} from "
 import type {Ref, UnwrapRef} from "vue";
 import Button from "@/components/functional/Button.vue";
 import {XMarkIcon} from "@heroicons/vue/20/solid";
-import type {StyleClass} from "@/components/BaseTypes";
+import type {StyleClass, Position} from "@/components/BaseTypes";
 // ---------------------------------------
-export type EventFixWindow = "hover"|"click"|"mousedown"|"mouseup"|"dblclick"|"contextmenu"
+export type EventFixWindow = "hover"|"click"|"mousedown"|"mouseup"|"dblclick"|"contextmenu"|"none"
 export interface IFixWindow {
   modelValue?: boolean
   el?: string|HTMLElement
   scrollableEl?: string|HTMLElement
-  position?:
-    "center"|"center-top"  |"center-bottom"|"center-right"|"center-left"|
-    "top"   |"top-right"   |"top-left"|
-    "bottom"|"bottom-right"|"bottom-left"|
-    "right" |"right-top"   |"right-bottom"|
-    "left"  |"left-top"    |"left-bottom"
+  position?: Position
   class?: StyleClass
   eventOpen?: EventFixWindow
   eventClose?: EventFixWindow
   delay?: number|1|5|10|15|20
   marginPx?: number|2|5|10
+  translatePx?: number|2|5|10
   closeButton?: boolean
   paddingWindow?: number|0
 }
@@ -38,11 +34,12 @@ const x = ref<number>(0)
 const y = ref<number>(0)
 const isOpen = ref<boolean>(false)
 const timer = ref<number|null>(null)
-const countTimer = ref<number>(1)
+const countTimer = ref<number>(0)
 // ---PROPS-------------------------------
 const position = computed<NonNullable<IFixWindow["position"]>>(()=>props.position ?? "top")
-const delay = computed<NonNullable<IFixWindow["delay"]>>(()=>props.delay ?? 1)
+const delay = computed<NonNullable<IFixWindow["delay"]>>(()=>props.delay > 0 ? props.delay : 0)
 const marginPx = computed<NonNullable<IFixWindow["marginPx"]>>(()=>props.marginPx ?? 10)
+const translatePx = computed<NonNullable<IFixWindow["translatePx"]>>(()=>props.translatePx ?? 0)
 const isCloseButton = computed<NonNullable<IFixWindow["isCloseButton"]>>(()=>props.closeButton ?? false)
 const eventOpen = computed<EventFixWindow>(()=>props.eventOpen ?? "hover")
 const eventClose = computed<EventFixWindow>(()=> props.eventClose ?? defaultCloseEvent(props.eventOpen as EventFixWindow) ?? "hover")
@@ -61,13 +58,23 @@ const scrollableEl = computed<HTMLElement>(() => {
     } else { return props.scrollableEl}
   } else { return element.value.offsetParent as HTMLElement }
 })
+const border = computed<string>(()=> {
+  if (marginPx.value > 0){
+    if (position.value.match("^(left|right)")){
+      return `border-left: ${marginPx.value}px solid transparent;border-right: ${marginPx.value}px solid transparent;`
+    } else if (position.value.match("^(left|right)")){
+      return `border-top: ${marginPx.value}px solid transparent;border-bottom: ${marginPx.value}px solid transparent;`
+    }
+  }
+  return ""
+})
 // ---EXPOSE------------------------------
 export interface IFixWindowExpose {
-  //---STATE-------------------------
+  // ---STATE-------------------------
   x: Readonly<Ref<UnwrapRef<number>>>
   y: Readonly<Ref<UnwrapRef<number>>>
   isOpen: Readonly<Ref<UnwrapRef<boolean>>>
-  // ---PROPS-------------------------------
+  // ---PROPS-------------------------
   position: Readonly<Ref<UnwrapRef<IFixWindow["position"]>>>
   delay: Readonly<Ref<UnwrapRef<IFixWindow["delay"]>>>
   marginPx: Readonly<Ref<UnwrapRef<IFixWindow["marginPx"]>>>
@@ -75,17 +82,17 @@ export interface IFixWindowExpose {
   eventOpen: Readonly<Ref<UnwrapRef<EventFixWindow>>>
   eventClose: Readonly<Ref<UnwrapRef<EventFixWindow>>>
   element: Readonly<Ref<UnwrapRef<HTMLElement>>>
-  // ---METHODS-----------------------------
+  // ---METHODS-----------------------
   open():void
   close():void
   updatePosition():void
 }
 defineExpose<IFixWindowExpose>({
-  //---STATE-------------------------
+  // ---STATE-------------------------
   x, y, isOpen,
-  // ---PROPS-------------------------------
+  // ---PROPS-------------------------
   position, delay, marginPx, isCloseButton, eventOpen, eventClose, element,
-  // ---METHODS-----------------------------
+  // ---METHODS-----------------------
   open, close, updatePosition
 })
 // ---MOUNT-UNMOUNT-----------------------
@@ -103,7 +110,7 @@ onUnmounted(()=>{
 })
 // ---WATCHERS----------------------------
 watch(()=>props.modelValue, (value)=>{
-  value ? isOpen.value||open() : !isOpen.value||close()
+  value ? isOpen.value||open() : close()
 },{immediate: true})
 watch(isOpen, (value:boolean)=>{
   if (value) {
@@ -175,25 +182,32 @@ function removePositionListener() {
 }
 // ---OPEN-CLOSE--------------------------
 function open(env?:MouseEvent) {
+  function setIsOpen() {
+    isOpen.value = true
+    if (env) {
+      emit('open', env)
+    }
+  }
+  if (delay.value === 0) {
+    return setIsOpen()
+  }
   if (timer.value === null){
     timer.value = setInterval(() => {
       if (countTimer.value === delay.value){
-        clearInterval(timer.value as number)
+        if (typeof timer.value === "number")
+          clearInterval(timer.value)
         timer.value = null
-        isOpen.value = true
-        if (env) {
-          emit('open', env)
-        }
+        setIsOpen()
       } else { countTimer.value++ }
     }, 100);
   }
 }
 function close(env?:MouseEvent) {
-  if (timer.value){
-    clearInterval(timer.value as number)
+  if (typeof timer.value === "number"){
+    clearInterval(timer.value)
     timer.value = null
   }
-  countTimer.value = 1
+  countTimer.value = 0
   isOpen.value = false
   if (env) {
     emit('close', env)
@@ -252,9 +266,9 @@ function updatePosition() {
     el.xValue = position.value.match("-left$") ? body.x : position.value.match("-right$") ? body.x + body.width - child.width : 0
     el.yValue = position.value.match("-top$") ? body.y : position.value.match("-bottom$") ? body.y + body.height - child.height : 0
     //
-    x.value = Math.floor(el.xPositionIndex !== 0 || el.xValue === 0 ? el.xCenter + el.xTranslate * el.xPositionIndex  : el.xValue)
-    y.value = Math.floor(el.yPositionIndex !== 0 || el.yValue === 0 ? el.yCenter + el.yTranslate * el.yPositionIndex  : el.yValue)
-    
+    x.value = Math.floor(el.xPositionIndex !== 0 || el.xValue === 0 ? el.xCenter + el.xTranslate * el.xPositionIndex  : el.xValue) + el.xPositionIndex * translatePx.value
+    y.value = Math.floor(el.yPositionIndex !== 0 || el.yValue === 0 ? el.yCenter + el.yTranslate * el.yPositionIndex  : el.yValue) + el.yPositionIndex * translatePx.value
+    //
     if (x.value < paddingWindow.value){
       x.value = body.width + body.x - paddingWindow.value > 0
         ? position.value.match("^left")
@@ -286,7 +300,7 @@ function updatePosition() {
 <template>
   <transition leave-active-class="transition-opacity ease-in-out duration-300" leave-from-class="opacity-100" leave-to-class="opacity-0"
               enter-active-class="transition-opacity ease-in-out duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100">
-  <div v-show="isOpen" ref="fixWindow" :class="props.class" :style="`position: fixed;left: 0px; top: 0px;transform: translate(${x}px, ${y}px);border: ${marginPx}px solid transparent;`">
+  <div v-show="isOpen" ref="fixWindow" :class="props.class" :style="`position: fixed;left: 0px; top: 0px;transform: translate(${x}px, ${y}px);${border}`">
     <slot/>
     <Button v-if="isCloseButton" mode="ghost" class="absolute top-2 right-2 px-[5px] m-0.5 h-9 w-9" @click="close">
       <XMarkIcon aria-hidden="true" class="h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>

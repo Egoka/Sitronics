@@ -14,6 +14,7 @@ import Button from "@/components/functional/Button.vue";
 import Badge from "@/components/functional/Badge.vue";
 // ---------------------------------------
 import type {IMode, StyleClass} from "@/components/BaseTypes";
+import type {ILayout} from "@/components/functional/InputLayout.vue";
 type classCol = "col-span-full"|"sm:col-span-3"|"sm:col-span-4"|"sm:col-span-5"|"sm:col-span-6"|string
 // ---------------------------------------
 export interface IRulesInput extends Rules {}
@@ -26,8 +27,9 @@ interface IFields {
 }
 interface IFormFields {[key:string]:any}
 // ---------------------------------------
-const calculatedFieldsInput = ["typeComponent", "classCol", "modelValue", "isInvalid", "name", "rules",
-  "beforeIcon", "beforeText", "afterIcon", "afterText"]
+const calculatedFieldsInput = <Array<keyof IFieldsTypeKeys>>
+  ["typeComponent", "classCol", "modelValue", "isInvalid", "name", "rules",
+    "beforeIcon", "beforeText", "afterIcon", "afterText"]
 export interface IFieldsInput extends IFields, IInput {
   typeComponent: "Input"
   rules?: IRulesInput

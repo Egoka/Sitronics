@@ -4,7 +4,7 @@ import type {Ref, UnwrapRef} from "vue";
 import {
   ArrowLongUpIcon, ArrowLongDownIcon,
   BarsArrowUpIcon, BarsArrowDownIcon,
-  MagnifyingGlassIcon, FunnelIcon,TableCellsIcon
+  MagnifyingGlassIcon, FunnelIcon, TableCellsIcon
 } from "@heroicons/vue/20/solid";
 import * as LData from "lodash";
 import dayjs from 'dayjs'
@@ -152,7 +152,7 @@ export interface ITableStyles {
     footer?: string|'border-neutral-200 dark:border-neutral-800'|'border-t-0'
   }
 }
-export interface IStylesPrivate extends Omit<ITableStyles, 'border|hoverRows|class'> {
+export interface ITableStylesPrivate extends Omit<ITableStyles, 'border|hoverRows|class'> {
   class: {
     body: StyleClass
     toolbar: StyleClass
@@ -509,7 +509,7 @@ const summaryColumns = computed<object>(()=>{
 // ---STYLE-------------------------------
 const baseTableHeight = 240 // 15rem
 const heightTable = ref<string>(countVisibleRows.value ? `height: ${baseTableHeight}px` : "height: auto")
-const styles = computed<IStylesPrivate>(()=>{
+const styles = computed<ITableStylesPrivate>(()=>{
   const s = props.styles
   const sc = props.styles?.class
   const border = <object>props.styles?.border
@@ -627,7 +627,7 @@ export interface ITableExpose {
   dataSummary: Readonly<Ref<UnwrapRef<Array<ISummaryPrivate>>>>
   summaryColumns: Readonly<Ref<UnwrapRef<object>>>
   // ---STYLE-------------------------------
-  styles: Readonly<Ref<UnwrapRef<IStylesPrivate>>>
+  styles: Readonly<Ref<UnwrapRef<ITableStylesPrivate>>>
   tableBodyStyle: Readonly<Ref<UnwrapRef<string>>>
   modeStyle: Readonly<Ref<UnwrapRef<string>>>
   isDark: Readonly<Ref<UnwrapRef<boolean>>>
