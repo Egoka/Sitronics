@@ -275,14 +275,14 @@ const isPagination = computed<boolean>(()=> countVisibleRows.value > 0 && (typeo
     ? typeof props?.pagination?.visible === "boolean" ? props.pagination.visible : true
     : typeof props?.pagination === "boolean" ? props.pagination : false) )
 // ---PAGINATION--------------------------
-const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=> (props.pagination as ITablePagination).startPage ?? 1)
-const modePagination = computed<NonNullable<ITablePagination["mode"]>>(()=>(props.pagination as ITablePagination).mode ?? mode.value)
-const sizePage = computed<NonNullable<ITablePagination["sizePage"]>>(()=>(props.pagination as ITablePagination).sizePage??countVisibleRows.value)
-const visibleNumberPages = computed<ITablePagination["visibleNumberPages"]>(()=>(props.pagination as ITablePagination).visibleNumberPages)
-const sizesSelector = computed<ITablePagination["sizesSelector"]>(()=>(props.pagination as ITablePagination).sizesSelector)
-const isInfoText = computed<ITablePagination["isInfoText"]>(()=>(props.pagination as ITablePagination).isInfoText ?? false)
-const isPageSizeSelector = computed<ITablePagination["isPageSizeSelector"]>(()=>(props.pagination as ITablePagination).isPageSizeSelector ?? false)
-const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationButtons"]>(()=>(props.pagination as ITablePagination).isHiddenNavigationButtons ?? false)
+const startPage = computed<NonNullable<ITablePagination["startPage"]>>(()=> (props.pagination as ITablePagination)?.startPage ?? 1)
+const modePagination = computed<NonNullable<ITablePagination["mode"]>>(()=>(props.pagination as ITablePagination)?.mode ?? mode.value)
+const sizePage = computed<NonNullable<ITablePagination["sizePage"]>>(()=>(props.pagination as ITablePagination)?.sizePage??countVisibleRows.value)
+const visibleNumberPages = computed<ITablePagination["visibleNumberPages"]>(()=>(props.pagination as ITablePagination)?.visibleNumberPages)
+const sizesSelector = computed<ITablePagination["sizesSelector"]>(()=>(props.pagination as ITablePagination)?.sizesSelector)
+const isInfoText = computed<ITablePagination["isInfoText"]>(()=>(props.pagination as ITablePagination)?.isInfoText ?? false)
+const isPageSizeSelector = computed<ITablePagination["isPageSizeSelector"]>(()=>(props.pagination as ITablePagination)?.isPageSizeSelector ?? false)
+const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationButtons"]>(()=>(props.pagination as ITablePagination)?.isHiddenNavigationButtons ?? false)
 // ---CELL--------------------------------
 const heightCell = computed<number>(()=> props.styles?.heightCell ?? 24)
 const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows ?? 0)

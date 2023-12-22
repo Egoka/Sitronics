@@ -19,7 +19,7 @@ import type {DateRange} from "v-calendar/dist/types/src/utils/date/range";
 import type {Attribute} from "v-calendar/dist/types/src/utils/attribute";
 import type {Theme} from "v-calendar/dist/types/src/utils/theme";
 // ---------------------------------------
-import {getParamsStructure} from "@/helpers/object";
+import {removeParamsFromStructure} from "@/helpers/object";
 import type {StyleClass} from "@/components/BaseTypes";
 import FixWindow, {type IFixWindow} from "@/components/functional/FixWindow.vue";
 // ---------------------------------------
@@ -252,7 +252,7 @@ const baseDate = computed<Date|SimpleDateRange|null>(()=>{
   } else { return null }
 })
 const paramsFixWindow = computed<NonNullable<IDatePicker["paramsFixWindow"]>>(()=> ({
-  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 14, ...props.paramsDatePicker?.paramsFixWindow
+  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 5, ...props.paramsDatePicker?.paramsFixWindow
 }))
 // ---------------------------------------
 const inputLayout = computed(()=>({isValue: isValue.value, mode: mode.value, label: props.label,
@@ -356,8 +356,26 @@ function clear () {
                !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
                !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900'
                ]">
-          <DatePicker v-if="datePicker?.isRange" v-model.range.string="value" v-bind="getParamsStructure(datePicker, ['isRange'])" ref="calendar" @update:modelValue="changeDate"><template #footer><slot name="footerPicker"/></template></DatePicker>
-          <DatePicker v-else v-model.string="value" v-bind="getParamsStructure(datePicker, ['isRange'])" ref="calendar" @update:modelValue="changeDate"><template #footer><slot name="footerPicker"/></template></DatePicker>
+          <DatePicker
+            v-if="datePicker?.isRange"
+            v-model.range.string="value"
+            v-bind="removeParamsFromStructure(datePicker, ['isRange'])"
+            ref="calendar"
+            @update:modelValue="changeDate">
+            <template #footer>
+              <slot name="footerPicker"/>
+            </template>
+          </DatePicker>
+          <DatePicker
+            v-else
+            v-model.string="value"
+            v-bind="removeParamsFromStructure(datePicker, ['isRange'])"
+            ref="calendar"
+            @update:modelValue="changeDate">
+            <template #footer>
+              <slot name="footerPicker"/>
+            </template>
+          </DatePicker>
         </div>
       </FixWindow>
       <slot/>

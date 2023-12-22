@@ -20,7 +20,6 @@
     "epic-spinners": "^2.0.0",
     "gsap": "^3.12.4",
     "lodash": "^4.17.21",
-    "oh-vue-icons": "^1.0.0-rc3",
     "pinia": "^2.1.7",
     "uuid": "^9.0.1",
     "v-calendar": "^3.0.3",
@@ -29,6 +28,7 @@
     "vue3-code-block": "^2.2.14"
   },
   "devDependencies": {
+    "@iconify/vue": "^4.1.1",
     "@rushstack/eslint-patch": "^1.6.1",
     "@tsconfig/node18": "^18.2.2",
     "@types/node": "^20.10.5",
@@ -44,7 +44,7 @@
     "prettier": "3.1.0",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.3.3",
-    "vite": "^5.0.3",
+    "vite": "^5.0.10",
     "vue-tsc": "^1.8.24"
   }
 }

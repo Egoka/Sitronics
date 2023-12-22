@@ -6,11 +6,11 @@ import { v4 as uuidv4, type v4 as uuid } from 'uuid';
 import type {StyleClass, IMode, IWidth, IHeight} from "@/components/BaseTypes";
 import Icons from "@/components/functional/Icons.vue";
 import FixWindow, {type IFixWindow} from "@/components/functional/FixWindow.vue";
-import {getParamsStructure} from "@/helpers/object";
 import Separator, {type ISeparator} from "@/components/functional/Separator.vue";
+import {removeParamsFromStructure} from "@/helpers/object";
 // ---TYPES-------------------------------
 type _key = uuid
-type Groups = Array<IGroupMenu>|[]
+export type IGroups = Array<IGroupMenu>|[]
 type GroupsPrivate = Array<IGroupMenuPrivate>|[]
 // ---INTERFACES--------------------------
 export interface IItemMenu {
@@ -27,8 +27,6 @@ export interface IItemMenu {
 export interface IItemMenuPrivate extends IItemMenu{
   _key: _key
 }
-interface ISlotsItemMenuPrivate extends Omit<IItemMenuPrivate,
-  "menu"|"class"|"disabled"|"onClick"|"onActive"|"onInactive">{}
 export interface IMenuSeparator extends Omit<ISeparator, "vertical">{
   icon?: string
   isVisible?: boolean
@@ -57,7 +55,7 @@ export interface IMenuItem {
   title?: string
   separator?: IMenuSeparator
   paramsWindowMenu?: IFixWindow
-  groups?: Groups
+  groups?: IGroups
 }
 interface IMenuItemPrivate extends Omit<IMenuItem, "groups">{
   groups?: GroupsPrivate
@@ -66,6 +64,8 @@ interface IMenuItemPrivate extends Omit<IMenuItem, "groups">{
 export interface IMenu extends IMenuItem{
   mode?:IMode
   selected?:boolean
+  horizontal?: boolean
+  onlyIcons?: boolean
   styles?: IMenuStyles
 }
 // ---PROPS-EMITS-SLOTS-------------------
@@ -85,23 +85,39 @@ const notPublicParamsMenu = ref(["menu", "class", "disabled", "onClick", "onActi
 // ---PROPS-------------------------------
 const mode = computed<NonNullable<IMenu["mode"]>>(()=> props.mode || "outlined")
 const selected = computed<NonNullable<IMenu["selected"]>>(()=> props.selected)
+const horizontal = computed<NonNullable<IMenu["horizontal"]>>(()=> props.horizontal)
+const onlyIcons = computed<NonNullable<IMenu["onlyIcons"]>>(()=> props.onlyIcons)
 const title = computed<NonNullable<IMenu["title"]>>(()=>props.title ?? "")
 const iconSeparator = computed<IMenuSeparator["icon"]>(()=>props.separator?.icon)
 const isSeparator = computed<NonNullable<IMenuSeparator["isVisible"]>>(()=>props.separator?.isVisible ?? true)
 const listGroups = computed<GroupsPrivate>(()=> setItems(props as IMenuItemPrivate)?.groups ?? [])
-const paramsWindowMenu = computed<IMenu["paramsWindowMenu"]>(()=>
-  ({
+const paramsWindowMenu = computed<IMenu["paramsWindowMenu"]>(()=> ({
     delay: 2,
     position: "right-top",
-    eventOpen:"none",
+    eventOpen: onlyIcons.value ? "click" : "hover",
     eventClose: "hover",
     ...props?.paramsWindowMenu
   }))
 const separator = computed<IMenuSeparator>(()=>({
-  styles: { class: { body: "!px-0 !-mx-1"}},
+  styles: { class: { body: horizontal.value ? "my-1" : "-mx-1"}},
   ...props.separator
 }))
 // ---STYLE-------------------------------
+const styles = computed<IMenuStyles>(()=>{
+  const s = props.styles
+  return {
+    class: {
+    
+    },
+    width: s?.width? typeof s?.width === "number" ? `${s?.width}px` : s?.width : "",
+    height: s?.height? typeof s?.height === "number" ? `${s?.height}px` : s?.height : "",
+    animation: s?.animation ?? "transition-all duration-500",
+    hoverRows: s?.animation ?? "hover:bg-neutral-100/90 dark:hover:bg-neutral-900/50"
+    // border: {
+    //
+    // }
+  }
+})
 const modeStyle = computed<string>(()=>
   ((mode.value === "filled") ? "bg-stone-100 dark:bg-stone-900 rounded-md" :
     (mode.value === "outlined") ? "bg-white dark:bg-neutral-950 rounded-md" :
@@ -116,6 +132,12 @@ export interface IMenuExpose {
   iconSeparator: Readonly<Ref<UnwrapRef<IMenu["iconSeparator"]>>>
   isSeparator: Readonly<Ref<UnwrapRef<IMenu["isSeparator"]>>>
   listGroups: Readonly<Ref<UnwrapRef<GroupsPrivate>>>
+  selected: Readonly<Ref<UnwrapRef<IMenu["selected"]>>>
+  horizontal: Readonly<Ref<UnwrapRef<IMenu["horizontal"]>>>
+  onlyIcons: Readonly<Ref<UnwrapRef<IMenu["onlyIcons"]>>>
+  paramsWindowMenu: Readonly<Ref<UnwrapRef<IMenu["paramsWindowMenu"]>>>
+  separator: Readonly<Ref<UnwrapRef<IMenuSeparator>>>
+  styles: Readonly<Ref<UnwrapRef<IMenuStyles>>>
   // ---METHODS-----------------------
   setActiveItem (itemKey:_key|null):void
 }
@@ -124,6 +146,7 @@ defineExpose<IMenuExpose>({
   activeItemIndex,
   // ---PROPS-------------------------
   mode, title, iconSeparator, isSeparator, listGroups,
+  selected, horizontal, onlyIcons, paramsWindowMenu, separator, styles,
   // ---METHODS-----------------------
   setActiveItem
 })
@@ -134,20 +157,20 @@ function overItem (event:MouseEvent, item:IItemMenuPrivate) {
   setActiveItem(item?._key??null)
   emit("onActive", event, item)
   if (item?.onActive)
-    item?.onActive(event, getParamsStructure(item, (["onClick", "onActive", "onInactive"] as Array<keyof IItemMenuPrivate>)) as IItemMenuPrivate)
+    item?.onActive(event, removeParamsFromStructure(item, (["onClick", "onActive", "onInactive"])) as IItemMenuPrivate)
 }
 function leaveItem (event:MouseEvent, item:IItemMenuPrivate) {
   setActiveItem(null)
   emit("onInactive", event, item)
   if (item?.onInactive)
-    item?.onInactive(event, getParamsStructure(item, (["onClick", "onActive", "onInactive"] as Array<keyof IItemMenuPrivate>)) as IItemMenuPrivate)
+    item?.onInactive(event, removeParamsFromStructure(item, (["onClick", "onActive", "onInactive"])) as IItemMenuPrivate)
 }
 function clickItem (event:PointerEvent, item:IItemMenuPrivate) {
   if (selected.value)
     setSelectedItem(item?._key??null)
   emit("onClick", event, item)
   if (item?.onClick)
-    item?.onClick(event, getParamsStructure(item, (["onClick", "onActive", "onInactive"] as Array<keyof IItemMenuPrivate>)) as IItemMenuPrivate)
+    item?.onClick(event, removeParamsFromStructure(item, (["onClick", "onActive", "onInactive"])) as IItemMenuPrivate)
 }
 function setSelectedItem (itemKey:_key|null):void {
   if (itemKey || itemKey === null) {
@@ -159,7 +182,7 @@ function setActiveItem (itemKey:_key|null):void {
     activeItemIndex.value = itemKey
   }
 }
-function setItems (menu:IMenuItemPrivate):NonNullable<IMenuItemPrivate> {
+function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemPrivate> {
   return {
     ...menu,
     groups: menu.groups
@@ -168,7 +191,7 @@ function setItems (menu:IMenuItemPrivate):NonNullable<IMenuItemPrivate> {
         separator: {
           icon: group.separator?.icon ?? iconSeparator.value,
           isVisible: group.separator?.isVisible ?? isSeparator.value,
-          styles: { class: { body: "!px-0 !-mx-1"}},
+          styles: { class: { body: horizontal.value ? "-my-1" : '-mx-1'}},
           ...separator.value,
           ...group.separator
         },
@@ -178,9 +201,14 @@ function setItems (menu:IMenuItemPrivate):NonNullable<IMenuItemPrivate> {
             _key: uuidv4(),
             class: item.class ?? "items-center rounded px-2 py-1.5 text-sm",
             menu: item?.menu ? setItems({
-              paramsWindowMenu: {...paramsWindowMenu.value, translatePx: -10},
+              paramsWindowMenu: {
+                ...paramsWindowMenu.value,
+                position: depth ? "right-top" : (horizontal.value ? "bottom-left" : "right-top"),
+                ...item?.menu?.paramsWindowMenu,
+              } as IFixWindow,
               ...item?.menu
-            } as IMenuItemPrivate) : null
+            } as IMenuItemPrivate,
+              depth > 0 ? depth+1 : 1) : null
           }
         })
       })) : []
@@ -192,26 +220,31 @@ function setItems (menu:IMenuItemPrivate):NonNullable<IMenuItemPrivate> {
   <div
     ref="menuRefLink"
     role="menu"
-    class="p-1 z-50 min-w-[8rem] w-60 overflow-auto border border-neutral-200 dark:text-zinc-50 dark:border-neutral-800 shadow-md"
-    :class="modeStyle"
-    tabindex="-1">
-<!--    :style="`width:${styles.width};height:${styles.height};`"-->
-    <template v-if="title.length">
+    :class="[
+      'p-1 w-min max-w-4xl overflow-auto shadow-md border border-neutral-200 dark:border-neutral-800 text-black dark:text-zinc-50',
+      !horizontal||'flex flex-row',
+       modeStyle]"
+    :style="`width:${styles.width};height:${styles.height};`"
+    tabindex="0">
+    <div v-if="title.length || slots?.title" :class="['min-w-max px-2 py-1.5 text-sm font-semibold', modeStyle]">
       <slot name="title" :title="title">
-        <div class="px-2 py-1.5 text-sm font-semibold">{{ title }}</div>
+        <div>{{ title }}</div>
       </slot>
-    </template>
+    </div>
     <template v-for="(group, keyGroup) in listGroups" :key="keyGroup">
       <Separator
-        v-if="(group?.separator?.isVisible ?? isSeparator) && listGroups.length !== 1"
+        v-if="
+          (group?.separator?.isVisible ?? isSeparator) &&
+          (listGroups.length !== 1) &&
+          (keyGroup !== 0 || (group?.separator?.icon?.length ?? iconSeparator?.length) || title.length)"
         v-bind="group?.separator ?? separator"
-      >
+        :vertical="horizontal">
         <Icons
           v-if="group?.separator?.icon?.length ?? iconSeparator?.length"
           :type="group.separator?.icon ?? iconSeparator ?? ''"
-          class="h-4 w-4 opacity-60"/>
+          class="h-4 w-4 text-neutral-200 dark:text-neutral-800"/>
       </Separator>
-      <div role="group">
+      <div role="group" :class="[!horizontal||'flex flex-row']">
         <div
           v-for="(item, keyItem) in group.items" :key="keyItem" role="menuitem"
           :data-collection-item="item?._key"
@@ -225,21 +258,30 @@ function setItems (menu:IMenuItemPrivate):NonNullable<IMenuItemPrivate> {
           @click="(event)=>clickItem(event, item)"
           class="relative flex mt-0.5 cursor-default select-none outline-none transition-colors"
           :class="[
-            item.class,
-            'data-[selected=true]:bg-primary-100 dark:data-[selected=true]:bg-primary-900 data-[selected=true]:font-semibold',
+            item.class, !horizontal||'mr-0.5 last:mr-0',
+            'data-[selected=true]:bg-neutral-300 dark:data-[selected=true]:bg-neutral-700 data-[selected=true]:font-semibold',
             'data-[active=true]:bg-neutral-300/50 dark:data-[active=true]:bg-neutral-700/50',
             'data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50']">
-          <slot name="item" :data="getParamsStructure(item, notPublicParamsMenu) as ISlotsItemMenuPrivate">
-            <Icons v-if="item?.icon" :type="item?.icon??''" class="mr-2 h-4 w-4 opacity-60"/>
-            <div v-else class="mr-2 h-4 w-4"/>
-            <span>{{ item?.title }}</span>
-            <span class="ml-auto pl-2 text-xs tracking-widest opacity-50">{{ item?.info }}</span>
-          </slot>
-          <ChevronRightIcon v-if="item?.menu" class="ml-auto h-4 w-4 opacity-60"/>
+            <slot name="item" :data="removeParamsFromStructure(item, notPublicParamsMenu)">
+              <Icons v-if="item?.icon" :type="item?.icon??''" :class="['h-4 w-4 opacity-60']"/>
+              <div v-else :class="['h-4 w-4']"/>
+              <template v-if="!onlyIcons" >
+                <span :class="['w-max', !item?.title||'mx-2']">{{ item?.title }}</span>
+                <span :class="['ml-auto text-xs tracking-widest opacity-50', !item?.info||'pl-2']" v-html="item?.info"/>
+              </template>
+              <FixWindow v-else :position="horizontal ? 'top' : 'right'" :delay="5" :margin-px="10" :scrollable-el="menuRefLink">
+                <div :class="['flex items-center px-1 rounded border border-neutral-100 dark:border-neutral-900', modeStyle]">
+                  <span class="w-max">{{ item?.title }}</span>
+                  <span :class="['ml-auto text-xs tracking-widest opacity-50', !item?.info||'pl-2']" v-html="item?.info"/>
+                </div>
+              </FixWindow>
+            </slot>
+            <ChevronRightIcon v-if="item?.menu && !onlyIcons" class=" h-4 w-4 opacity-60"/>
           <FixWindow
             v-if="!!item?.menu"
-            :model-value="activeItemIndex === item?._key"
-            v-bind="paramsWindowMenu">
+            v-bind="item?.menu?.paramsWindowMenu ?? paramsWindowMenu"
+            :scrollable-el="menuRefLink"
+            class="z-10">
             <Menu
               v-bind="item?.menu"
               :mode="mode"

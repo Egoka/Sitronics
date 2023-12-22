@@ -8,7 +8,7 @@ import StSelect, {type ISelect} from "@/components/form/StSelect.vue";
 import StSwitch, {type ISwitch} from "@/components/form/StSwitch.vue";
 import type {ILabelMode} from "@/components/functional/Label.vue";
 import {getValidate, getAsyncValidate, type Rules} from "@/helpers/rules";
-import {getParamsStructure} from "@/helpers/object";
+import {removeParamsFromStructure} from "@/helpers/object";
 import StCalendar, {type ICalendar} from "@/components/form/StCalendar.vue";
 import Button from "@/components/functional/Button.vue";
 import Badge from "@/components/functional/Badge.vue";
@@ -275,7 +275,7 @@ function submit(){
         <transition leave-active-class="transition ease-in-out duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in-out duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <div v-if="!structure.isHidden" :class="structure.class">
-            <slot name="itemTitle" :structure="getParamsStructure(structure, ['class', 'classGrid', 'fields'])"/>
+            <slot name="itemTitle" :structure="removeParamsFromStructure(structure, ['class', 'classGrid', 'fields'])"/>
             <div class="grid transition" :class="structure.classGrid">
               <div v-for="(field, itemKey) in structure.fields" :key="itemKey" :class="field.classCol">
                 <transition leave-active-class="transition ease-in-out duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
@@ -285,7 +285,7 @@ function submit(){
                       v-if="field.typeComponent === 'Input'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
-                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      v-bind="{...removeParamsFromStructure(field, calculatedFieldsInput), id: field.name}"
                       @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)">
                       <template #before>
@@ -301,7 +301,7 @@ function submit(){
                       v-if="field.typeComponent === 'Aria'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
-                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      v-bind="{...removeParamsFromStructure(field, calculatedFieldsInput), id: field.name}"
                       @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)">
                       <template #before>
@@ -317,7 +317,7 @@ function submit(){
                       v-if="field.typeComponent === 'TextEditor'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
-                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      v-bind="{...removeParamsFromStructure(field, calculatedFieldsInput), id: field.name}"
                       @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)">
                       <template v-if="field.beforeIcon || field.beforeText" #before>
@@ -333,7 +333,7 @@ function submit(){
                       v-if="field.typeComponent === 'Select'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
-                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      v-bind="{...removeParamsFromStructure(field, calculatedFieldsInput), id: field.name}"
                       @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)">
                       <template #values="{selected, key, deleteSelect}">
@@ -360,7 +360,7 @@ function submit(){
                       v-if="field.typeComponent === 'Calendar'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
-                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      v-bind="{...removeParamsFromStructure(field, calculatedFieldsInput), id: field.name}"
                       @change:model-value="changeField(field)">
                       <template #footerPicker></template>
                       <template #before>
@@ -376,7 +376,7 @@ function submit(){
                       v-if="field.typeComponent === 'Switch'"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
-                      v-bind="{...getParamsStructure(field, calculatedFieldsInput), id: field.name}"
+                      v-bind="{...removeParamsFromStructure(field, calculatedFieldsInput), id: field.name}"
                       @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)"/>
                   </div>

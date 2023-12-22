@@ -103,7 +103,7 @@ const noData = computed<NonNullable<IDateSelect["noData"]>>(()=> props.paramsSel
 const isQuery = computed<NonNullable<IDateSelect["noQuery"]>>(()=> !props.paramsSelect?.noQuery)
 const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery ?? "font-bold text-primary-700 dark:text-primary-300")
 const paramsFixWindow = computed<NonNullable<IDateSelect["paramsFixWindow"]>>(()=> ({
-  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 14, ...props.paramsSelect.paramsFixWindow
+  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 5, ...props.paramsSelect.paramsFixWindow
 }))
 // ---------------------------------------
 const valueLayout = computed<string|null>(()=> visibleValue.value?.map(item => item[valueSelect.value])?.join(", ")||null)

@@ -7,7 +7,7 @@ import {ArrowsPointingOutIcon, ArrowsPointingInIcon} from "@heroicons/vue/20/sol
 import {QuillEditor, type Delta} from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import '@vueup/vue-quill/dist/vue-quill.bubble.css';
-import {getParamsStructure} from "@/helpers/object";
+import {removeParamsFromStructure} from "@/helpers/object";
 // ---------------------------------------
 declare type ContentPropType = string | Delta | undefined | null;
 declare type Module = {
@@ -127,7 +127,7 @@ function ready() {
       <QuillEditor v-if="theme ==='bubble'"
                    ref="quillEditor"
                    theme="bubble"
-                   v-bind="getParamsStructure(paramsQuillEditor, ['theme'])"
+                   v-bind="removeParamsFromStructure(paramsQuillEditor, ['theme'])"
                    @update:content="inputModelValue" @focus="isActiveTextEditor = true"
                    @blur="isActiveTextEditor = false" @ready="ready"/>
     </div>
@@ -138,7 +138,7 @@ function ready() {
         !(mode === 'outlined')||'bg-white dark:bg-black',
         !(mode === 'underlined')||'bg-stone-50 dark:bg-stone-950',
         !(mode === 'filled')||'bg-stone-100 dark:bg-stone-900']">
-          <QuillEditor v-if="theme ==='snow'" theme="snow" v-bind="getParamsStructure(paramsQuillEditor, ['theme'])" @update:content="inputModelValue"/>
+          <QuillEditor v-if="theme ==='snow'" theme="snow" v-bind="removeParamsFromStructure(paramsQuillEditor, ['theme'])" @update:content="inputModelValue"/>
           <div class="absolute top-[5px] right-[5px]" @click="theme = 'bubble'">
             <Button mode="ghost" class="group h-9 w-9 px-0 border-neutral-500 dark:border-neutral-500 hover:bg-transparent hover:dark:bg-transparent cursor-pointer">
               <ArrowsPointingInIcon aria-hidden="true" class="h-5 w-5 mx-2 transition-all fill-neutral-500 dark:fill-neutral-500 group-hover:fill-primary-600 dark:group-hover:fill-primary-600"/>

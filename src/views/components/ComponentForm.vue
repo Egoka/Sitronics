@@ -133,8 +133,8 @@ const structures = ref<Array<IFormStructure>>([
         name: "birthday1",
         label: "День рождения",
         modelValue: "2023-08-02T21:00:00.000Z",
-        afterIcon: "CoBirthdayCake",
-        beforeIcon: "CoBirthdayCake",
+        afterIcon: "cil:birthday-cake",
+        beforeIcon: "cil:birthday-cake",
         afterText: "Text",
         paramsDatePicker: {
           placeholder: "Дата 01.01.2023",
@@ -152,7 +152,7 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: { "start": "2023-08-02T21:00:00.000Z", "end": "2023-08-10T21:00:00.000Z" },
         paramsDatePicker: { placeholder: "Дата 01.01.2023", isRange: true, masks: {modelValue :"DD.MM.YYYY"} },
         label: "День рождения",
-        beforeIcon: "CoBirthdayCake",
+        beforeIcon: "cil:birthday-cake",
         help: "Dates",
         required: true,
         clear: true
@@ -161,7 +161,7 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Aria",
         name: "about",
         label: "About",
-        beforeIcon: "BiChatLeftQuote",
+        beforeIcon: "bi:chat-left-quote",
         modelValue: "",
         required: true,
         clear: true,
@@ -183,7 +183,7 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "<h2>Тестовый </h2><p>текст с описанием </p><p>Этот текст тоже должен быть скопирован</p>",
         label: "Приложенные правила",
         // disabled: true,
-        beforeIcon: "attach_file"
+        beforeIcon: "material-symbols-light:attach-file"
       },
       {
         typeComponent: "Switch",
@@ -223,7 +223,7 @@ const structures = ref<Array<IFormStructure>>([
         },
         clear: true,
         afterText: "рубля",
-        beforeIcon: "currency_ruble"
+        beforeIcon: "material-symbols:currency-ruble"
         // classCol: "sm:col-span-3"
       },
       {
@@ -272,7 +272,7 @@ const structures = ref<Array<IFormStructure>>([
           classInput: "text-right",
         },
         // beforeIcon: "counter_1",
-        beforeIcon: "ai-hal",
+        beforeIcon: "academicons:hal",
         help: "Поле должно состоять только из числа",
         rules: {
           range: {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import {computed, useSlots} from "vue";
 import type {StyleClass} from "@/components/BaseTypes";
 // ---TYPES-------------------------------
@@ -14,7 +13,7 @@ export interface ISeparatorStyles {
 }
 export interface ISeparator {
   vertical?: boolean
-  content?: "right"|"left"|"center"
+  content?: "right"|"left"|"center"|"full"
   gradient?: Gradient|[Gradient, GradientLength]|boolean
   depth?: Depth
   styles?: ISeparatorStyles
@@ -39,15 +38,15 @@ const depth = computed<NonNullable<ISeparator["depth"]>>(()=> props.depth <= 7 ?
 </script>
 
 <template>
-  <div :class="['mx-1 px-4 my-1', props.styles?.class?.body]">
-    <div :class="['relative flex', !vertical||'flex-col h-full']">
-      <div v-if="content !== 'left'" :class="['relative flex items-center w-full', !vertical||'h-full justify-center']" aria-hidden="true">
+  <div :class="['m-1', props.styles?.class?.body]">
+    <div :class="['relative flex justify-center', !vertical||'flex-col h-full']">
+      <div v-if="!['left', 'full'].includes(content)" :class="['relative flex items-center w-full', !vertical||'h-full justify-center']" aria-hidden="true">
         <div
           :class="[vertical ? 'bg-gradient-to-b' : 'bg-gradient-to-r', 'from-transparent via-neutral-200 dark:via-neutral-800 to-neutral-200 dark:to-neutral-800']"
           :style="[vertical ? `height: 100%;width: ${depth}px;` : `width: 100%;height: ${depth}px;`,`--tw-gradient-from-position: ${gradient}%;--tw-gradient-via-position: ${gradient > 0 ? gradient+gradientLength : 0}%`]"/>
       </div>
       <span v-if="slots?.default" class="relative text-sm text-gray-500"><slot name="default"/></span>
-      <div v-if="content !== 'right'" :class="['relative flex items-center w-full', !vertical||'h-full justify-center']" aria-hidden="true">
+      <div v-if="!['right', 'full'].includes(content)" :class="['relative flex items-center w-full', !vertical||'h-full justify-center']" aria-hidden="true">
         <div
           :class="[vertical ? 'bg-gradient-to-t' : 'bg-gradient-to-l', 'from-transparent via-neutral-200 dark:via-neutral-800 to-neutral-200 dark:to-neutral-800']"
           :style="[vertical ? `height: 100%;width: ${depth}px;` : `width: 100%;height: ${depth}px;`,`--tw-gradient-from-position: ${gradient}%;--tw-gradient-via-position: ${gradient > 0 ? gradient+gradientLength : 0}%`]"/>

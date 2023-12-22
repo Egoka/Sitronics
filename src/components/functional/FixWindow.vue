@@ -3,13 +3,13 @@ import {computed, getCurrentInstance, ref, watch, onMounted, onUnmounted} from "
 import type {Ref, UnwrapRef} from "vue";
 import Button from "@/components/functional/Button.vue";
 import {XMarkIcon} from "@heroicons/vue/20/solid";
-import type {StyleClass, Position} from "@/components/BaseTypes";
+import type {StyleClass, Position, RefLink} from "@/components/BaseTypes";
 // ---------------------------------------
 export type EventFixWindow = "hover"|"click"|"mousedown"|"mouseup"|"dblclick"|"contextmenu"|"none"
 export interface IFixWindow {
   modelValue?: boolean
-  el?: string|HTMLElement
-  scrollableEl?: string|HTMLElement
+  el?: RefLink
+  scrollableEl?: RefLink
   position?: Position
   class?: StyleClass
   eventOpen?: EventFixWindow
@@ -17,8 +17,9 @@ export interface IFixWindow {
   delay?: number|1|5|10|15|20
   marginPx?: number|2|5|10
   translatePx?: number|2|5|10
+  paddingWindow?: number|2|5|10
+  byCursor?: boolean
   closeButton?: boolean
-  paddingWindow?: number|0
 }
 // ---PROPS-EMITS-SLOTS-------------------
 const props = defineProps<IFixWindow>()
@@ -29,21 +30,24 @@ const emit = defineEmits<{
 }>()
 // ---REF-LINK----------------------------
 const fixWindow = ref<HTMLElement>()
+const scrollableEl = ref<HTMLElement>()
 // ---STATE-------------------------------
 const x = ref<number>(0)
 const y = ref<number>(0)
 const isOpen = ref<boolean>(false)
 const timer = ref<number|null>(null)
 const countTimer = ref<number>(0)
+const positionMouse = ref<{x:number, y:number}>()
 // ---PROPS-------------------------------
 const position = computed<NonNullable<IFixWindow["position"]>>(()=>props.position ?? "top")
 const delay = computed<NonNullable<IFixWindow["delay"]>>(()=>props.delay > 0 ? props.delay : 0)
 const marginPx = computed<NonNullable<IFixWindow["marginPx"]>>(()=>props.marginPx ?? 10)
 const translatePx = computed<NonNullable<IFixWindow["translatePx"]>>(()=>props.translatePx ?? 0)
-const isCloseButton = computed<NonNullable<IFixWindow["isCloseButton"]>>(()=>props.closeButton ?? false)
 const eventOpen = computed<EventFixWindow>(()=>props.eventOpen ?? "hover")
 const eventClose = computed<EventFixWindow>(()=> props.eventClose ?? defaultCloseEvent(props.eventOpen as EventFixWindow) ?? "hover")
 const paddingWindow = computed<NonNullable<IFixWindow["paddingWindow"]>>(()=> props.paddingWindow ?? 0)
+const byCursor = computed<NonNullable<IFixWindow["byCursor"]>>(()=>props.byCursor)
+const isCloseButton = computed<NonNullable<IFixWindow["closeButton"]>>(()=>props.closeButton ?? false)
 const element = computed<HTMLElement>(()=> {
   if (props.el) {
     if (typeof props.el === "string"){
@@ -51,18 +55,11 @@ const element = computed<HTMLElement>(()=> {
     } else { return props.el}
   } else { return getCurrentInstance()?.vnode?.el?.parentElement }
 })
-const scrollableEl = computed<HTMLElement>(() => {
-  if (props.scrollableEl) {
-    if (typeof props.scrollableEl === "string"){
-      return document.querySelector(props.scrollableEl)
-    } else { return props.scrollableEl}
-  } else { return element.value.offsetParent as HTMLElement }
-})
 const border = computed<string>(()=> {
   if (marginPx.value > 0){
     if (position.value.match("^(left|right)")){
       return `border-left: ${marginPx.value}px solid transparent;border-right: ${marginPx.value}px solid transparent;`
-    } else if (position.value.match("^(left|right)")){
+    } else if (position.value.match("^(top|bottom)")){
       return `border-top: ${marginPx.value}px solid transparent;border-bottom: ${marginPx.value}px solid transparent;`
     }
   }
@@ -109,6 +106,17 @@ onUnmounted(()=>{
   removePositionListener()
 })
 // ---WATCHERS----------------------------
+watch(()=>props.scrollableEl, (value)=>{
+  if (value) {
+    if (typeof value === "string"){
+      scrollableEl.value = document.querySelector(value)
+      addPositionListener()
+    } else {
+      scrollableEl.value = value
+      addPositionListener()
+    }
+  } else { scrollableEl.value = undefined }
+}, {immediate: true})
 watch(()=>props.modelValue, (value)=>{
   value ? isOpen.value||open() : close()
 },{immediate: true})
@@ -160,7 +168,7 @@ function addCloseListener() {
 }
 function removeCloseListener() {
   switch (eventClose.value) {
-    case "hover": element.value?.removeEventListener("mouseleave", close);break
+    case "hover": window?.removeEventListener("mouseleave", closeOnClick);break
     case "click": window?.removeEventListener("click", closeOnClick);break
     case "mousedown": window?.removeEventListener("mousedown", closeOnClick);break
     case "mouseup": window?.removeEventListener("mouseup", closeOnClick);break
@@ -182,6 +190,9 @@ function removePositionListener() {
 }
 // ---OPEN-CLOSE--------------------------
 function open(env?:MouseEvent) {
+  if (byCursor.value) {
+    positionMouse.value = { x: env?.x as number, y: env?.y as number }
+  }
   function setIsOpen() {
     isOpen.value = true
     if (env) {
@@ -216,7 +227,7 @@ function close(env?:MouseEvent) {
 // ---METHODS-----------------------------
 function openOnContextMenu(evt) {
   evt.preventDefault()
-  open()
+  open(evt)
 }
 function closeOnClick(evt) {
   if (!evt.composedPath().includes(element.value as HTMLElement)) {
@@ -252,6 +263,20 @@ function updatePosition() {
       const parent = (element.value.offsetParent as HTMLElement)?.getBoundingClientRect()
       body.x = body.x - parent.x
       body.y = body.y - parent.y
+      const elParent = element.value.offsetParent as HTMLElement
+      const borderLeft = parseFloat(getComputedStyle(elParent).borderLeftWidth),
+        borderTop = parseFloat(getComputedStyle(elParent).borderTopWidth)
+      if (borderLeft > 0){
+        body.x = body.x - borderLeft
+      } else if (borderTop > 0){
+        body.y = body.y - borderTop
+      }
+    }
+    if (byCursor.value && typeof positionMouse.value?.x === "number" && typeof positionMouse.value?.y === "number") {
+      body.x = positionMouse.value?.x as number
+      body.y = positionMouse.value?.y as number
+      body.width = 0
+      body.height = 0
     }
     //
     el.xCenter = body.x + (body.width - child.width)/2
@@ -266,8 +291,8 @@ function updatePosition() {
     el.xValue = position.value.match("-left$") ? body.x : position.value.match("-right$") ? body.x + body.width - child.width : 0
     el.yValue = position.value.match("-top$") ? body.y : position.value.match("-bottom$") ? body.y + body.height - child.height : 0
     //
-    x.value = Math.floor(el.xPositionIndex !== 0 || el.xValue === 0 ? el.xCenter + el.xTranslate * el.xPositionIndex  : el.xValue) + el.xPositionIndex * translatePx.value
-    y.value = Math.floor(el.yPositionIndex !== 0 || el.yValue === 0 ? el.yCenter + el.yTranslate * el.yPositionIndex  : el.yValue) + el.yPositionIndex * translatePx.value
+    x.value = Math.floor(el.xPositionIndex !== 0 || el.xValue === 0 ? el.xCenter + el.xTranslate * el.xPositionIndex : el.xValue) + el.xPositionIndex * translatePx.value
+    y.value = Math.floor(el.yPositionIndex !== 0 || el.yValue === 0 ? el.yCenter + el.yTranslate * el.yPositionIndex : el.yValue) + el.yPositionIndex * translatePx.value
     //
     if (x.value < paddingWindow.value){
       x.value = body.width + body.x - paddingWindow.value > 0
