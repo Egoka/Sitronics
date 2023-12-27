@@ -337,14 +337,14 @@ function submit(){
                       @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)">
                       <template #values="{selected, key, deleteSelect}">
-                        <Badge mode="neutral" close-button class-content="fill-primary-500" @delete="deleteSelect(selected)"
-                               :class="['m-1 mb-0 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
+                        <Badge mode="neutral" close-button class-content="fill-theme-500" @delete="deleteSelect(selected)"
+                               :class="['m-1 mb-0 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20', 'rounded-full']">
                           {{selected[key]}}
                         </Badge>
                       </template>
                       <template #item="{item, key}">
                         <div v-if="!field.paramsSelect?.noQuery" v-html="item?.marker??item[key]"
-                             class="text-gray-600 dark:text-gray-300 group-hover:text-primary-700 dark:group-hover:text-primary-400"/>
+                             class="text-gray-600 dark:text-gray-300 group-hover:text-theme-700 dark:group-hover:text-theme-400"/>
                         <div v-else class="text-gray-500">{{item[key]}}</div>
                       </template>
                       <template #before>

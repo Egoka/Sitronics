@@ -70,7 +70,7 @@ function changeModelValue(value:any) {
       !(mode === 'underlined')||`rounded-none border-0 border-gray-300 dark:border-gray-700 border-b shadow-none bg-stone-50 dark:bg-stone-950 ${!isDisabled||'border-dashed'}`,
       !(mode === 'filled')||`bg-stone-100 dark:bg-stone-900 ${!isDisabled||'border-2 border-dotted'}`,
       props.class,
-      !isActiveSwitch || mode === 'none'||'border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700',
+      !isActiveSwitch || mode === 'none'||'border-theme-600 dark:border-theme-700 ring-2 ring-inset ring-theme-600 dark:ring-theme-700',
       'relative flex gap-x-3 transition-all'
       )">
     <div class="flex h-6 items-center">
@@ -78,8 +78,8 @@ function changeModelValue(value:any) {
         :modelValue="value" @update:model-value="inputEvent"
         :class="cn(
           !isDisabled||`pointer-events-none border-dotted border-2 border-transparent w-9 ${value ? 'bg-gray-600 dark:bg-gray-400' : 'bg-gray-200 dark:bg-gray-800'}`,
-          value ? 'bg-primary-600 dark:bg-primary-400' : 'bg-gray-200 dark:bg-gray-800',
-          'flex w-8 flex-none cursor-pointer p-px ring-2 ring-inset ring-gray-900/5 transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600')"
+          value ? 'bg-theme-600 dark:bg-theme-400' : 'bg-gray-200 dark:bg-gray-800',
+          'flex w-8 flex-none cursor-pointer p-px ring-2 ring-inset ring-gray-900/5 transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-theme-600')"
         :style="`border-radius: ${rounded}px`"
         @focus="isActiveSwitch = true"
         @blur="isActiveSwitch = false">
@@ -87,14 +87,14 @@ function changeModelValue(value:any) {
           v-if="iconActive && iconInactive"
           :type="value ? iconActive : iconInactive"
           :class="cn(
-            value ? 'translate-x-3.5 bg-primary-100 dark:bg-primary-900' : 'translate-x-0 bg-gray-100 dark:bg-gray-950',
+            value ? 'translate-x-3.5 bg-theme-100 dark:bg-theme-900' : 'translate-x-0 bg-gray-100 dark:bg-gray-950',
             'h-4 w-4 transform shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out text-gray-400 dark:text-gray-600')"
           :style="`border-radius: ${rounded-1}px`"/>
         <span
           v-else
           aria-hidden="true"
           :class="cn(
-            value ? 'translate-x-3.5 bg-primary-100 dark:bg-primary-900' : 'translate-x-0 bg-gray-100 dark:bg-gray-950',
+            value ? 'translate-x-3.5 bg-theme-100 dark:bg-theme-900' : 'translate-x-0 bg-gray-100 dark:bg-gray-950',
             'h-4 w-4 transform shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out')"
           :style="`border-radius: ${rounded-1}px`"/>
       </Switch>
@@ -135,8 +135,8 @@ function changeModelValue(value:any) {
         :class="cn(
           'h-4 w-4 bg-stone-50 dark:bg-stone-950',
           'border border-gray-300 dark:border-gray-700',
-          'text-primary-500 dark:text-primary-700',
-          'focus:ring-offset-0 focus:ring-primary-200 focus:dark:ring-primary-800',
+          'text-theme-500 dark:text-theme-700',
+          'focus:ring-offset-0 focus:ring-theme-200 focus:dark:ring-theme-800',
           'transition cursor-pointer',
           'disabled:bg-slate-500 disabled:text-slate-500 disabled:accent-slate-500'
           )"

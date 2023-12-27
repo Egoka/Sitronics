@@ -23,12 +23,12 @@ const mode = computed<NonNullable<IButton["mode"]>>(()=> props.mode ?? "neutral"
 const tag = computed<string>(()=> ['link', 'text'].includes(mode.value) ? 'button' : 'a')
 const classButton = computed<StyleClass>(()=> props.class)
 const modeStyle = computed<string>(()=>
-  (mode.value === "primary") ? "shadow bg-primary-600 text-primary-100 hover:bg-primary-600/90 dark:bg-primary-700 dark:text-primary-100 dark:hover:bg-primary-700/90 focus-visible:ring-primary-400 dark:focus-visible:ring-primary-500" :
-    (mode.value === "secondary") ? "bg-primary-100 text-primary-900 dark:bg-primary-950 dark:text-primary-100 hover:bg-primary-200 dark:hover:bg-primary-900 focus-visible:ring-primary-500 dark:focus-visible:ring-primary-600" :
+  (mode.value === "primary") ? "shadow bg-theme-600 text-theme-100 hover:bg-theme-600/90 dark:bg-theme-700 dark:text-theme-100 dark:hover:bg-theme-700/90 focus-visible:ring-theme-400 dark:focus-visible:ring-theme-500" :
+    (mode.value === "secondary") ? "bg-theme-100 text-theme-900 dark:bg-theme-950 dark:text-theme-100 hover:bg-theme-200 dark:hover:bg-theme-900 focus-visible:ring-theme-500 dark:focus-visible:ring-theme-600" :
       (mode.value === "neutral") ? "shadow-sm bg-neutral-200 text-neutral-700 hover:bg-neutral-200/80 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-800/80 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500" :
         (mode.value === "creative") ? "shadow-sm bg-green-500 text-green-100 hover:bg-green-500/90 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-900/90 focus-visible:ring-green-300 dark:focus-visible:ring-green-700" :
           (mode.value === "destructive") ? "shadow-sm bg-red-600 text-red-100 hover:bg-red-600/90 dark:bg-red-700 dark:text-rad-100 dark:hover:bg-red-700/90 focus-visible:ring-red-300 dark:focus-visible:ring-red-700" :
-            (mode.value === "outline") ? "shadow-sm text-primary-900 dark:text-primary-100 border border-primary-500 dark:border-primary-700 bg-transparent hover:bg-primary-50 dark:hover:bg-primary-950 focus-visible:ring-primary-200 dark:focus-visible:ring-primary-900" :
+            (mode.value === "outline") ? "shadow-sm text-theme-900 dark:text-theme-100 border border-theme-500 dark:border-theme-700 bg-transparent hover:bg-theme-50 dark:hover:bg-theme-950 focus-visible:ring-theme-200 dark:focus-visible:ring-theme-900" :
               (mode.value === "line") ? "shadow-sm text-neutral-900 dark:text-neutral-100 border border-neutral-500 dark:border-neutral-700 bg-transparent hover:bg-neutral-200 dark:hover:bg-neutral-900 focus-visible:ring-neutral-200 dark:focus-visible:ring-neutral-900" :
                 (mode.value === "ghost") ? "text-neutral-900 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-800 focus-visible:ring-neutral-200 dark:focus-visible:ring-neutral-600" :
                   (mode.value === "link") ? "text-neutral-900 dark:text-neutral-100 relative after:bg-black dark:after:bg-white after:absolute after:h-[1px] after:w-0 after:bottom-0 after:-translate-y-2 after:left-[10%] hover:after:w-[80%] after:transition-all after:duration-300 focus-visible:ring-transparent" :
@@ -59,6 +59,6 @@ const modeStyle = computed<string>(()=>
       modeStyle, classButton)"
     :disabled="disabled">
     <slot name="default"/>
-<!--    <svg xmlns="http://www.w3.org/2000/svg" class="absolute animate-[spin_1.5s_ease-in-out_infinite] duration-50 text-primary-700 dark:text-primary-500" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" ><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>-->
+<!--    <svg xmlns="http://www.w3.org/2000/svg" class="absolute animate-[spin_1.5s_ease-in-out_infinite] duration-50 text-theme-700 dark:text-theme-500" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" ><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>-->
   </button>
 </template>

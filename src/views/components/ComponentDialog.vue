@@ -403,15 +403,15 @@ watch(form, ()=>{
   <ComponentViews>
     <template #title>Dialog</template>
 <!---------------------------->
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Диалоговое окно</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Диалоговое окно</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Задача диалогового окна создать отделенный интерфейс от остального, что бы сосредоточить внимание пользователя на важной информации.</p>
         <p>Промером такой информации могут быть предупреждения, окно выбора, где есть ответ да или нет, формы заполнения данных и другие.</p><br/>
       </p>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Расположение</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Расположение</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Диалоговому окну можно задать расположение. Доступные следующие значения <Badge mode="outline">center</Badge> (по умолчанию), <Badge mode="outline">top</Badge>,
           <Badge mode="outline">bottom</Badge>,
@@ -437,8 +437,8 @@ watch(form, ()=>{
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">С формой</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">С формой</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>В диалоговом окне можно сделать сложную форму с валидацией</p>
       </p>
@@ -447,8 +447,8 @@ watch(form, ()=>{
         <Button class="m-2" @click="isOpen2 = true;positionDialog2 = 'right'">Форма справа</Button>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">С видео</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">С видео</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>В диалоговом окне можно добавить видео</p>
       </p>
@@ -456,8 +456,8 @@ watch(form, ()=>{
         <Button class="m-2" @click="isOpen3 = true;positionDialog3='bottom'">Открыть</Button>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Закрытие только по нажатию на кнопку</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Закрытие только по нажатию на кнопку</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>У диалогового окна есть параметр <Badge mode="outline">notCloseBackground</Badge> при включении которого закрытие диалогового окна будет срабатывать только по кнопкам которе настроены на закрытие.
         </p>
@@ -466,8 +466,8 @@ watch(form, ()=>{
         <Button class="m-2" @click="isOpen4 = true">Открыть</Button>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Копка закрытия</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Копка закрытия</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Указав параметр <Badge mode="outline">closeButton</Badge> диалоговому окну, добавится кнопка закрытия.</p>
       </p>
@@ -477,8 +477,8 @@ watch(form, ()=>{
         </div>
       </p>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Ширина</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Ширина</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Указав параметр <Badge mode="outline">size</Badge> диалоговому окну, можно задать его ширину.</p>
       </p>

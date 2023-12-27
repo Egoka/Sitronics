@@ -96,7 +96,7 @@ watch(theme, (theme)=>{
 })
 watch(isActiveTextEditor, (value)=>{
   classLayout.value = (props.class??"")+(value
-    ? ` border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`
+    ? ` border-theme-600 dark:border-theme-700 ring-2 ring-inset ring-theme-600 dark:ring-theme-700 ${additionalStyles.value}`
     : " " + additionalStyles.value)
 })
 // ---------------------------------------
@@ -153,7 +153,7 @@ function ready() {
             @update:content="inputModelValue"/>
           <div class="absolute top-[5px] right-[5px]" @click="theme = 'bubble'">
             <Button mode="ghost" class="group h-9 w-9 px-0 border-neutral-500 dark:border-neutral-500 hover:bg-transparent hover:dark:bg-transparent cursor-pointer">
-              <ArrowsPointingInIcon aria-hidden="true" class="h-5 w-5 mx-2 transition-all fill-neutral-500 dark:fill-neutral-500 group-hover:fill-primary-600 dark:group-hover:fill-primary-600"/>
+              <ArrowsPointingInIcon aria-hidden="true" class="h-5 w-5 mx-2 transition-all fill-neutral-500 dark:fill-neutral-500 group-hover:fill-theme-600 dark:group-hover:fill-theme-600"/>
             </Button>
           </div>
         </div>

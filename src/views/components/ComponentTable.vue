@@ -134,37 +134,37 @@ const styleOne = reactive({
   pink: "m-1 text-xs bg-pink-50 text-pink-700 ring-pink-700/10 dark:bg-pink-950 dark:text-pink-300 dark:ring-pink-300/10",
 })
 const borderDataSelect = ref([
-  {id: 'table', value: 'table', key: {table:'border-2 border-primary-200 dark:border-primary-700'},},
-  {id: 'header', value: 'header', key: {header:'border-b-2 border-primary-200 dark:border-primary-700'},},
-  {id: 'filter', value: 'filter', key: {filter:'border-r-2 border-primary-200 dark:border-primary-700'},},
-  {id: 'head', value: 'head', key: {head:'border-b-2 border-primary-200 dark:border-primary-700'},},
-  {id: 'cell', value: 'cell', key: {cell:'border-r-2 border-b-2 border-primary-200 dark:border-primary-700'},},
-  {id: 'summary', value: 'summary', key: {summary:'border-t-2 border-primary-200 dark:border-primary-700'},},
-  {id: 'pagination', value: 'pagination', key: {pagination:'border-t-2 border-primary-200 dark:border-primary-700'},},
-  {id: 'footer', value: 'footer', key: {footer:'border-t-2 border-primary-200 dark:border-primary-700'},},
+  {id: 'table', value: 'table', key: {table:'border-2 border-theme-200 dark:border-theme-700'},},
+  {id: 'header', value: 'header', key: {header:'border-b-2 border-theme-200 dark:border-theme-700'},},
+  {id: 'filter', value: 'filter', key: {filter:'border-r-2 border-theme-200 dark:border-theme-700'},},
+  {id: 'head', value: 'head', key: {head:'border-b-2 border-theme-200 dark:border-theme-700'},},
+  {id: 'cell', value: 'cell', key: {cell:'border-r-2 border-b-2 border-theme-200 dark:border-theme-700'},},
+  {id: 'summary', value: 'summary', key: {summary:'border-t-2 border-theme-200 dark:border-theme-700'},},
+  {id: 'pagination', value: 'pagination', key: {pagination:'border-t-2 border-theme-200 dark:border-theme-700'},},
+  {id: 'footer', value: 'footer', key: {footer:'border-t-2 border-theme-200 dark:border-theme-700'},},
 ])
 const classesDataSelect = ref([
-  {id: 'body', value: 'Тело компонента', key: {body:'p-1.5 bg-primary-300 dark:bg-primary-800'}},
-  {id: 'toolbar', value: 'toolbar', key: {toolbar:'justify-end items-end bg-primary-300 dark:bg-primary-800'}},
-  {id: 'bodyTable', value: 'bodyTable', key: {bodyTable:'bg-primary-300 dark:bg-primary-800'}},
-  {id: 'slotHeader', value: 'slotHeader', key: {slotHeader:'bg-primary-300 dark:bg-primary-800'}},
-  {id: 'slotFooter', value: 'slotFooter', key: {slotFooter:'bg-primary-300 dark:bg-primary-800'}},
-  {id: 'table', value: 'table', key: {table:'bg-primary-300 dark:bg-primary-800'}},
-  {id: 'thead', value: 'thead', key: {thead:'bg-primary-300 dark:bg-primary-800'}},
-  {id: 'tbody', value: 'tbody', key: {tbody:'bg-primary-300 dark:bg-primary-800'}},
-  {id: 'tfoot', value: 'tfoot', key: {tfoot:'bg-primary-300 dark:bg-primary-800'}},
-  {id: 'group', value: 'group', key: {group:'text-left text-gray-800 dark:text-gray-300 px-6 py-2 pr-3 pl-10 sm:pl-12 bg-primary-300 dark:bg-primary-800'}},
-  {id: 'groupText', value: 'groupText', key: {groupText:'left-10 sm:left-12 flex items-center w-fit min-h-[2.5rem] truncate bg-primary-300 dark:bg-primary-800'}},
-  {id: 'pagination', value: 'pagination', key: {pagination:'bg-primary-300 dark:bg-primary-800'}},
+  {id: 'body', value: 'Тело компонента', key: {body:'p-1.5 bg-theme-300 dark:bg-theme-800'}},
+  {id: 'toolbar', value: 'toolbar', key: {toolbar:'justify-end items-end bg-theme-300 dark:bg-theme-800'}},
+  {id: 'bodyTable', value: 'bodyTable', key: {bodyTable:'bg-theme-300 dark:bg-theme-800'}},
+  {id: 'slotHeader', value: 'slotHeader', key: {slotHeader:'bg-theme-300 dark:bg-theme-800'}},
+  {id: 'slotFooter', value: 'slotFooter', key: {slotFooter:'bg-theme-300 dark:bg-theme-800'}},
+  {id: 'table', value: 'table', key: {table:'bg-theme-300 dark:bg-theme-800'}},
+  {id: 'thead', value: 'thead', key: {thead:'bg-theme-300 dark:bg-theme-800'}},
+  {id: 'tbody', value: 'tbody', key: {tbody:'bg-theme-300 dark:bg-theme-800'}},
+  {id: 'tfoot', value: 'tfoot', key: {tfoot:'bg-theme-300 dark:bg-theme-800'}},
+  {id: 'group', value: 'group', key: {group:'text-left text-gray-800 dark:text-gray-300 px-6 py-2 pr-3 pl-10 sm:pl-12 bg-theme-300 dark:bg-theme-800'}},
+  {id: 'groupText', value: 'groupText', key: {groupText:'left-10 sm:left-12 flex items-center w-fit min-h-[2.5rem] truncate bg-theme-300 dark:bg-theme-800'}},
+  {id: 'pagination', value: 'pagination', key: {pagination:'bg-theme-300 dark:bg-theme-800'}},
 ])
 const activeRow = ref()
 function clickRow(params) {
   if(params){
     const activeTr = params.eventEl.parentElement.querySelector(".active-tr")
     if (activeTr) {
-      activeTr.classList.remove("active-tr", "!bg-primary-100", "dark:!bg-primary-900")
+      activeTr.classList.remove("active-tr", "!bg-theme-100", "dark:!bg-theme-900")
     }
-    params.eventEl.classList.add("active-tr", "!bg-primary-100", "dark:!bg-primary-900")
+    params.eventEl.classList.add("active-tr", "!bg-theme-100", "dark:!bg-theme-900")
     dialog.value = true
     activeRow.value = params.data._key
     formFields.value = params.data
@@ -253,15 +253,15 @@ const structureDialog = ref<Array<IFormStructure>>([
 <template>
   <ComponentViews>
     <template #title>Table</template>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Table</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Table</h2>
       <p class="my-4 text-sm leading-6 text-gray-600 dark:text-gray-400">
         Table (таблица) - это элемент пользовательского интерфейса, который используется для организации и представления данных в виде сетки или матрицы. Он является одним из основных способов отображения структурированных данных.
         Основная цель использования таблицы - это упорядочение и систематизация информации. В таблице данные разбиваются на строки и столбцы, что позволяет легко читать и анализировать информацию. Каждая ячейка таблицы содержит отдельное значение или элемент данных.
       </p>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Базовое использование</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Базовое использование</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Для базового использования достаточно просто подать данные.</p>
       </p>
@@ -280,8 +280,8 @@ const structureDialog = ref<Array<IFormStructure>>([
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Колонки</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Колонки</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Колонка в компоненте таблицы представляет собой отдельный столбец данных, который отображается в таблице.
           Каждая колонка имеет свои уникальные свойства, которые определяют её поведение и внешний вид.
@@ -378,14 +378,14 @@ const structureDialog = ref<Array<IFormStructure>>([
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">setCellValue</Badge>: Метод setCellValue позволяет установить значение ячейки колонки.</p></p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">class</Badge>: Свойство class содержит набор классов стилей для различных элементов интерфейса, таких как заголовок (th), фильтр (colFilter), текст колонки (colText) и т.д. Каждый класс стиля может быть настроен отдельно.</p></p>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Работа с данными</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Работа с данными</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">toolbar</Badge>: Свойство toolbar позволяет настроить панель инструментов для интерфейса. Вы можете указать объект с свойствами visible и search для определения видимости и наличия поля поиска в панели инструментов. Если вы установите значение в true, будет отображена стандартная панель инструментов.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
         <div class=" col-span-full my-5">
           <Table :data-source="baseData" columns toolbar>
             <template #toolbar>
-              <div class="border-2 rounded-lg border-primary-100 dark:border-primary-950 dark:bg-primary-800 dark:text-neutral-300">
+              <div class="border-2 rounded-lg border-theme-100 dark:border-theme-950 dark:bg-theme-800 dark:text-neutral-300">
                 <Badge mode="outline">Toolbar</Badge> в котором может располагаться текст, кастомные кнопки или другие инструменты.
               </div>
             </template>
@@ -421,8 +421,8 @@ const structureDialog = ref<Array<IFormStructure>>([
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Cводная информация</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Cводная информация</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">summary</Badge>: параметр сводной информации в таблице. Может передавать булево значение или массив настроек для столбцов. При значении true включает итоговую информацию по умолчанию</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
         <div class=" col-span-full my-5">
@@ -455,8 +455,8 @@ const structureDialog = ref<Array<IFormStructure>>([
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">customizeText</Badge>: Функция, которая позволяет настроить текст отображения сводной информации. Принимает два параметра: summary (объект ISummary) и result (строка с фактическим значением сводной информации). Функция должна вернуть строку, которая будет отображаться вместо фактического значения.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6"><div class=" col-span-full my-5"></div></div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Пагинация</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Пагинация</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">Pagination</Badge>: параметр пагинации в таблице. Может передавать булево значение или объект настроек. При значении true включает пагинацию по умолчанию</p></p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">visible</Badge>: Булево значение, указывающее, видима ли пагинация в таблице. Если установлено значение true, пагинация будет отображаться, в противном случае - скрыта.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
@@ -527,8 +527,8 @@ const structureDialog = ref<Array<IFormStructure>>([
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">mode</Badge>: Объект типа IMode, определяющий визуальный стиль пагинации.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6"><div class=" col-span-full my-5"></div></div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Дополнительные настройки</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Дополнительные настройки</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">countVisibleRows</Badge>: Число, указывающее количество видимых строк в таблице.</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
         <div class=" col-span-full my-5">
@@ -555,8 +555,8 @@ const structureDialog = ref<Array<IFormStructure>>([
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Вставка данных</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Вставка данных</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">#toolbar</Badge>: Шаблон, который позволяет настроить содержимое панели инструментов таблицы. В этом слоте можно разместить дополнительные элементы управления или информацию.</p></p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">#group</Badge>: Шаблон, который позволяет настроить отображение группировки данных в таблице. В этом слоте можно определить, каким образом будут отображаться группы данных и какие элементы управления будут доступны для работы с группами.</p></p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">#header</Badge>: Шаблон, который позволяет настроить отображение заголовка таблицы. В этом слоте можно определить, какие столбцы будут отображаться в заголовке и какие элементы управления будут доступны для сортировки и фильтрации данных.</p></p>
@@ -570,23 +570,23 @@ const structureDialog = ref<Array<IFormStructure>>([
                  grouping="age"
                  :count-visible-rows="5">
             <template #toolbar>
-              <div class="flex justify-center items-center min-h-[3rem] w-full h-full rounded-lg border dark:border-neutral-800 text-center p-2 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300">#toolbar</div>
+              <div class="flex justify-center items-center min-h-[3rem] w-full h-full rounded-lg border dark:border-neutral-800 text-center p-2 bg-theme-50 dark:bg-theme-950 text-theme-700 dark:text-theme-300">#toolbar</div>
             </template>
             <template #group="{item, length}">
-              <div class="flex justify-center items-center w-full h-full rounded-lg border dark:border-neutral-800 text-center p-2 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300">#group {{ dayjs(item).format('DD.MM.YYYY')  }}</div>
+              <div class="flex justify-center items-center w-full h-full rounded-lg border dark:border-neutral-800 text-center p-2 bg-theme-50 dark:bg-theme-950 text-theme-700 dark:text-theme-300">#group {{ dayjs(item).format('DD.MM.YYYY')  }}</div>
             </template>
             <template #header>
-              <div class="flex justify-center items-center min-h-[3rem] w-full h-full rounded-lg border dark:border-neutral-800 text-center p-2 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300">#header</div>
+              <div class="flex justify-center items-center min-h-[3rem] w-full h-full rounded-lg border dark:border-neutral-800 text-center p-2 bg-theme-50 dark:bg-theme-950 text-theme-700 dark:text-theme-300">#header</div>
             </template>
             <template #footer>
-              <div class="flex justify-center items-center min-h-[3rem] w-full h-full rounded-lg border dark:border-neutral-800 text-center p-2 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300">#footer</div>
+              <div class="flex justify-center items-center min-h-[3rem] w-full h-full rounded-lg border dark:border-neutral-800 text-center p-2 bg-theme-50 dark:bg-theme-950 text-theme-700 dark:text-theme-300">#footer</div>
             </template>
           </Table>
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 id="styles" class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Стилизация</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 id="styles" class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Стилизация</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">mode</Badge>: Режим стилизации таблицы. Доступно три разных стиля: filled, outlined, underlined</p></p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
         <div class="col-span-full my-5">
@@ -688,8 +688,8 @@ const structureDialog = ref<Array<IFormStructure>>([
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 id="styles" class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Редактирование данных</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 id="styles" class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Редактирование данных</h2>
 <!--      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400"><p><Badge mode="outline">mode</Badge>: Режим стилизации таблицы. Доступно три разных стиля: filled, outlined, underlined</p></p>-->
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
         <div class="col-span-full my-5">

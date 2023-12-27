@@ -25,18 +25,18 @@ const isPoint = computed<NonNullable<IBadge["point"]>>(()=> props.point ?? false
 const isCloseButton = computed<NonNullable<IBadge["closeButton"]>>(()=> props.closeButton ?? false)
 const classBadge = computed<StyleClass>(()=> props.class)
 const modeStyle = computed<string>(()=>
-  (mode.value === "primary") ? "bg-primary-600 text-primary-100 dark:bg-primary-700 dark:text-primary-100" :
-    (mode.value === "secondary") ? "bg-primary-100 text-primary-900 dark:bg-primary-950 dark:text-primary-100" :
+  (mode.value === "primary") ? "bg-theme-600 text-theme-100 dark:bg-theme-700 dark:text-theme-100" :
+    (mode.value === "secondary") ? "bg-theme-100 text-theme-900 dark:bg-theme-950 dark:text-theme-100" :
       (mode.value === "neutral") ? "ring-1 ring-inset" :
         (mode.value === "outline") ? (!isPoint.value&&!isCloseButton.value)
-            ? "ring-1 ring-inset bg-primary-50 dark:bg-primary-900 text-primary-600 dark:text-primary-400 ring-primary-500/10"
+            ? "ring-1 ring-inset bg-theme-50 dark:bg-theme-900 text-theme-600 dark:text-theme-400 ring-theme-500/10"
             : "ring-1 ring-inset text-neutral-600 dark:text-neutral-200 ring-neutral-500/30"
           : "")
 const classBadgeContent = computed<StyleClass>(()=> {
   const arrayClasses = []
-  !(mode.value === "primary") || arrayClasses.push("fill-primary-100 dark:fill-primary-300")
-  !(mode.value === "secondary") || arrayClasses.push("fill-primary-600 dark:fill-primary-300")
-  !(mode.value === "outline") || arrayClasses.push("fill-primary-500 dark:fill-primary-600")
+  !(mode.value === "primary") || arrayClasses.push("fill-theme-100 dark:fill-theme-300")
+  !(mode.value === "secondary") || arrayClasses.push("fill-theme-600 dark:fill-theme-300")
+  !(mode.value === "outline") || arrayClasses.push("fill-theme-500 dark:fill-theme-600")
   !(mode.value === "neutral") || arrayClasses.push(props.classContent)
   return arrayClasses
 })

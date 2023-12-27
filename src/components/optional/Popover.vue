@@ -35,7 +35,7 @@ const callsToAction = [
           <div class="p-4">
 <!--            <div v-for="item in solutions" :key="item.name" class="group relative flex gap-x-6 rounded-lg p-4 hover:bg-gray-50">-->
 <!--              <div class="mt-1 flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">-->
-<!--                <component :is="item.icon" class="h-6 w-6 text-gray-600 group-hover:text-primary-600" aria-hidden="true" />-->
+<!--                <component :is="item.icon" class="h-6 w-6 text-gray-600 group-hover:text-theme-600" aria-hidden="true" />-->
 <!--              </div>-->
 <!--              <div>-->
 <!--                <a :href="item.href" class="font-semibold text-gray-900">-->

@@ -349,10 +349,10 @@ function click(e) {
         <Button link="/components" mode="outline" class="mr-1 w-20 rounded-r-xl border-l-0">Правая</Button>
       </div>
       <span class="relative inline-flex items-center mx-1">
-        <Button link="/components" mode="outline" class="hover:bg-primary-100">С точкой</Button>
+        <Button link="/components" mode="outline" class="hover:bg-theme-100">С точкой</Button>
         <span class="flex absolute h-3 w-3 top-0 right-0 -mr-1">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-3 w-3 bg-primary-500"></span>
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-theme-500"></span>
         </span>
       </span>
       <Button  mode="ghost" class="m-1 rounded-full h-9 w-9 px-2">

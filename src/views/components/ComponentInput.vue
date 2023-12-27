@@ -7,7 +7,7 @@ import StForm, {IFormExpose, IFormStructure} from "@/components/form/StForm.vue"
 const isInvalid = ref(false)
 const messageValid = ref("")
 const dimension = ref("")
-const badgesClass = "inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10"
+const badgesClass = "inline-flex items-center rounded-md bg-theme-50 dark:bg-theme-900 px-2 py-0.5 text-xs font-medium text-theme-600 dark:text-theme-400 ring-1 ring-inset ring-theme-500/10"
 // ---------------------------------------
 const form = ref<any>(null)
 const formTest = ref<IFormExpose>()
@@ -299,7 +299,7 @@ const structures = ref<Array<IFormStructure>>([
         name: "customOne",
         label: "text",
         paramsInput: {
-          classInput: "!text-primary-700 dark:!text-primary-300"
+          classInput: "!text-theme-700 dark:!text-theme-300"
         },
         beforeIcon: "BiBodyText"
       },
@@ -321,12 +321,12 @@ watch(form, ()=>{
     <StForm
       ref="formTest"
       :structure="structures"
-      structure-class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10"
+      structure-class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10"
       structure-class-grid="grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5"
       @update:form-fields="(formFields)=>form = formFields"
     >
       <template #itemTitle="{structure}">
-        <h2 v-if="structure?.title?.length" class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">{{ structure?.title }}</h2>
+        <h2 v-if="structure?.title?.length" class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">{{ structure?.title }}</h2>
         <p v-if="structure?.subTitle?.length" class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400" v-html="structure?.subTitle"/>
       </template>
     </StForm>
@@ -345,7 +345,7 @@ watch(form, ()=>{
       :message-valid="messageValid"
     >
       <template #before>
-        <CubeIcon class="h-5 w-5 text-primary-500" aria-hidden="true" />
+        <CubeIcon class="h-5 w-5 text-theme-500" aria-hidden="true" />
       </template>
       <template #after>
         <p v-if="dimension" class="ml-1 mr-3 text-gray-400 select-none">степень</p>
@@ -366,7 +366,7 @@ watch(form, ()=>{
       :message-valid="messageValid"
     >
       <template #before>
-        <CubeIcon class="h-5 w-5 text-primary-500" aria-hidden="true" />
+        <CubeIcon class="h-5 w-5 text-theme-500" aria-hidden="true" />
       </template>
       <template #after>
         <p v-if="dimension" class="ml-1 mr-3 text-gray-400 select-none">степень</p>

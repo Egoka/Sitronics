@@ -22,7 +22,7 @@ export interface IDateSelect {
   noQuery?: boolean
   classSelect?: string|"justify-end"
   classSelectList?: string
-  classMaskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
+  classMaskQuery?: "font-bold text-theme-700 dark:text-theme-300"|string
   paramsFixWindow?: Omit<IFixWindow, "modelValue">
 }
 export interface ISelect extends Omit<ILayout, "value"|"isValue">{
@@ -102,7 +102,7 @@ const isMultiple = computed<NonNullable<IDateSelect["multiple"]>>(()=> props.par
 const maxVisible = computed<IDateSelect["maxVisible"]>(()=> props.paramsSelect?.maxVisible)
 const noData = computed<NonNullable<IDateSelect["noData"]>>(()=> props.paramsSelect?.noData ?? "Нет данных")
 const isQuery = computed<NonNullable<IDateSelect["noQuery"]>>(()=> !props.paramsSelect?.noQuery)
-const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery ?? "font-bold text-primary-700 dark:text-primary-300")
+const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery ?? "font-bold text-theme-700 dark:text-theme-300")
 const paramsFixWindow = computed<NonNullable<IDateSelect["paramsFixWindow"]>>(()=> ({
   position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 5, ...props.paramsSelect.paramsFixWindow
 }))
@@ -151,7 +151,7 @@ function keydownSelect(evt:KeyboardEvent){
 }
 // ---------------------------------------
 function focusSelect(isFocus) {
-  classLayout.value = (props.class??"")+(isFocus ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+  classLayout.value = (props.class??"")+(isFocus ? " border-theme-600 dark:border-theme-700 ring-2 ring-inset ring-theme-600 dark:ring-theme-700": "")
 }
 function openSelect() {
   if (isDisabled.value) { return }
@@ -243,15 +243,15 @@ function onLeave(el:any, done:any) {
                             enter-active-class="transition ease-in-out duration-300" enter-from-class="opacity-0 -translate-x-5" enter-to-class="opacity-100 translate-x-0">
             <div v-for="item in typeof maxVisible === 'number' ? visibleValue.slice(0, maxVisible) : visibleValue" :key="item[keySelect]" class="z-10">
               <slot name="values" :selected="item" :key="valueSelect ? valueSelect : keySelect" :delete-select="select">
-                <Badge mode="neutral" close-button class-content="fill-primary-500" @delete="select(item)" class="m-1 mb-0 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20 rounded-full">
+                <Badge mode="neutral" close-button class-content="fill-theme-500" @delete="select(item)" class="m-1 mb-0 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20 rounded-full">
                   {{valueSelect? item[valueSelect] : item[keySelect]}}
                 </Badge>
               </slot>
             </div>
             <div v-if="visibleValue.length > maxVisible" class="z-10">
               <slot name="values" :selected="visibleValue.length" :key="null" :delete-select="select">
-                <Badge mode="neutral" class-content="fill-primary-500" class="m-1 mb-0 px-3 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20 rounded-full">
-                  <FunnelIcon aria-hidden="true" class="h-3 w-3 mr-2 text-primary-400 dark:text-primary-600"/> {{visibleValue.length}}
+                <Badge mode="neutral" class-content="fill-theme-500" class="m-1 mb-0 px-3 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20 rounded-full">
+                  <FunnelIcon aria-hidden="true" class="h-3 w-3 mr-2 text-theme-400 dark:text-theme-600"/> {{visibleValue.length}}
                 </Badge>
               </slot>
             </div>
@@ -317,7 +317,7 @@ function onLeave(el:any, done:any) {
                   :data-index="index"
                   :class="cn(
                     'text-gray-900 dark:text-gray-100 items-center h-9 mx-2 pl-8 pr-4 last:mb-5',
-                    'hover:bg-primary-200 hover:dark:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-100',
+                    'hover:bg-theme-200 hover:dark:bg-theme-900 hover:text-theme-700 dark:hover:text-theme-100',
                     ['outlined','filled'].includes(mode) && 'rounded-md',
                     'group/li relative cursor-default select-none flex transition-colors duration-75'
                     )"
@@ -326,16 +326,16 @@ function onLeave(el:any, done:any) {
                     <div
                       v-if="isQuery && item?.marker"
                       v-html="item?.marker"
-                      class="text-gray-600 dark:text-gray-300 group-hover/li:text-primary-700 dark:group-hover/li:text-primary-400"/>
+                      class="text-gray-600 dark:text-gray-300 group-hover/li:text-theme-700 dark:group-hover/li:text-theme-400"/>
                     <div
                       v-else
-                      class="text-gray-600 dark:text-gray-300 group-hover/li:text-primary-700 dark:group-hover/li:text-primary-200">
+                      class="text-gray-600 dark:text-gray-300 group-hover/li:text-theme-700 dark:group-hover/li:text-theme-200">
                       {{valueSelect? item[valueSelect] : item}}
                     </div>
                   </slot>
                   <span
                     v-if="visibleValue?.find(i=>i[keySelect] === item[keySelect])"
-                    class="flex absolute inset-y-0 left-0 items-center pl-2 text-primary-700 dark:text-primary-400">
+                    class="flex absolute inset-y-0 left-0 items-center pl-2 text-theme-700 dark:text-theme-400">
                     <CheckIcon aria-hidden="true" class="w-5 h-5"/>
                   </span>
                 </li>

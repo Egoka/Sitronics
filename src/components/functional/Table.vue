@@ -142,7 +142,7 @@ export interface ITableStyles {
   heightCell?:number
   filterLines?:boolean
   defaultWidthColumn?: "max-width: 600px;min-width:100px;width:auto"|string
-  maskQuery?: "font-bold text-primary-700 dark:text-primary-300"|string
+  maskQuery?: "font-bold text-theme-700 dark:text-theme-300"|string
   border?: border|'border-0 border-b-0 border-t-0 border-r-0'|{
     table?: border|'border-0'
     header?: border|'border-b-0'
@@ -225,7 +225,7 @@ const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearA
 const isColumns = computed<boolean>(()=> typeof props.columns === "boolean" ? props.columns : Array.isArray(props.columns))
 const isSummary = computed<boolean>(()=> typeof props.summary === "boolean" ? props.summary : Array.isArray(props.summary))
 const countDataOnLoading = computed<ITable["countDataOnLoading"]>(()=> props.countDataOnLoading ?? 1000)
-const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.styles?.maskQuery ?? "font-bold text-primary-700 dark:text-primary-400")
+const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.styles?.maskQuery ?? "font-bold text-theme-700 dark:text-theme-400")
 const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData ?? "Нет данных")
 const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn ?? "Нет колонок")
 const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> (props.filter as IFilter)?.noFilter ?? "Не найдено подходящих данных")

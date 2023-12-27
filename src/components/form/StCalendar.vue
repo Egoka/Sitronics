@@ -308,7 +308,7 @@ function changeDate (date:ICalendarPicker["inputValue"]) {
 }
 function focus (isFocus:boolean=true) {
   classLayout.value = (props.class??"") +
-    (isFocus ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+    (isFocus ? " border-theme-600 dark:border-theme-700 ring-2 ring-inset ring-theme-600 dark:ring-theme-700": "")
 }
 function openCalendar () {
   if (isDisabled.value) { return }

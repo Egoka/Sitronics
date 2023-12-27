@@ -109,7 +109,7 @@ function switchSizePage(sizePageValue) {
       </button>
       <!-- -------------------------------- -->
       <div :class="cn('flex sm:-mt-px sm:hidden px-3 text-neutral-500 font-bold', (mode === 'outlined' || mode === 'filled') ? 'pt-2' : 'pt-3')">
-        <span class="text-primary-700 dark:text-primary-400">{{ activePage }}</span>
+        <span class="text-theme-700 dark:text-theme-400">{{ activePage }}</span>
         <span class="mx-0.5">/</span>
         <span class="text-neutral-700 dark:text-neutral-400">{{ pages[pages.length-1] }}</span>
       </div>
@@ -158,10 +158,10 @@ function switchSizePage(sizePageValue) {
               v-if="page > 0" :aria-current="page === activePage ? 'page': false"
               :class="[
                 'inline-flex items-center text-sm font-medium select-none transition-colors duration-300',
-                page === activePage ? 'text-primary-600 dark:text-primary-400' : 'text-gray-600 dark:text-gray-400',
-                (mode === 'filled') ? 'max-w-9 w-9 flex justify-center rounded-lg mx-0.5 mt-0 py-2 ' + (page === activePage ? 'bg-primary-100 dark:bg-primary-950 hover:bg-primary-200 dark:hover:bg-primary-900' : 'bg-stone-100 dark:bg-stone-900 hover:bg-neutral-200 dark:hover:bg-neutral-800') :
-                (mode === 'outlined') ? 'max-w-9 w-9 flex justify-center ring-1 ring-inset rounded-lg mx-0.5 mt-0 py-2 '+ (page === activePage ? 'ring-primary-300 dark:ring-primary-700 bg-white dark:bg-neutral-950 hover:bg-primary-100 dark:hover:bg-primary-950' : 'bg-white dark:bg-neutral-950 ring-neutral-300 dark:ring-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-900') :
-                (mode === 'underlined') ? 'border-t-2 px-4 pt-4 '+ (page === activePage ? 'border-primary-400 dark:border-primary-700' : 'border-transparent hover:border-gray-300 hover:text-gray-700 dark:hover:border-gray-700 dark:hover:text-gray-300'): ''
+                page === activePage ? 'text-theme-600 dark:text-theme-400' : 'text-gray-600 dark:text-gray-400',
+                (mode === 'filled') ? 'max-w-9 w-9 flex justify-center rounded-lg mx-0.5 mt-0 py-2 ' + (page === activePage ? 'bg-theme-100 dark:bg-theme-950 hover:bg-theme-200 dark:hover:bg-theme-900' : 'bg-stone-100 dark:bg-stone-900 hover:bg-neutral-200 dark:hover:bg-neutral-800') :
+                (mode === 'outlined') ? 'max-w-9 w-9 flex justify-center ring-1 ring-inset rounded-lg mx-0.5 mt-0 py-2 '+ (page === activePage ? 'ring-theme-300 dark:ring-theme-700 bg-white dark:bg-neutral-950 hover:bg-theme-100 dark:hover:bg-theme-950' : 'bg-white dark:bg-neutral-950 ring-neutral-300 dark:ring-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-900') :
+                (mode === 'underlined') ? 'border-t-2 px-4 pt-4 '+ (page === activePage ? 'border-theme-400 dark:border-theme-700' : 'border-transparent hover:border-gray-300 hover:text-gray-700 dark:hover:border-gray-700 dark:hover:text-gray-300'): ''
                 ]"
               @click="switchPage(page)">{{ page }}</button>
             <span v-else :class="cn(['outlined', 'filled'].includes(mode) ? 'mt-0 px-2 py-2' : 'px-4 pt-5')">
@@ -170,7 +170,7 @@ function switchSizePage(sizePageValue) {
           </template>
         </div>
         <div :class="cn('flex sm:-mt-px sm:hidden px-3 text-neutral-500 font-bold', ['outlined', 'filled'].includes(mode)&&'pt-2')">
-          <span class="text-primary-700 dark:text-primary-400">{{ activePage }}</span><span class="mx-0.5">/</span><span class="text-neutral-700 dark:text-neutral-400">{{ pages[pages.length-1] }}</span>
+          <span class="text-theme-700 dark:text-theme-400">{{ activePage }}</span><span class="mx-0.5">/</span><span class="text-neutral-700 dark:text-neutral-400">{{ pages[pages.length-1] }}</span>
         </div>
         <div :class="cn(!(isInfoText || isPageSizeSelector)||'-mt-px flex w-0 flex-1 justify-end', ['outlined', 'filled'].includes(mode)&&'pt-3')">
           <button

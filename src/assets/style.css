@@ -1,8 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --theme: 180;
+
+        /* light mode defaults */
+        --color-theme: calc(var(--theme) - 45) 25% 98%;
+        --color-theme-50: calc(var(--theme) - 10) 35% 95.1%;
+        --color-theme-100: calc(var(--theme) - 10) 34% 93.1%;
+        --color-theme-200: calc(var(--theme) - 11) 35.8% 86%;
+        --color-theme-300: calc(var(--theme) - 5) 35% 74.4%;
+        --color-theme-400: calc(var(--theme) - 4) 34% 60.1%;
+        --color-theme-500: calc(var(--theme) - 4) 34.3% 46.9%;
+        --color-theme-600: calc(var(--theme) - 3) 35.3% 39.5%;
+        --color-theme-700: calc(var(--theme) - 5) 35.3% 30.5%;
+        --color-theme-800: calc(var(--theme) - 2) 35% 20.5%;
+        --color-theme-900: calc(var(--theme) - 2) 33% 9.2%;
+        --color-theme-950: calc(var(--theme) - 1) 91% 9%;
+    }
+}
+
 .router-link-active{
     /*@apply bg-indigo-600 rounded p-1 decoration-amber-100;*/
     /*@apply bg-slate-200 rounded m-1 p-1;*/
-    @apply bg-slate-200 lg:bg-transparent lg:border-b-primary-600 lg:border-b-2 ;
+    @apply bg-slate-200 lg:bg-transparent lg:border-b-theme-600 lg:border-b-2 ;
 }

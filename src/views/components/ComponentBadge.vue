@@ -36,8 +36,8 @@ import Badge from "@/components/functional/Badge.vue";
 <template>
   <ComponentViews >
     <template #title>Badge</template>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 my-5">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Badge</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 my-5">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Badge</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         Стилизованный компонент, предназначенный выделить слово или словосочетание из общего интерфейса.<br/>
         Доступны несколько готовых стилей: <Badge mode="outline">primary</Badge>, <Badge mode="outline">secondary</Badge>, <Badge mode="outline">outline</Badge>, <Badge mode="outline">neutral</Badge>
@@ -53,8 +53,8 @@ import Badge from "@/components/functional/Badge.vue";
         <Badge mode="outline" class="rounded-full">outline</Badge>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 my-5">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Добавление точки</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 my-5">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Добавление точки</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         Для иного выделения Badge можно добавить параметр <Badge mode="outline">point</Badge>, который добавит дочку в начале
       </p>
@@ -67,8 +67,8 @@ import Badge from "@/components/functional/Badge.vue";
         <Badge mode="outline" point class="rounded-full">outline</Badge>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 my-5">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Добавление кнопки удаления</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 my-5">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Добавление кнопки удаления</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         Чтобы можно было удалить Badge можно добавить аргумент <Badge mode="outline">close-button</Badge>, который добавит в конце кнопку удаления.
       </p>
@@ -81,8 +81,8 @@ import Badge from "@/components/functional/Badge.vue";
         <Badge v-if="dB.b6" mode="outline" close-button class="rounded-full" @delete="dB.b6=!dB.b6">mode</Badge>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 my-5">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Режим neutral</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 my-5">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Режим neutral</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         В этом режиме обраты все цветовые стили для полной кастомизации <Badge mode="outline">Badge</Badge>.
         Ниже приведены примеры, того как можно использовать Badge с другими цветами

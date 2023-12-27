@@ -57,7 +57,7 @@ watch(isActiveAria, (value)=>{
   if (value) { document.addEventListener("click", closeAria)
   } else { document.removeEventListener("click", closeAria) }
   classLayout.value = (props.class??"")+(value
-    ? ` border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700 ${additionalStyles.value}`
+    ? ` border-theme-600 dark:border-theme-700 ring-2 ring-inset ring-theme-600 dark:ring-theme-700 ${additionalStyles.value}`
     : " " + additionalStyles.value)
 })
 // ---------------------------------------

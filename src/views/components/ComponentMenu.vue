@@ -229,8 +229,8 @@ const onlyIcons = ref(true)
 <template>
   <ComponentViews>
     <template #title>Menu</template>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Menu</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Menu</h2>
       <p class="my-4 text-sm leading-6 text-gray-600 dark:text-gray-400">
         Компонент меню в - это важный элемент пользовательского интерфейса, который обеспечивает навигацию по веб-приложению. Он обычно содержит список ссылок или действий, которые пользователи могут выбрать.
         Mеню предлагает большую гибкость и настраиваемость, что делает его полезным для различных сценариев использования. Например:
@@ -243,8 +243,8 @@ const onlyIcons = ref(true)
         В целом, компонент меню помогает создать интуитивно понятный и удобный для пользователя интерфейс, облегчая навигацию по веб-приложению.
       </p>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Базовое использование</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Базовое использование</h2>
 <!--      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">-->
 <!--        <p></p>-->
 <!--      </p>-->
@@ -260,8 +260,8 @@ const onlyIcons = ref(true)
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Вложенные под меню</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Вложенные под меню</h2>
 <!--      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">-->
 <!--        <p></p>-->
 <!--      </p>-->
@@ -275,8 +275,8 @@ const onlyIcons = ref(true)
         <div class="col-span-2 my-5"></div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Заголовок и разделитель</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Заголовок и разделитель</h2>
 <!--      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">-->
 <!--        <p></p>-->
 <!--      </p>-->
@@ -292,8 +292,8 @@ const onlyIcons = ref(true)
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Только иконки</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Только иконки</h2>
 <!--      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">-->
 <!--        <p></p>-->
 <!--      </p>-->
@@ -309,8 +309,8 @@ const onlyIcons = ref(true)
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Горизонтальныое меню</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Горизонтальныое меню</h2>
 <!--      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">-->
 <!--        <p></p>-->
 <!--      </p>-->
@@ -326,8 +326,8 @@ const onlyIcons = ref(true)
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Breadcrumb</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Breadcrumb</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Breadcrumb предоставляет контекстную информацию об иерархии страниц.</p>
       </p>
@@ -357,8 +357,8 @@ const onlyIcons = ref(true)
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">ContextMenu</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">ContextMenu</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>ContextMenu отображает наложенное меню для отображения действий, связанных с элементом.</p>
       </p>
@@ -373,8 +373,8 @@ const onlyIcons = ref(true)
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Dropdown Menu</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Dropdown Menu</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Отображает пользователю меню, например набор действий или функций, активируемое кнопкой.</p>
       </p>

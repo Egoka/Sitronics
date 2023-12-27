@@ -5,7 +5,7 @@ import Button from "@/components/functional/Button.vue";
 import openAlert, {IAlert} from "@/components/functional/Alert";
 import {ref} from "vue";
 import Badge from "@/components/functional/Badge.vue";
-const badgesClass = "inline-flex items-center rounded-md bg-primary-50 dark:bg-primary-900 px-2 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 ring-1 ring-inset ring-primary-500/10"
+const badgesClass = "inline-flex items-center rounded-md bg-theme-50 dark:bg-theme-900 px-2 py-0.5 text-xs font-medium text-theme-600 dark:text-theme-400 ring-1 ring-inset ring-theme-500/10"
 const sizes = ref<Array<IAlert["size"]>>(["xs","sm","md","lg","xl","2xl","3xl","4xl","5xl","6xl","7xl"])
 const positions = ref<Array<IAlert["position"]>>(["top", "bottom", "right", "left", "top-right", "top-left", "bottom-right", "bottom-left", "center"])
 const displayTimes = ref<Array<IAlert["displayTime"]>>([1000, 2000, 3000, 4000, 5000])
@@ -25,15 +25,15 @@ const position = ref<IAlertProps["position"]>()
 <template>
   <ComponentViews>
     <template #title>Alert</template>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Оповещения</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Оповещения</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Оповещения используются для сообщения о состоянии, которое влияет на систему, функцию или страницу.</p>
         <p>Такие оповещения могут сообщать пользователю об успешных или ошибочных событиях. Сообщать дополнительную информацию</p><br/>
       </p>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Контент</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Контент</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>
           В оповещение можно задать заголовок или подзаголовок, или сразу оба.
@@ -47,7 +47,7 @@ const position = ref<IAlertProps["position"]>()
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-5">
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-5">
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         В подзаголовок кроме текста можно передать <Badge mode="outline">html</Badge>
       </p>
@@ -61,8 +61,8 @@ const position = ref<IAlertProps["position"]>()
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Тип</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Тип</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Оповещение может быть оформлено разными стилями. Для базового используется необходимо вызвать параметр <Badge mode="outline">type</Badge>.<br>
           Существует пять сценариев:<br> для успешного сценария нужно указать значение <Badge mode="outline">success</Badge>(по умолчанию) зеленого цвета,<br>
@@ -82,8 +82,8 @@ const position = ref<IAlertProps["position"]>()
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Расположение</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Расположение</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Оповещению можно задать расположение. Доступные следующие значения <Badge mode="outline">top</Badge>(по умолчанию),
           <Badge mode="outline">bottom</Badge>,
@@ -104,8 +104,8 @@ const position = ref<IAlertProps["position"]>()
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Размер</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Размер</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Оповещению можно задать максимальный размер. Доступные следующие значения, перечисленные по возрастанию:
           <Badge mode="outline">xs</Badge>,
@@ -131,8 +131,8 @@ const position = ref<IAlertProps["position"]>()
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Время существования оповещения</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Время существования оповещения</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Оповещению можно задать <Badge mode="outline">displayTimes</Badge> время расположения.
           Значение это число указанное в микросекундах.<br> <Badge mode="outline">Количество секунд * 1000</Badge>
@@ -148,8 +148,8 @@ const position = ref<IAlertProps["position"]>()
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Дополнительные параметры</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Дополнительные параметры</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Оповещению можно задать <Badge mode="outline">notAnimate</Badge> для отключения анимации сдвига.<br>
           Еще оповещению можно задать параметр <Badge mode="outline">closeButton</Badge>, который добавит кнопку закрытия.
@@ -172,8 +172,8 @@ const position = ref<IAlertProps["position"]>()
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Кастомные</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Кастомные</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Оповещению можно задать параметр <Badge mode="outline">class</Badge> и в нем указать кастомные стили.<br>
           Вот несколько примеров
@@ -212,8 +212,8 @@ const position = ref<IAlertProps["position"]>()
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Использование в тексте</h2>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Использование в тексте</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Оповещению можно задать тегом в <Badge mode="outline">html</Badge><br>
           Вот несколько примеров
@@ -227,7 +227,7 @@ const position = ref<IAlertProps["position"]>()
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Также при желании можно расположить относительно окна</p>
       </p>
@@ -239,7 +239,7 @@ const position = ref<IAlertProps["position"]>()
         </div>
       </div>
     </div>
-    <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
       <p class="mb-5 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>Можно сделать статично, частью текста</p>
           Alert - это один из важных элементов пользовательского интерфейса, который используется для вывода важных сообщений или уведомлений пользователю. Он может быть настроен на различные режимы, включая success, warning, error, info и neutral. Каждый режим имеет свою специфику и цель использования. <br><br>

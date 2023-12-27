@@ -108,7 +108,7 @@ onMounted(()=>{
 })
 // ---------------------------------------
 watch(isActiveInput, (value)=>{
-  classLayout.value = (props.class??"")+(value ? " border-primary-600 dark:border-primary-700 ring-2 ring-inset ring-primary-600 dark:ring-primary-700": "")
+  classLayout.value = (props.class??"")+(value ? " border-theme-600 dark:border-theme-700 ring-2 ring-inset ring-theme-600 dark:ring-theme-700": "")
   emit('isActive', value)
 })
 // ---------------------------------------
