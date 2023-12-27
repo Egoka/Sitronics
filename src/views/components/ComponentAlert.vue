@@ -19,7 +19,7 @@ const optionsAlert2 = ref<IAlert>({
   // notAnimate: true,
   position: "bottom-right"
 })
-const position = ref<IAlert["position"]>()
+const position = ref<IAlertProps["position"]>()
 </script>
 
 <template>
@@ -169,11 +169,6 @@ const position = ref<IAlert["position"]>()
                   type: 'info', position:'top-right', title: 'Оповещение с кнопкой закрытия', size: 'xs', displayTime: 10000,
                   subtitle: 'Это пример текста подзаголовка для демонстрации', closeButton: true
                   })">С кнопкой закрытия</Button>
-          <Button class="m-2" mode="outline"
-                  @click="openAlert({
-                  type: 'info', position:'top-right', title: 'Оповещение без кнопки закрытия', size: 'xs',
-                  subtitle: 'Так как у этого оповещения нет кнопки закрытия и времени жизни, то оно не закроется.', closeButton: false
-                  })">Без кнопки закрытия</Button>
         </div>
       </div>
     </div>
@@ -199,7 +194,7 @@ const position = ref<IAlert["position"]>()
                                 Доступно новое обновление программного обеспечения. Узнайте, что нового в версии 2.0.4.
                                 <p class='mt-3 text-sm md:mx-6 md:mt-0'><a href='#' class='whitespace-nowrap font-medium text-green-500 bko'>Узнать<span aria-hidden='true'> →</span></a></p>
                               <div>`,
-                               notAnimate: true,
+                  notAnimate: true,
                   class: 'border-2 border-green-200 dark:border-green-900 rounded '
                   })">Кастомный с углами</Button>
           <Button class="m-2" mode="outline"
@@ -227,7 +222,7 @@ const position = ref<IAlert["position"]>()
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5">
         <div class=" col-span-full m-5">
           <Button class="m-2" mode="line" @click="alert = true;position='center'">Оповещение</Button>
-          <Button v-for="position in ['top', 'bottom', 'right', 'left']" :key="position" class="m-2" mode="outline" @click="alert = true;position=position">{{ position }}</Button>
+          <Button v-for="positionIn in ['top', 'bottom', 'right', 'left']" :key="positionIn" class="m-2" mode="outline" @click="alert = true;position=positionIn">{{ positionIn }}</Button>
           <Alert v-model="alert" v-bind="optionsAlert2" :position="position" />
         </div>
       </div>
@@ -239,8 +234,8 @@ const position = ref<IAlert["position"]>()
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5">
         <div class=" col-span-full m-5">
           <Button class="m-2" mode="line" @click="alert1 = true;position='center'">Оповещение</Button>
-          <Button v-for="position in ['top', 'bottom', 'right', 'left']" :key="position" class="m-2" mode="outline" @click="alert1 = true;position=position">{{ position }}</Button>
-          <Alert v-model="alert1" class="fixed top-5 left-5 z-50" v-bind="optionsAlert2" :position="position2" />
+          <Button v-for="positionOut in ['top', 'bottom', 'right', 'left']" :key="positionOut" class="m-2" mode="outline" @click="alert1 = true;position=positionOut">{{ positionOut }}</Button>
+          <Alert v-model="alert1" class="fixed top-5 left-5 z-50" v-bind="optionsAlert2" :position="position" />
         </div>
       </div>
     </div>

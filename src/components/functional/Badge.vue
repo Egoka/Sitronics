@@ -4,6 +4,7 @@ import {computed} from "vue";
 import {XMarkIcon} from "@heroicons/vue/20/solid";
 import Button from "@/components/functional/Button.vue";
 import type {StyleClass} from "@/components/BaseTypes";
+import {cn} from "@/helpers/tailwind";
 // ---------------------------------------
 export interface IBadge {
   type?: "button" | "reset" | "submit"
@@ -22,43 +23,15 @@ const emit = defineEmits<{
 const mode = computed<NonNullable<IBadge["mode"]>>(()=> props.mode ?? "primary")
 const isPoint = computed<NonNullable<IBadge["point"]>>(()=> props.point ?? false)
 const isCloseButton = computed<NonNullable<IBadge["closeButton"]>>(()=> props.closeButton ?? false)
-const classBadge = computed<StyleClass>(()=> {
-  const arrayClasses = !!props.class
-    ? Array.isArray(props.class)
-      ? (props.class as Array<string>).flat().map(item=>item.split(" ")).flat()
-      : (props.class as string).split(" ")
-    : [];
-  arrayClasses.push("inline-flex items-center text-xs");
-  if (isPoint.value||isCloseButton.value) {
-    arrayClasses.push("gap-x-[2px]")
-    arrayClasses.push(isPoint.value && isCloseButton.value ? "px-1" :
-      isPoint.value && !isCloseButton.value ? "pl-1" :
-        !isPoint.value && isCloseButton.value ? "pr-1" : "")
-  }
-  [
-    {reg: "m-", class: "m-[2px]"},
-    {reg: "px-", class: "px-2"},
-    {reg: "py-", class: "py-1"},
-    {reg: "text-", class: "text-xs"},
-    {reg: "font-", class: "font-medium"},
-    {reg: "rounded-", class: "rounded-md"}
-  ].map((item:{reg: string, class: string})=>{
-    if (!arrayClasses.some(classItem=>classItem.match(new RegExp(item.reg)))){
-      arrayClasses.push(item.class)
-    }
-  })
-  !(mode.value === "primary") || arrayClasses.push("bg-primary-600 text-primary-100 dark:bg-primary-700 dark:text-primary-100")
-  !(mode.value === "secondary") || arrayClasses.push("bg-primary-100 text-primary-900 dark:bg-primary-950 dark:text-primary-100")
-  !(mode.value === "neutral") || arrayClasses.push("ring-1 ring-inset")
-  if (["outline"].includes(mode.value)){
-    if (!isPoint.value&&!isCloseButton.value){
-      !(mode.value === "outline") || arrayClasses.push("ring-1 ring-inset bg-primary-50 dark:bg-primary-900 text-primary-600 dark:text-primary-400 ring-primary-500/10")
-    } else {
-      arrayClasses.push("ring-1 ring-inset text-neutral-600 dark:text-neutral-200 ring-neutral-500/30")
-    }
-  }
-  return arrayClasses
-})
+const classBadge = computed<StyleClass>(()=> props.class)
+const modeStyle = computed<string>(()=>
+  (mode.value === "primary") ? "bg-primary-600 text-primary-100 dark:bg-primary-700 dark:text-primary-100" :
+    (mode.value === "secondary") ? "bg-primary-100 text-primary-900 dark:bg-primary-950 dark:text-primary-100" :
+      (mode.value === "neutral") ? "ring-1 ring-inset" :
+        (mode.value === "outline") ? (!isPoint.value&&!isCloseButton.value)
+            ? "ring-1 ring-inset bg-primary-50 dark:bg-primary-900 text-primary-600 dark:text-primary-400 ring-primary-500/10"
+            : "ring-1 ring-inset text-neutral-600 dark:text-neutral-200 ring-neutral-500/30"
+          : "")
 const classBadgeContent = computed<StyleClass>(()=> {
   const arrayClasses = []
   !(mode.value === "primary") || arrayClasses.push("fill-primary-100 dark:fill-primary-300")
@@ -74,11 +47,24 @@ function deleteBadge() {
 </script>
 
 <template>
-  <div :class="classBadge">
-    <svg v-if="isPoint" class="h-1.5 w-1.5 mx-1" :class="classBadgeContent" viewBox="0 0 6 6" aria-hidden="true"><circle cx="3" cy="3" r="3"></circle></svg>
+  <div :class="cn(
+    'items-center m-[2px] px-2 py-1 text-xs font-medium rounded-md',
+    (isPoint||isCloseButton) && 'gap-x-[2px]',
+    (isPoint && isCloseButton) ? 'px-1' : (isPoint && !isCloseButton) ? 'pl-1' : (!isPoint && isCloseButton) ? 'pr-1' : '',
+    modeStyle,
+    classBadge,
+    'inline-flex',
+    )">
+    <svg
+      v-if="isPoint"
+      :class="cn('h-1.5 w-1.5 mx-1', classBadgeContent)"
+      viewBox="0 0 6 6"
+      aria-hidden="true">
+      <circle cx="3" cy="3" r="3"></circle>
+    </svg>
     <slot/>
     <Button v-if="isCloseButton" mode="text" class="rounded-[5px] h-4 w-4 px-0" @click="deleteBadge">
-      <XMarkIcon aria-hidden="true" class="h-4 w-4" :class="classBadgeContent"/>
+      <XMarkIcon aria-hidden="true" :class="cn('h-4 w-4', classBadgeContent)"/>
     </Button>
   </div>
 </template>

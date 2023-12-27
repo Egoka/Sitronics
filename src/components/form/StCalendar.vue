@@ -19,6 +19,7 @@ import type {DateRange} from "v-calendar/dist/types/src/utils/date/range";
 import type {Attribute} from "v-calendar/dist/types/src/utils/attribute";
 import type {Theme} from "v-calendar/dist/types/src/utils/theme";
 // ---------------------------------------
+import {cn} from "@/helpers/tailwind";
 import {removeParamsFromStructure} from "@/helpers/object";
 import type {StyleClass} from "@/components/BaseTypes";
 import FixWindow, {type IFixWindow} from "@/components/functional/FixWindow.vue";
@@ -292,6 +293,11 @@ function closeCalendar(evt:MouseEvent) {
   }
 }
 // ---------------------------------------
+const modeStyle = computed<string>(()=>
+  (mode.value === "filled") ? "border-0 bg-stone-100 dark:bg-stone-900" :
+    (mode.value === "outlined") ? "border border-gray-300 dark:border-gray-600 bg-white dark:bg-black" :
+      (mode.value === "underlined") ? "rounded-none border-0 border-gray-300 dark:border-gray-700 border-b bg-stone-50 dark:bg-stone-950" : "")
+// ---------------------------------------
 function changeDate (date:ICalendarPicker["inputValue"]) {
   visibleDate.value = date
   if (!isNotCloseOnDateChange.value) {
@@ -322,40 +328,43 @@ function clear () {
     v-bind="inputLayout"
     @clear="clear">
     <div ref="dataPicker" tabindex="0"
-         :class="['flex w-full min-h-[36px] max-h-16 overflow-auto focus:outline-0 focus:ring-0', props.paramsDatePicker?.classDataPicker]"
+         :class="cn('w-full focus:outline-0 focus:ring-0', props.paramsDatePicker?.classDataPicker, 'flex min-h-[36px] max-h-16 overflow-auto')"
          @focusin="focus(true)"
          @focusout="focus(false)"
          @click="openCalendar">
-      <div v-if="datePicker?.isRange" :class="['flex flex-wrap items-center z-10 max-h-max cursor-default leading-3', props.paramsDatePicker?.classDateText]">
+      <div v-if="datePicker?.isRange" :class="cn( props.paramsDatePicker?.classDateText, 'flex flex-wrap items-center z-10 max-h-max cursor-default leading-3')">
         {{(visibleDate as IRangeValue)?.start}}
         <ArrowLongRightIcon
           v-if="separator === 'arrow' &&(visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"
-          :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : 'text-gray-600 dark:text-gray-400']"
+          :class="cn(isDisabled ? 'text-slate-500 dark:text-slate-500' : 'text-gray-600 dark:text-gray-400')"
           class="h-5 w-5 mx-1"/>
         <EllipsisVerticalIcon
           v-if="separator === 'points' && (visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end"
-          :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : 'text-gray-600 dark:text-gray-400']"
-          class="h-5 w-5"/>
+          :class="cn(isDisabled ? 'text-slate-500 dark:text-slate-500' : 'text-gray-600 dark:text-gray-400', 'h-5 w-5')"/>
         <div v-if="separator === 'none' && (visibleDate as IRangeValue)?.start && (visibleDate as IRangeValue)?.end" class="h-5 w-1"/>
         <div v-if="!(visibleDate as IRangeValue)?.start && !(visibleDate as IRangeValue)?.end&&isOpenPicker" class="text-gray-400 dark:text-gray-600">{{placeholder}}</div>
         {{(visibleDate as IRangeValue)?.end}}
       </div>
-      <div v-else :class="[isDisabled ? 'text-slate-500 dark:text-slate-500' : '',
-      'block flex-1 border-0 w-full bg-transparent py-1.5 pl-1 cursor-default text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6',
-      props.paramsDatePicker?.classDateText]">
+      <div v-else :class="cn(
+        'border-0 w-full bg-transparent py-1.5 pl-1 cursor-default text-gray-900 dark:text-gray-100 placeholder:text-gray-400 placeholder:dark:text-gray-600 focus:ring-0 sm:text-sm sm:leading-6',
+        props.paramsDatePicker?.classDateText,
+        isDisabled ? 'text-slate-500 dark:text-slate-500' : '',
+        'block flex-1'
+        )">
         <span v-if="!visibleDate&&isOpenPicker" class="text-gray-400 dark:text-gray-600">{{placeholder}}</span>
         {{visibleDate}}
       </div>
     </div>
     <template #body>
       <FixWindow v-bind="paramsFixWindow" :model-value="isOpenPicker" class="z-30" @close="env => closeCalendar(env)">
-        <div ref="picker"
-             class="vc-primary mt-1 w-min min-w-min max-w-lg max-h-max overflow-auto text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm"
-             :class="[ props.paramsDatePicker?.classPicker,
-               !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
-               !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
-               !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900'
-               ]">
+        <div
+          ref="picker"
+          :class="cn(
+            'mt-1 w-min min-w-min max-w-lg max-h-max text-base sm:text-sm rounded-md ring-1 ring-black ring-opacity-5 shadow-xl',
+            modeStyle,
+            props.paramsDatePicker?.classPicker,
+            'vc-primary overflow-auto focus:outline-none'
+            )">
           <DatePicker
             v-if="datePicker?.isRange"
             v-model.range.string="value"

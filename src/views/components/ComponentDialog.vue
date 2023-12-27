@@ -508,7 +508,7 @@ watch(form, ()=>{
         <Button class="mt-5 mx-2 absolute right-3" mode="neutral" @click="closeDialog">Неопределенность</Button>
       </template>
     </Dialog>
-    <Dialog v-model="isOpen2" :position="positionDialog2" close-button without-margin class="bg-white dark:bg-neutral-900 h-screen border-[1px] border-neutral-200 dark:border-neutral-700 rounded-none">
+    <Dialog v-model="isOpen2" :position="positionDialog2" close-button without-margin class="bg-white dark:bg-neutral-900 h-screen border border-neutral-200 dark:border-neutral-700 rounded-none">
       <template #default="{closeDialog}">
         <StForm
           ref="formTest"

@@ -8,6 +8,7 @@ import Icons from "@/components/functional/Icons.vue";
 import FixWindow, {type IFixWindow} from "@/components/functional/FixWindow.vue";
 import Separator, {type ISeparator} from "@/components/functional/Separator.vue";
 import {removeParamsFromStructure} from "@/helpers/object";
+import {cn} from "@/helpers/tailwind";
 // ---TYPES-------------------------------
 type _key = uuid
 export type IGroups = Array<IGroupMenu>|[]
@@ -21,7 +22,7 @@ export interface IItemMenu {
   onActive?(event:MouseEvent, item:IItemMenuPrivate):void
   onInactive?(event:MouseEvent, item:IItemMenuPrivate):void
   onClick?(event:PointerEvent, item:IItemMenuPrivate):void
-  class?: StyleClass | "items-center rounded px-2 py-1.5 text-sm"
+  class?: StyleClass
   menu?: IMenuItem|null
 }
 export interface IItemMenuPrivate extends IItemMenu{
@@ -99,7 +100,7 @@ const paramsWindowMenu = computed<IMenu["paramsWindowMenu"]>(()=> ({
     ...props?.paramsWindowMenu
   }))
 const separator = computed<IMenuSeparator>(()=>({
-  styles: { class: { body: horizontal.value ? "my-1" : "-mx-1"}},
+  styles: { body: horizontal.value ? "my-1" : "-mx-1"},
   ...props.separator
 }))
 // ---STYLE-------------------------------
@@ -122,6 +123,7 @@ const modeStyle = computed<string>(()=>
   ((mode.value === "filled") ? "bg-stone-100 dark:bg-stone-900 rounded-md" :
     (mode.value === "outlined") ? "bg-white dark:bg-neutral-950 rounded-md" :
       (mode.value === "underlined") ? "bg-stone-50 dark:bg-stone-950" : ""))
+const borderColor = computed<string>(()=>"border-neutral-200 dark:border-neutral-800")
 // ---EXPOSE------------------------------
 export interface IMenuExpose {
   // ---STATE-------------------------
@@ -191,7 +193,7 @@ function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemP
         separator: {
           icon: group.separator?.icon ?? iconSeparator.value,
           isVisible: group.separator?.isVisible ?? isSeparator.value,
-          styles: { class: { body: horizontal.value ? "-my-1" : '-mx-1'}},
+          styles: { body: horizontal.value ? "-my-1" : '-mx-1'},
           ...separator.value,
           ...group.separator
         },
@@ -199,7 +201,6 @@ function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemP
           return {
             ...item,
             _key: uuidv4(),
-            class: item.class ?? "items-center rounded px-2 py-1.5 text-sm",
             menu: item?.menu ? setItems({
               paramsWindowMenu: {
                 ...paramsWindowMenu.value,
@@ -220,13 +221,16 @@ function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemP
   <div
     ref="menuRefLink"
     role="menu"
-    :class="[
-      'p-1 w-min max-w-4xl overflow-auto shadow-md border border-neutral-200 dark:border-neutral-800 text-black dark:text-zinc-50',
+    :class="cn(
+      'p-1 w-min max-w-4xl shadow-md border text-black dark:text-zinc-50',
+      borderColor,
       !horizontal||'flex flex-row',
-       modeStyle]"
+      modeStyle,
+      'overflow-auto'
+      )"
     :style="`width:${styles.width};height:${styles.height};`"
     tabindex="0">
-    <div v-if="title.length || slots?.title" :class="['min-w-max px-2 py-1.5 text-sm font-semibold', modeStyle]">
+    <div v-if="title.length || slots?.title" :class="cn('min-w-max px-2 py-1.5 text-sm font-semibold', modeStyle)">
       <slot name="title" :title="title">
         <div>{{ title }}</div>
       </slot>
@@ -244,39 +248,38 @@ function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemP
           :type="group.separator?.icon ?? iconSeparator ?? ''"
           class="h-4 w-4 text-neutral-200 dark:text-neutral-800"/>
       </Separator>
-      <div role="group" :class="[!horizontal||'flex flex-row']">
+      <div role="group" :class="cn(!horizontal||'flex flex-row')">
         <div
           v-for="(item, keyItem) in group.items" :key="keyItem" role="menuitem"
           :data-collection-item="item?._key"
           :aria-disabled="item?.disabled ?? false"
-          :data-disabled="item?.disabled ?? false"
-          :data-selected="selectedItemIndex === item?._key"
-          :data-active="activeItemIndex === item?._key"
           :tabindex="activeItemIndex === item?._key ? 0 : -1"
           @mouseover="(event)=>overItem(event, item)"
           @mouseleave="(event)=>leaveItem(event, item)"
           @click="(event)=>clickItem(event, item)"
-          class="relative flex mt-0.5 cursor-default select-none outline-none transition-colors"
-          :class="[
+          :class="cn(
+            'items-center rounded mt-0.5 px-2 py-1.5 text-sm',
             item.class, !horizontal||'mr-0.5 last:mr-0',
-            'data-[selected=true]:bg-neutral-300 dark:data-[selected=true]:bg-neutral-700 data-[selected=true]:font-semibold',
-            'data-[active=true]:bg-neutral-300/50 dark:data-[active=true]:bg-neutral-700/50',
-            'data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50']">
-            <slot name="item" :data="removeParamsFromStructure(item, notPublicParamsMenu)">
-              <Icons v-if="item?.icon" :type="item?.icon??''" :class="['h-4 w-4 opacity-60']"/>
-              <div v-else :class="['h-4 w-4']"/>
-              <template v-if="!onlyIcons" >
-                <span :class="['w-max', !item?.title||'mx-2']">{{ item?.title }}</span>
-                <span :class="['ml-auto text-xs tracking-widest opacity-50', !item?.info||'pl-2']" v-html="item?.info"/>
-              </template>
-              <FixWindow v-else :position="horizontal ? 'top' : 'right'" :delay="5" :margin-px="10" :scrollable-el="menuRefLink">
-                <div :class="['flex items-center px-1 rounded border border-neutral-100 dark:border-neutral-900', modeStyle]">
-                  <span class="w-max">{{ item?.title }}</span>
-                  <span :class="['ml-auto text-xs tracking-widest opacity-50', !item?.info||'pl-2']" v-html="item?.info"/>
-                </div>
-              </FixWindow>
-            </slot>
-            <ChevronRightIcon v-if="item?.menu && !onlyIcons" class=" h-4 w-4 opacity-60"/>
+            (activeItemIndex === item?._key) && 'bg-neutral-300/50 dark:bg-neutral-700/50',
+            (selectedItemIndex === item?._key) && 'bg-neutral-300 dark:bg-neutral-700 font-semibold',
+            item?.disabled && 'pointer-events-none opacity-50',
+            'relative flex cursor-default select-none outline-none transition-colors'
+            )">
+          <slot name="item" :data="removeParamsFromStructure(item, notPublicParamsMenu)">
+            <Icons v-if="item?.icon" :type="item.icon as string" class="h-5 w-4 opacity-60"/>
+            <div v-else class="flex justify-center items-center h-5 w-4 opacity-60 text-sm font-extralight">{{ item?.title[0] }}</div>
+            <template v-if="!onlyIcons">
+                <span :class="cn('w-max', !item?.title||'mx-2')">{{ item?.title }}</span>
+                <span :class="cn('ml-auto text-xs tracking-widest opacity-50', !item?.info||'pl-2')" v-html="item?.info"/>
+            </template>
+            <FixWindow v-else :position="horizontal ? 'top' : 'right'" :delay="5" :margin-px="10" :scrollable-el="menuRefLink">
+              <div :class="cn('items-center px-1 rounded border', borderColor, modeStyle, 'flex')">
+                <span class="w-max">{{ item?.title }}</span>
+                <span :class="cn('ml-auto text-xs tracking-widest opacity-50', !item?.info||'pl-2')" v-html="item?.info"/>
+              </div>
+            </FixWindow>
+          </slot>
+          <ChevronRightIcon v-if="item?.menu && !onlyIcons" class="h-4 w-4 opacity-60"/>
           <FixWindow
             v-if="!!item?.menu"
             v-bind="item?.menu?.paramsWindowMenu ?? paramsWindowMenu"
@@ -296,7 +299,7 @@ function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemP
       </div>
     </template>
     <template v-if="slots?.footer">
-      <Separator v-bind="separator" :styles="{class:{body:'!px-0 !-mx-1'}}"/>
+      <Separator v-bind="separator" :styles="{body:'!px-0 !-mx-1'}"/>
       <slot name="footer"></slot>
     </template>
   </div>

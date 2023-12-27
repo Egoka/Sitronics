@@ -8,6 +8,7 @@ import {QuillEditor, type Delta} from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import '@vueup/vue-quill/dist/vue-quill.bubble.css';
 import {removeParamsFromStructure} from "@/helpers/object";
+import {cn} from "@/helpers/tailwind";
 // ---------------------------------------
 declare type ContentPropType = string | Delta | undefined | null;
 declare type Module = {
@@ -124,21 +125,32 @@ function ready() {
     v-bind="inputLayout"
     @clear="clear">
     <div class="editor-small max-h-20">
-      <QuillEditor v-if="theme ==='bubble'"
-                   ref="quillEditor"
-                   theme="bubble"
-                   v-bind="removeParamsFromStructure(paramsQuillEditor, ['theme'])"
-                   @update:content="inputModelValue" @focus="isActiveTextEditor = true"
-                   @blur="isActiveTextEditor = false" @ready="ready"/>
+      <QuillEditor
+        v-if="theme ==='bubble'"
+        ref="quillEditor"
+        theme="bubble"
+        v-bind="removeParamsFromStructure(paramsQuillEditor, ['theme'])"
+        @update:content="inputModelValue" @focus="isActiveTextEditor = true"
+        @blur="isActiveTextEditor = false" @ready="ready"/>
     </div>
     <template #body>
-      <Dialog v-model="open" @update:modelValue="theme = 'bubble'"
-              class="p-0 max-w-screen-sm sm:max-w-5xl sm:m-3 sm:w-[90%] max-h-screen">
-        <div class="editor st-text-editor border-[1px] rounded-md border-neutral-200 dark:border-neutral-800" :class="['dark:text-gray-400',
-        !(mode === 'outlined')||'bg-white dark:bg-black',
-        !(mode === 'underlined')||'bg-stone-50 dark:bg-stone-950',
-        !(mode === 'filled')||'bg-stone-100 dark:bg-stone-900']">
-          <QuillEditor v-if="theme ==='snow'" theme="snow" v-bind="removeParamsFromStructure(paramsQuillEditor, ['theme'])" @update:content="inputModelValue"/>
+      <Dialog
+        v-model="open"
+        @update:modelValue="theme = 'bubble'"
+        class="p-0 max-w-screen-sm sm:max-w-5xl sm:m-3 sm:w-[90%] max-h-screen">
+        <div
+          :class="cn(
+            'border rounded-md border-neutral-200 dark:border-neutral-800 dark:text-gray-400',
+            !(mode === 'outlined')||'bg-white dark:bg-black',
+            !(mode === 'underlined')||'bg-stone-50 dark:bg-stone-950',
+            !(mode === 'filled')||'bg-stone-100 dark:bg-stone-900',
+            'editor st-text-editor'
+            )">
+          <QuillEditor
+            v-if="theme ==='snow'"
+            theme="snow"
+            v-bind="removeParamsFromStructure(paramsQuillEditor, ['theme'])"
+            @update:content="inputModelValue"/>
           <div class="absolute top-[5px] right-[5px]" @click="theme = 'bubble'">
             <Button mode="ghost" class="group h-9 w-9 px-0 border-neutral-500 dark:border-neutral-500 hover:bg-transparent hover:dark:bg-transparent cursor-pointer">
               <ArrowsPointingInIcon aria-hidden="true" class="h-5 w-5 mx-2 transition-all fill-neutral-500 dark:fill-neutral-500 group-hover:fill-primary-600 dark:group-hover:fill-primary-600"/>

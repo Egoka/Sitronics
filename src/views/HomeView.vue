@@ -20,7 +20,7 @@ import Button from "@/components/functional/Button.vue";
         </h1>
         <p class="mt-6 text-lg leading-8 text-gray-600">Демонстрация готовых компонентов с примерами их работы</p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
-          <Button link="/components" mode="secondary" class="bg-[#587cec] dark:bg-[#587cec] hover:bg-[#587cec]/80 dark:hover:bg-[#587cec]/80 px-3.5 py-2.5 h-max font-semibold">
+          <Button link="/components" mode="secondary" class="px-3.5 py-2.5 h-max font-semibold">
             Попробовать
           </Button>
           <Button link="/components" mode="text" class="text-sm leading-6 text-gray-900 dark:text-gray-300">

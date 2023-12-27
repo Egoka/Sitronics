@@ -7,6 +7,7 @@ import * as LData from "lodash";
 import gsap from 'gsap'
 import Badge from "@/components/functional/Badge.vue";
 import FixWindow, {type IFixWindow} from "@/components/functional/FixWindow.vue";
+import {cn} from "@/helpers/tailwind";
 // ---------------------------------------
 type IDataItem = {[key:string]: any}
 type BaseDataItem = string|number|IDataItem
@@ -228,9 +229,11 @@ function onLeave(el:any, done:any) {
     v-bind="inputLayout"
     @clear="select(null)">
     <div ref="selectBody" tabindex="0"
-         :class="[
-           'classSelect flex w-full min-h-[36px] max-h-16 overflow-auto cursor-pointer focus:outline-0 focus:ring-0',
-            props.paramsSelect?.classSelect]"
+         :class="cn(
+           'w-full min-h-[36px] max-h-16 focus:outline-0 focus:ring-0',
+            props.paramsSelect?.classSelect,
+            'classSelect flex overflow-auto cursor-pointer'
+            )"
          @focusin="focusSelect(true)"
          @focusout="focusSelect(false)"
          @click="openSelect">
@@ -240,16 +243,14 @@ function onLeave(el:any, done:any) {
                             enter-active-class="transition ease-in-out duration-300" enter-from-class="opacity-0 -translate-x-5" enter-to-class="opacity-100 translate-x-0">
             <div v-for="item in typeof maxVisible === 'number' ? visibleValue.slice(0, maxVisible) : visibleValue" :key="item[keySelect]" class="z-10">
               <slot name="values" :selected="item" :key="valueSelect ? valueSelect : keySelect" :delete-select="select">
-                <Badge mode="neutral" close-button class-content="fill-primary-500" @delete="select(item)"
-                       :class="['m-1 mb-0 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
+                <Badge mode="neutral" close-button class-content="fill-primary-500" @delete="select(item)" class="m-1 mb-0 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20 rounded-full">
                   {{valueSelect? item[valueSelect] : item[keySelect]}}
                 </Badge>
               </slot>
             </div>
             <div v-if="visibleValue.length > maxVisible" class="z-10">
               <slot name="values" :selected="visibleValue.length" :key="null" :delete-select="select">
-                <Badge mode="neutral" class-content="fill-primary-500"
-                       :class="['m-1 mb-0 px-3 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20', 'rounded-full']">
+                <Badge mode="neutral" class-content="fill-primary-500" class="m-1 mb-0 px-3 text-xs bg-primary-50 text-primary-700 ring-primary-600/20 dark:bg-primary-950 dark:text-primary-300 dark:ring-primary-400/20 rounded-full">
                   <FunnelIcon aria-hidden="true" class="h-3 w-3 mr-2 text-primary-400 dark:text-primary-600"/> {{visibleValue.length}}
                 </Badge>
               </slot>
@@ -267,20 +268,24 @@ function onLeave(el:any, done:any) {
     </div>
     <template #body>
       <FixWindow v-bind="paramsFixWindow" :model-value="isOpenList" class="z-30" @close="env => closeSelect(env)">
-        <div ref="selectList"
-             :class="[
-               'classSelectList overflow-auto overscroll-y-contain min-w-[10rem] mt-1 max-h-60',
-               'text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm',
-               props.paramsSelect?.classSelectList,
-               !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
-               !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
-               !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900']"
-             :style="`width: ${(selectBody as HTMLElement)?.clientWidth??0}px`">
-          <div :class="[
-            'sticky top-[220px] w-full h-5 z-20 bg-gradient-to-t to-transparent pointer-events-none',
+        <div
+          ref="selectList"
+          :class="cn(
+            'min-w-[10rem] mt-1 max-h-60',
+            'text-base rounded-md ring-1 ring-black ring-opacity-5 shadow-xl focus:outline-none sm:text-sm',
+            !(mode === 'outlined')||'border border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
+            !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b bg-stone-50 dark:bg-stone-950',
+            !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900',
+            props.paramsSelect?.classSelectList,
+            'classSelectList overflow-auto')"
+          :style="`width: ${(selectBody as HTMLElement)?.clientWidth??0}px`">
+          <div :class="cn(
+            'w-full h-5 bg-gradient-to-t to-transparent pointer-events-none',
             !(mode === 'outlined')||'from-white dark:from-black via-white dark:via-black',
             !(mode === 'underlined')||'from-stone-50 dark:from-stone-950 via-stone-50 dark:via-stone-950',
-            !(mode === 'filled')||'from-stone-100 dark:from-stone-900 via-stone-100 dark:via-stone-900']"/>
+            !(mode === 'filled')||'from-stone-100 dark:from-stone-900 via-stone-100 dark:via-stone-900',
+            'sticky top-[220px] z-20'
+            )"/>
           <StInput
             v-if="isQuery"
             ref="selectSearch"
@@ -289,11 +294,11 @@ function onLeave(el:any, done:any) {
             :mode="mode"
             label-mode="vanishing"
             clear
-            :class-body="[
+            :class-body="cn(
               `m-2 mb-5 sticky top-1 z-20 rounded-md`,
               (mode === 'outlined') ? 'ring-stone-200 dark:ring-black': '',
               (mode === 'underlined') ? 'ring-stone-200 dark:ring-stone-950': '',
-              (mode === 'filled') ? 'ring-stone-100 dark:ring-stone-900': '']">
+              (mode === 'filled') ? 'ring-stone-100 dark:ring-stone-900': '')">
             <template #before>
               <MagnifyingGlassIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
             </template>
@@ -306,23 +311,40 @@ function onLeave(el:any, done:any) {
             @enter="onEnter"
             @leave="onLeave">
               <template v-if="dataSelect?.length">
-                <li v-for="(item, index) in dataList"
-                    :key="`${item[keySelect]}`"
-                    :data-index="index"
-                    class="group/li text-gray-900 dark:text-gray-100 relative cursor-default select-none flex items-center h-9 mx-2 pl-8 pr-4 last:mb-5 transition-colors duration-75"
-                    :class="['hover:bg-primary-200 hover:dark:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-100', ['outlined','filled'].includes(mode) ? 'rounded-md': '']"
-                    @click="select(item)">
+                <li
+                  v-for="(item, index) in dataList"
+                  :key="`${item[keySelect]}`"
+                  :data-index="index"
+                  :class="cn(
+                    'text-gray-900 dark:text-gray-100 items-center h-9 mx-2 pl-8 pr-4 last:mb-5',
+                    'hover:bg-primary-200 hover:dark:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-100',
+                    ['outlined','filled'].includes(mode) && 'rounded-md',
+                    'group/li relative cursor-default select-none flex transition-colors duration-75'
+                    )"
+                  @click="select(item)">
                   <slot name="item" :item="item" :key="valueSelect">
-                    <div v-if="isQuery && item?.marker" v-html="item?.marker" class="text-gray-600 dark:text-gray-300 group-hover/li:text-primary-700 dark:group-hover/li:text-primary-400"/>
-                    <div v-else class="text-gray-600 dark:text-gray-300 group-hover/li:text-primary-700 dark:group-hover/li:text-primary-200">{{valueSelect? item[valueSelect] : item}}</div>
+                    <div
+                      v-if="isQuery && item?.marker"
+                      v-html="item?.marker"
+                      class="text-gray-600 dark:text-gray-300 group-hover/li:text-primary-700 dark:group-hover/li:text-primary-400"/>
+                    <div
+                      v-else
+                      class="text-gray-600 dark:text-gray-300 group-hover/li:text-primary-700 dark:group-hover/li:text-primary-200">
+                      {{valueSelect? item[valueSelect] : item}}
+                    </div>
                   </slot>
-                  <span v-if="visibleValue?.find(i=>i[keySelect] === item[keySelect])" class="flex absolute inset-y-0 left-0 items-center pl-2 text-primary-700 dark:text-primary-400">
+                  <span
+                    v-if="visibleValue?.find(i=>i[keySelect] === item[keySelect])"
+                    class="flex absolute inset-y-0 left-0 items-center pl-2 text-primary-700 dark:text-primary-400">
                     <CheckIcon aria-hidden="true" class="w-5 h-5"/>
                   </span>
                 </li>
-                <div v-if="!dataList?.length" class="h-9 px-4 text-sm text-gray-500" v-html="noData"></div>
+                <div
+                  v-if="!dataList?.length"
+                  v-html="noData"
+                  class="h-9 px-4 text-sm text-gray-500"/>
               </template>
-              <div v-else class="p-4 text-sm text-gray-500" v-html="noData"></div>
+              <div v-else class="p-4 text-sm text-gray-500" v-html="noData"/>
           </TransitionGroup>
         </div>
       </FixWindow>

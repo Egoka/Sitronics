@@ -2,6 +2,7 @@
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import {computed, getCurrentInstance, reactive, ref, useSlots, watch} from "vue";
 import {onkeydown} from "@/helpers/numbers";
+import {cn} from "@/helpers/tailwind";
 // ---------------------------------------
 export interface IDataAria {
   placeholder?: string
@@ -9,6 +10,7 @@ export interface IDataAria {
   wrap?: "soft" | "hard" | "off"
   rows?: number
   maxLength?: number
+  classInput?: string|Array<string|null>
 }
 export interface IAria extends Omit<ILayout, "value"|"isValue">{
   id?: string
@@ -86,24 +88,29 @@ function clear() {
     :class="classLayout"
     v-bind="inputLayout"
     @clear="clear">
-      <textarea :id="id"
-                ref="inputAria"
-                :name="id"
-                :rows="rows"
-                :wrap="wrap"
-                :value="value"
-                :disabled="isDisabled"
-                :maxlength="maxLength"
-                :placeholder="placeholder"
-                :autocomplete="autocomplete"
-                class="block w-full ring-0 border-0 bg-transparent p-0 mt-2 mb-1 min-h-[24px] max-h-[10rem] rounded-md text-gray-900 dark:text-gray-100
-                placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600
-                [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                focus:outline-0 focus:ring-0"
-                @focus="isActiveAria = true"
-                @input="inputEvent"
-                @keydown="onkeydown"
-                @change="changeModelValue(($event.target as HTMLInputElement).value)"/>
+      <textarea
+        :id="id"
+        ref="inputAria"
+        :name="id"
+        :rows="rows"
+        :wrap="wrap"
+        :value="value"
+        :disabled="isDisabled"
+        :maxlength="maxLength"
+        :placeholder="placeholder"
+        :autocomplete="autocomplete"
+        :class="cn(
+          'w-full ring-0 border-0 bg-transparent p-0 mt-2 mb-1 min-h-[28px] max-h-[10rem] rounded-md text-gray-900 dark:text-gray-100',
+          'placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600',
+          '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+          'focus:outline-0 focus:ring-0',
+          props.paramsAria?.classInput,
+          'classInput block'
+        )"
+        @focus="isActiveAria = true"
+        @input="inputEvent"
+        @keydown="onkeydown"
+        @change="changeModelValue(($event.target as HTMLInputElement).value)"/>
     <template #body><slot/></template>
     <template v-if="slots.before" #before><slot name="before"/></template>
     <template v-if="slots.after" #after><slot name="after"/></template>

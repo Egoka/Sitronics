@@ -1,12 +1,12 @@
 import * as Vue from 'vue';
 import Alert from "@/components/functional/Alert.vue";
 import type { Properties as CSS } from 'csstype';
-import type {StyleClass} from "@/components/BaseTypes";
+import type {Size, StyleClass} from "@/components/BaseTypes";
 export interface IAlert {
   modelValue?: boolean
   type?: "success"|"warning"|"info"| "error"|"neutral"
   position?: "top"|"bottom"|"left"|"right"|"center"|"bottom-left"|"top-left"|"bottom-right"|"top-right"
-  size?: "xs"|"sm"|"md"|"lg"|"xl"|"2xl"|"3xl"|"4xl"|"5xl"|"6xl"|"7xl"
+  size?: Size
   title?: string
   subtitle?: string
   class?: StyleClass
@@ -45,7 +45,7 @@ export default function openAlert(optionsAlert:IAlert) {
     alertBody.prepend(divAlert);
   } else {
     let div = document.createElement('div');
-    div.className = `alert-${options.position} fixed z-[100] flex gap-4 overflow-auto max-h-screen pointer-events-none ${
+    div.className = `alert-${options.position} fixed z-[100] flex gap-4 overflow-auto max-h-screen pointer-events-none transition-all duration-500 ${
       options.position.includes("bottom") ? 'flex-col-reverse': 'flex-col'
     } ${
       options.position.includes("left") 

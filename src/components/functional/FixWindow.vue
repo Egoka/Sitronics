@@ -325,7 +325,11 @@ function updatePosition() {
 <template>
   <transition leave-active-class="transition-opacity ease-in-out duration-300" leave-from-class="opacity-100" leave-to-class="opacity-0"
               enter-active-class="transition-opacity ease-in-out duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100">
-  <div v-show="isOpen" ref="fixWindow" :class="props.class" :style="`position: fixed;left: 0px; top: 0px;transform: translate(${x}px, ${y}px);${border}`">
+  <div
+    v-show="isOpen"
+    ref="fixWindow"
+    :class="props.class"
+    :style="`position: fixed;left: 0px; top: 0px;transform: translate(${x}px, ${y}px);${border}`">
     <slot/>
     <Button v-if="isCloseButton" mode="ghost" class="absolute top-2 right-2 px-[5px] m-0.5 h-9 w-9" @click="close">
       <XMarkIcon aria-hidden="true" class="h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>

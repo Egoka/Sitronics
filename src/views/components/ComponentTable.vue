@@ -293,9 +293,7 @@ const structureDialog = ref<Array<IFormStructure>>([
         </div>
       </div>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400 mb-5">
-        <p>
-          <span class="text-lg">Некоторые из основных свойств колонки могут включать:</span><br>
-        </p>
+        <p>Некоторые из основных свойств колонки могут включать:</p>
       </p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <p>

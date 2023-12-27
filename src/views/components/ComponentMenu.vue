@@ -9,6 +9,8 @@ import openAlert, {IAlert} from "@/components/functional/Alert";
 import FixWindow from "@/components/functional/FixWindow.vue";
 import {Bars3Icon, ChevronDownIcon} from "@heroicons/vue/20/solid";
 import Alert from "@/components/functional/Alert.vue";
+import Separator from "@/components/functional/Separator.vue";
+import StSwitch from "@/components/form/StSwitch.vue";
 
 const baseMenu1 = ref<IGroups>([{items: [{title: 'Profile',/*icon: 'user',info: '<div>+1</div>',*/},{title: 'Billing',/*icon: 'credit-card',info: '⌘B',*/},{title: 'Settings',/*icon: 'cog-6-tooth',info: '⌘S'*/},{title: 'Keyboard shortcuts', disabled: true, /*icon: 'solar:keyboard-outline',info: '⌘K'*/},]}])
 const baseMenu2 = ref<IGroups>([{items: [{title: 'Profile',icon: 'user',/*info: '<div>+1</div>',*/},{title: 'Billing',icon: 'credit-card',/*info: '⌘B',*/},{title: 'Settings',icon: 'cog-6-tooth',/*info: '⌘S'*/},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',/*info: '⌘K'*/},]}])
@@ -16,7 +18,7 @@ const baseMenu21 = ref<IGroups>([{items: [{title: 'Profile',icon: 'chevron-right
 const baseMenu22 = ref<IGroups>([{items: [{/*title: 'Electronics',*/icon: 'carbon:home',/*info: '<div>+1</div>',*/},{title: 'Electronics',icon: 'chevron-right',/*info: '<div>+1</div>',*/},{title: 'Computer',icon: 'chevron-right',/*info: '⌘B',*/},{title: 'Accessories',icon: 'chevron-right',/*info: '⌘S'*/},{title: 'Keyboard',icon: 'solar:keyboard-outline',/*info: '⌘K'*/},]}])
 const baseMenu3 = ref<IGroups>([{items: [{title: 'Profile',icon: 'user',info: '<div>+1</div>'},{title: 'Billing',icon: 'credit-card',info: '⌘B'},{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]}])
 const baseMenu31 = ref<IGroups>([{items: [{title: 'Home',icon: 'carbon:home'}], separator: {isVisible: false}}, {items: [{title: 'Profile',icon: 'user'}]},{items: [{title: 'Billing',icon: 'credit-card',info: '⌘B'}]},{items: [{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'}]},{items: [{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]}])
-const baseMenu4 = ref<IGroups>([{items: [{title: 'Profile',icon: 'user',info: '<div>+1</div>'},{title: 'Billing',icon: 'credit-card',info: '⌘B'},{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]},{separator: {/*icon: 'akar-icons:github-outline-fill'*/},items: [{title: 'GitHub',icon: 'akar-icons:github-outline-fill',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'Support',icon: 'system-uicons:support',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'API',icon: 'bi:cloudy',info: '⌘+T',disabled: true},]}])
+const baseMenu4 = ref<IGroups>([{items: [{title: 'Profile',icon: '',info: '<div>+1</div>'},{title: 'Billing',icon: 'credit-card',info: '⌘B'},{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]},{separator: {/*icon: 'akar-icons:github-outline-fill'*/},items: [{title: 'GitHub',icon: 'akar-icons:github-outline-fill',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'Support',icon: 'system-uicons:support',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'API',icon: 'bi:cloudy',info: '⌘+T',disabled: true},]}])
 const groupsMenu = ref<IGroups>([
   {
     separator: {
@@ -221,6 +223,7 @@ const groupsMenu = ref<IGroups>([
     ]
   }
 ])
+const onlyIcons = ref(true)
 </script>
 
 <template>
@@ -290,16 +293,19 @@ const groupsMenu = ref<IGroups>([
       </div>
     </div>
     <div class="border-b border-primary-700/50 dark:border-primary-500/50 pb-0 mt-10">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Заголовок и разделитель</h2>
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-primary-600 dark:text-primary-500">Только иконки</h2>
 <!--      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">-->
 <!--        <p></p>-->
 <!--      </p>-->
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
         <div class="col-span-2 my-5">
-          <Menu :groups="baseMenu4" :separator="{gradient:[10,50]}" only-icons @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>
+          <Menu :groups="baseMenu4" :separator="{gradient:[10,50]}" :only-icons="onlyIcons" @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>
         </div>
         <div class="col-span-2 my-5">
-          <Menu :separator="{gradient: [20, 20]}" :groups="groupsMenu" only-icons selected @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>
+          <Menu :separator="{gradient: [20, 20]}" :groups="groupsMenu" :only-icons="onlyIcons" selected @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>
+        </div>
+        <div class="col-span-2 my-5">
+          <StSwitch label="Только иконки" v-model="onlyIcons" :params-switch="{switchingType: 'switch'}"></StSwitch>
         </div>
       </div>
     </div>
@@ -391,8 +397,8 @@ const groupsMenu = ref<IGroups>([
         </div>
         <div class="col-span-1 my-5">
           <div class="flex flex-row items-center">
-            <Button class="ml-1 w-20 rounded-l-md">Menu</Button>
-            <Button class="h-9 w-9 px-0 mr-1 rounded-r-md border-l-0">
+            <Button class="ml-1 w-20 rounded-none rounded-l-md rounded-r-0">Menu</Button>
+            <Button class="h-9 w-9 px-0 mr-1 rounded-none rounded-r-md border-l-0">
               <ChevronDownIcon class="h-4 w-4"/>
               <FixWindow event-open="click" event-close="hover" position="bottom">
                 <Menu title="My Account" :groups="baseMenu4" :separator="{gradient:[10,50]}" @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>

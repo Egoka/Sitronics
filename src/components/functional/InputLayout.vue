@@ -2,6 +2,7 @@
 import {computed, onMounted, onUnmounted, ref, useSlots} from "vue";
 import type {IHeight, IMode, IWidth} from "@/components/BaseTypes";
 import Label, {type ILabelMode} from "@/components/functional/Label.vue";
+import {cn} from "@/helpers/tailwind";
 import {getLabelType} from "@/helpers/label";
 import Dropdown from "@/components/functional/Dropdown.vue";
 import {
@@ -115,23 +116,31 @@ async function copy() {
 
 <template>
   <div ref="inputBody"
-       :class="['classBody relative', animation, !isInvalid||'is-invalid', props.classBody||'mb-6 rounded-md']"
+       :class="cn(
+         'mb-6 rounded-md',
+         animation,
+         props.classBody,
+         'classBody relative',
+         !isInvalid||'is-invalid'
+        )"
        :style="`scroll-margin-top: ${headerHeight + 10}px;`">
     <div v-if="slots.before" ref="beforeInput"
-         :class="['absolute inset-y-0 left-0 flex items-center', 'pl-3 pr-1']"
+         :class="cn('absolute inset-y-0 left-0 flex items-center', 'pl-3 pr-1')"
          :style="`height: ${height};max-height: 4rem;`">
       <slot name="before"/>
     </div>
     <div
       ref="input"
-      :class="[
+      :class="cn(
+        !(mode === 'outlined')||'border border-gray-300 dark:border-gray-600 bg-white dark:bg-neutral-950',
+        !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b bg-stone-50 dark:bg-stone-950',
+        !(mode === 'filled')||`${isDisabled ? 'border-dotted border-2 border-slate-200' : 'border-0 border-transparent'} bg-stone-100 dark:bg-stone-900`,
         'classLayout block peer w-full max-h-20 overflow-auto rounded-md text-gray-900 dark:text-gray-100 sm:text-sm sm:leading-6 focus-visible:ring-0',
-        props.class, animation,
+        animation,
+        props.class,
         !isInvalid||'border-red-500 ring-1 ring-inset ring-red-500 scroll-mt-10',
         !isDisabled||'bg-neutral-50 dark:bg-neutral-950 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
-        !(mode === 'outlined')||'border-[1px] border-gray-300 dark:border-gray-600 bg-white dark:bg-neutral-950',
-        !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b-[1px] bg-stone-50 dark:bg-stone-950',
-        !(mode === 'filled')||`${isDisabled ? 'border-dotted border-2 border-slate-200' : 'border-0 border-transparent'} bg-stone-100 dark:bg-stone-900`]"
+        )"
       :style="`width:${width};height:${height};min-height: ${baseHeight}px;padding-left: ${beforeWidth||10}px; padding-right: ${afterWidth||10}px;`">
       <slot/>
     </div>
@@ -151,8 +160,7 @@ async function copy() {
       <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                   enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
         <div v-if="isLoading" class="relative mx-2">
-          <div class="w-4 h-4 border-gray-200 dark:border-gray-800 border-2 rounded-full"></div>
-          <div class="w-4 h-4 border-gray-700 dark:border-gray-300 border-t-2 animate-spin rounded-full absolute left-0 top-0"></div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="sbui-icon animate-spin dark:text-primary-300"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
         </div>
       </transition>
       <Dropdown v-if="help?.length" :content="help">
@@ -188,8 +196,10 @@ async function copy() {
       </template>
     </span>
     <p
-      class="absolute block text-red-600 dark:text-red-400 text-sm truncate ml-1"
-      :class="[isInvalid ? 'visible' : 'invisible']"
+      :class="cn(
+        'absolute block text-red-600 dark:text-red-400 text-sm truncate ml-1',
+        isInvalid ? 'visible' : 'invisible'
+        )"
       :style="`max-width: ${inputBody?.['offsetWidth']||10}px`">
       {{ messageInvalid }}
     </p>

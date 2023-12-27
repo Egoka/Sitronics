@@ -11,6 +11,7 @@ import {
 import Button from "@/components/functional/Button.vue";
 import {IAlert} from "@/components/functional/Alert.ts";
 import type {StyleClass} from "@/components/BaseTypes";
+import {cn} from "@/helpers/tailwind";
 // ---------------------------------------
 export interface IAlertProps extends Omit<IAlert, 'position'> {
   position?: "top"|"bottom"|"left"|"right"|"center"
@@ -28,24 +29,7 @@ const subtitle = computed<NonNullable<IAlertProps["subtitle"]>>(()=> props.subti
 const displayTime = computed<number>(()=> !!+props.displayTime ? +props.displayTime : 0)
 const isCloseButton = computed<NonNullable<IAlertProps["closeButton"]>>(()=>props.closeButton ?? false)
 const position = computed<NonNullable<IAlertProps["position"]>>(()=> props.position ?? "top")
-const classClass = computed<StyleClass>(()=> {
-  const arrayDialog = !!props.class
-    ? Array.isArray(props.class)
-      ? (props.class as Array<string>).flat().map(item=>item.split(" ")).flat()
-      : (props.class as string)?.split(" ")
-    : [];
-  [
-    {reg: "^p-", class: "p-4"},
-    {reg: "^w-", class: "w-auto"},
-    {reg: "^max-w-", class: "max-w-[89vw]"},
-    {reg: "rounded", class: "rounded-md"},
-  ].map((item:{reg: string, class: string})=>{
-    if(!arrayDialog?.some(classItem=>classItem.match(new RegExp(item.reg)))){
-      arrayDialog.push(item.class)
-    }
-  })
-  return arrayDialog
-})
+const classClass = computed<StyleClass>(()=> props.class)
 const startEnterAndLeaveClass = computed<StyleClass>(()=> {
   if (!props.notAnimate) {
     if(position.value.includes("left")){ return "-translate-x-[200%] opacity-0"}
@@ -106,20 +90,35 @@ function close() {
 <template>
   <transition appear leave-active-class="transition-all ease-in-out duration-500" :leave-from-class="endEnterAndLeaveClass" :leave-to-class="startEnterAndLeaveClass"
               enter-active-class="transition-all ease-in-out duration-500" :enter-from-class="startEnterAndLeaveClass" :enter-to-class="endEnterAndLeaveClass">
-    <div v-if="isVisible" :class="['alert-body', style.body, classClass, size]" :style="props.style">
+    <div
+      v-if="isVisible"
+      :class="cn(
+        'alert-body p-4 w-auto max-w-[89vw] rounded-md',
+        style.body,
+        classClass,
+        size
+        )"
+      :style="props.style">
       <div class="flex">
         <div class="shrink-0">
-          <component :is="icon" aria-hidden="true" :class="['h-5 w-5', style.icon]"/>
+          <component :is="icon" aria-hidden="true" :class="cn('h-5 w-5', style.icon)"/>
         </div>
         <div class="ml-3">
-          <h3 v-if="title?.length" :class="['text-sm font-medium', style.title]">{{ title }}</h3>
-          <div v-if="subtitle" :class="['text-sm', !title?.length||'mt-2', style.subtitle]" v-html="subtitle"/>
-          <div v-if="!!$slots?.default" :class="['text-sm', !title?.length||'mt-2', style.subtitle]"><slot/></div>
+          <h3 v-if="title?.length" :class="cn('text-sm font-medium', style.title)">{{ title }}</h3>
+          <div v-if="subtitle" :class="cn('text-sm', !title?.length||'mt-2', style.subtitle)" v-html="subtitle"/>
+          <div v-if="!!$slots?.default" :class="cn('text-sm', !title?.length||'mt-2', style.subtitle)"><slot/></div>
         </div>
         <div v-if="isCloseButton || displayTime === 0" class="ml-auto pl-3">
           <div class="-mx-1.5 -my-2">
-            <button type="button" :class="['button-delete','rounded-md m-0 h-9 w-9 px-2', style.button, 'py-2 text-sm font-medium inline-flex items-center justify-center transition-colors duration-300']" @click="close">
-              <XMarkIcon aria-hidden="true" :class="['h-5 w-5', style.buttonIcon]"/>
+            <button
+              type="button"
+              :class="cn(
+                'button-delete','rounded-md m-0 h-9 w-9 px-2',
+                style.button,
+                'py-2 text-sm font-medium inline-flex items-center justify-center transition-colors duration-300'
+               )"
+              @click="close">
+              <XMarkIcon aria-hidden="true" :class="cn('h-5 w-5', style.buttonIcon)"/>
             </button>
           </div>
         </div>

@@ -289,12 +289,12 @@ function submit(){
                       @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)">
                       <template #before>
-                        <Icons v-if="field.beforeIcon" :type="field.beforeIcon" />
+                        <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                         <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
                       </template>
                       <template #after>
                         <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
-                        <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                        <Icons v-if="field.afterIcon" :type="field.afterIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                       </template>
                     </StInput>
                     <StAria
@@ -305,12 +305,12 @@ function submit(){
                       @update:model-value="inputField(field)"
                       @change:model-value="changeField(field)">
                       <template #before>
-                        <Icons v-if="field.beforeIcon" :type="field.beforeIcon" />
+                        <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                         <span v-if="field.beforeText" class="flex select-none items-center text-gray-500 sm:text-sm">{{ field.beforeText }}</span>
                       </template>
                       <template #after>
                         <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
-                        <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                        <Icons v-if="field.afterIcon" :type="field.afterIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                       </template>
                     </StAria>
                     <StTextEditor
@@ -326,7 +326,7 @@ function submit(){
                       </template>
                       <template v-if="field.afterIcon || field.afterText" #after>
                         <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
-                        <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                        <Icons v-if="field.afterIcon" :type="field.afterIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                       </template>
                     </StTextEditor>
                     <StSelect
@@ -353,7 +353,7 @@ function submit(){
                       </template>
                       <template #after>
                         <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
-                        <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                        <Icons v-if="field.afterIcon" :type="field.afterIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                       </template>
                     </StSelect>
                     <StCalendar
@@ -369,7 +369,7 @@ function submit(){
                       </template>
                       <template #after>
                         <p v-if="field.afterText && formFields[field.name]" class="ml-1 mr-3 text-gray-400 dark:text-gray-600 select-none">{{ field.afterText }}</p>
-                        <Icons v-if="field.afterIcon" :type="field.afterIcon"/>
+                        <Icons v-if="field.afterIcon" :type="field.afterIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>
                       </template>
                     </StCalendar>
                     <StSwitch

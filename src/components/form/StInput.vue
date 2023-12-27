@@ -4,6 +4,7 @@ import type {Ref, UnwrapRef} from "vue";
 import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
 import {convertToNumber, convertToPhone, onkeydown, toNumber, toPhone} from "@/helpers/numbers";
 import {EyeIcon, EyeSlashIcon} from "@heroicons/vue/20/solid";
+import {cn} from "@/helpers/tailwind";
 // ---------------------------------------
 const arrayInputType:Array<IInputType> = ['text','number','email','password']
 export type IInputType = 'text'|'number'|'email'|'password'
@@ -169,11 +170,14 @@ function blur(env:FocusEvent) {
       :placeholder="placeholder"
       :autocomplete="autocomplete"
       :value="value"
-      :class="props.paramsInput?.classInput"
-      class="classInput flex w-full ring-0 border-0 bg-transparent p-1 h-[28px] my-1 rounded-md text-gray-900 dark:text-gray-100
-      placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600
-      [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-      focus:outline-0 focus:ring-0 transition-all"
+      :class="cn(
+        'ring-0 border-0 w-full bg-transparent p-1 h-[28px] my-1 rounded-md text-gray-900 dark:text-gray-100',
+        'placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600',
+        '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+        'focus:outline-0 focus:ring-0 transition-all',
+        props.paramsInput?.classInput,
+        'classInput flex'
+        )"
       @focus="focus"
       @blur="blur"
       @input="inputEvent"
