@@ -1,20 +1,18 @@
 export function removeParamsFromStructure<
-  Structure extends { [key: string]: any },
-  Fields extends Array<keyof Structure>,
-  Key extends Fields[number]
+  Structure extends { [key: string]: any }
 >(
   structure: Structure,
-  removedFields: Fields
-): Omit<Structure, Key> {
+  removedFields: Array<keyof Structure>
+): Omit<Structure, Array<keyof Structure>[number]> {
   return Object.keys(structure).reduce(
     (acc: { [key: string]: any }, key: string) => {
-      if (!removedFields.includes(key as Key)) {
-        acc[key] = structure[key as Key];
+      if (!removedFields.includes(key as Array<keyof Structure>[number])) {
+        acc[key] = structure[key as Array<keyof Structure>[number]];
       }
       return acc;
     },
     {}
-  ) as Omit<Structure, Key>;
+  ) as Omit<Structure, Array<keyof Structure>[number]>;
 }
 export function copyObject(o:any,i?:any,r?:any) {
   if(typeof o != "object") return o;

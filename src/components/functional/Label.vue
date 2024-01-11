@@ -1,23 +1,11 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, ref} from "vue";
 import type {IMode} from "@/components/BaseTypes";
 import {cn} from "@/helpers/tailwind";
-export type ILabelMode = "offsetDynamic"|"offsetStatic"|"dynamic"|"static"|"vanishing"|"none"
-const props = defineProps<{
-  title?: string
-  isRequired?: boolean
-  // isDisabled?: boolean
-  type?: ILabelMode
-  mode?: IMode
-  translateX?:number|undefined
-  maxWidth?:number|undefined
-}>();
-const title = computed(()=>props.title ?? "")
+import type {ILabel, ILabelMode} from "@/components/functional/Label";
+const props = defineProps<ILabel>();
 const mode = computed<IMode>(()=> props.mode ?? "outlined")
-const isRequired = computed(()=>props.isRequired)
-// const isDisabled = computed(()=>props.isDisabled)
 const type = computed(()=>props.type ?? "dynamic")
-const maxWidth = computed(()=> props.maxWidth ?? null)
 const background = computed(()=> {
   switch (mode.value) {
     case "outlined": return 'from-white dark:from-neutral-950 from-50% to-transparent to-55%'
@@ -37,13 +25,13 @@ const background = computed(()=> {
       !(type === 'static')||'-translate-y-[60px] translate-x-4',
       !(type === 'vanishing')||`-translate-y-[28px]`,
       !(type === 'none')||'invisible -translate-y-[30px] translate-x-4',
-      !isRequired||`after:content-['*'] after:text-red-500 after:dark:text-red-800 after:ml-1`
+      !props.isRequired||`after:content-['*'] after:text-red-500 after:dark:text-red-800 after:ml-1`
       )"
     :style="`--tw-translate-x: ${props.translateX}px;`">
     <span
       class="block text-sm font-medium text-gray-400 dark:text-gray-500 truncate"
-      :style="`max-width: ${maxWidth-27}px`">
-      {{ title }}
+      :style="`max-width: ${(props.maxWidth??0)-27}px`">
+      {{ props.title }}
     </span>
   </div>
 </template>

@@ -1,36 +1,33 @@
 <script setup lang="ts">
 import ComponentViews from "@/components/ComponentViews.vue";
-import StForm, {type IFormExpose, type IFormStructure} from "@/components/form/StForm.vue";
-import {reactive, ref, watch} from "vue";
+import {type IFormExpose, type IFormStructure} from "@/components/form/StForm.vue";
+import {reactive, ref} from "vue";
 import StSelect from "@/components/form/StSelect.vue";
-import {CheckIcon} from "@heroicons/vue/20/solid";
-import InputLayout from "@/components/functional/InputLayout.vue";
 import Icons from "@/components/functional/Icons.vue";
 import Select from "@/components/form/StSelect.vue";
-import StInput from "@/components/form/StInput.vue";
-const formFields = reactive({isInfo1: null, isInfo2: 1233})
+const formFields = reactive({isInfo1: 123, isInfo2: [123]})
 
-const people = ref([
-  {value: 1, label: "Wade Cooper"},
-  {value: 2, label: "Arlene Mccoy"},
-  {value: 3, label: "Devon Webb"},
-  {value: 4, label: "Tom Cook"},
-  {value: 5, label: "Tanya Fox"},
-  {value: 6, label: "Hellen Schmidt"},
-])
-
-const roles = ref([
-  {value: 1, label: "Marketing "},
-  {value: 2, label: "Front desk "},
-  {value: 3, label: "Support awda wdaw awd awd"},
-  {value: 4, label: "Support awda wdaw awd awd"},
-  {value: 11, label: "Wade Cooper"},
-  {value: 12, label: "Arlene Mccoy"},
-  {value: 13, label: "Devon Webb"},
-  {value: 14, label: "Tom Cook"},
-  {value: 15, label: "Tanya Fox"},
-  {value: 16, label: "Hellen Schmidt"},
-])
+// const people = ref([
+//   {value: 1, label: "Wade Cooper"},
+//   {value: 2, label: "Arlene Mccoy"},
+//   {value: 3, label: "Devon Webb"},
+//   {value: 4, label: "Tom Cook"},
+//   {value: 5, label: "Tanya Fox"},
+//   {value: 6, label: "Hellen Schmidt"},
+// ])
+//
+// const roles = ref([
+//   {value: 1, label: "Marketing "},
+//   {value: 2, label: "Front desk "},
+//   {value: 3, label: "Support awda wdaw awd awd"},
+//   {value: 4, label: "Support awda wdaw awd awd"},
+//   {value: 11, label: "Wade Cooper"},
+//   {value: 12, label: "Arlene Mccoy"},
+//   {value: 13, label: "Devon Webb"},
+//   {value: 14, label: "Tom Cook"},
+//   {value: 15, label: "Tanya Fox"},
+//   {value: 16, label: "Hellen Schmidt"},
+// ])
 
 const test = [123, '12314124 23123 ', 214124, 3, 2]
 const form = ref({

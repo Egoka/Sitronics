@@ -1,30 +1,7 @@
 <script setup lang="ts">
 import {computed, useSlots} from "vue";
-import type {StyleClass} from "@/components/BaseTypes";
 import {cn} from "@/helpers/tailwind";
-// ---TYPES-------------------------------
-type Gradient = 0|5|10|20|30|40|50
-type GradientLength = 0|5|10|20|30|40|50
-type Depth = 0|1|2|3|4|5|6|7
-// ---INTERFACES--------------------------
-export interface ISeparatorStyles {
-  body?: StyleClass
-  bodyLine?: StyleClass
-  line?:StyleClass
-  content?: StyleClass
-  bodyLineLeft?: StyleClass
-  lineLeft?:StyleClass
-  bodyLineRight?: StyleClass
-  lineRight?:StyleClass
-}
-export interface ISeparator {
-  vertical?: boolean
-  content?: "right"|"left"|"center"|"full"
-  gradient?: Gradient|[Gradient, GradientLength]|boolean
-  depth?: Depth
-  styles?: ISeparatorStyles
-  class?: StyleClass
-}
+import type {ISeparator} from "@/components/functional/Separator";
 // ---PROPS-EMITS-SLOTS-------------------
 const props = defineProps<ISeparator>()
 const slots = useSlots()
@@ -35,13 +12,11 @@ const gradient = computed<number>(()=> {
   let gradient
   if (Array.isArray(props.gradient)) {
     gradient = props.gradient[0]
-  } else {
-    gradient = props.gradient
-  }
-  return (typeof gradient === "boolean" && gradient) ? 20 : (gradient > 0 && gradient <= 100) ? +gradient : 0
+  } else { gradient = props.gradient }
+  return (typeof gradient === "boolean") ? 20 : (gradient && gradient > 0 && gradient <= 100) ? +gradient : 0
 })
 const gradientLength = computed<number>(()=> Array.isArray(props.gradient) ? props.gradient[1] : 30)
-const depth = computed<NonNullable<ISeparator["depth"]>>(()=> props.depth <= 7 ? props.depth : 1)
+const depth = computed<NonNullable<ISeparator["depth"]>>(()=> props.depth && props.depth <= 7 ? props.depth : 1)
 </script>
 
 <template>

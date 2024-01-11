@@ -1,37 +1,16 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, ref, useSlots, watch} from "vue";
-import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
+import InputLayout from "@/components/functional/InputLayout.vue";
 import Button from "@/components/functional/Button.vue";
-import Dialog, {type IDialog} from "@/components/functional/Dialog.vue";
+import Dialog from "@/components/functional/Dialog.vue";
 import {ArrowsPointingOutIcon, ArrowsPointingInIcon} from "@heroicons/vue/20/solid";
-import {QuillEditor, type Delta} from '@vueup/vue-quill'
+import {QuillEditor} from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import '@vueup/vue-quill/dist/vue-quill.bubble.css';
 import {removeParamsFromStructure} from "@/helpers/object";
 import {cn} from "@/helpers/tailwind";
-// ---------------------------------------
-declare type ContentPropType = string | Delta | undefined | null;
-declare type Module = {
-  name: string;
-  module: unknown;
-  options?: object;
-};
-export interface IDataTextEditor {
-  content: ContentPropType
-  contentType: "delta" | "html" | "text"
-  enable: boolean
-  readOnly: boolean
-  theme: "snow" | "bubble"
-  toolbar: "essential" | "minimal" | "full" | string | object | Array<any>
-  modules: Module | Module[]
-  options: any
-  globalOptions: any;
-}
-export interface ITextEditor extends Omit<ILayout, "value"|"isValue">{
-  id?: string
-  modelValue?: string|number|null|undefined,
-  paramsTextEditor?: Partial<IDataTextEditor>
-}
+import type {ILayout} from "@/components/functional/InputLayout";
+import type {IDataTextEditor, ITextEditor} from "@/components/form/StTextEditor";
 // ---------------------------------------
 const props = defineProps<ITextEditor>()
 const emit = defineEmits<{
@@ -124,7 +103,7 @@ function ready() {
     :class="classLayout"
     v-bind="inputLayout"
     @clear="clear">
-    <div class="editor-small max-h-20">
+    <div class="editor-small max-h-20 caret-theme-500">
       <QuillEditor
         v-if="theme ==='bubble'"
         ref="quillEditor"
@@ -144,7 +123,7 @@ function ready() {
             !(mode === 'outlined')||'bg-white dark:bg-black',
             !(mode === 'underlined')||'bg-stone-50 dark:bg-stone-950',
             !(mode === 'filled')||'bg-stone-100 dark:bg-stone-900',
-            'editor st-text-editor'
+            'editor st-text-editor caret-theme-500'
             )">
           <QuillEditor
             v-if="theme ==='snow'"
@@ -172,16 +151,16 @@ function ready() {
 </template>
 <style>
 .editor .ql-snow.ql-toolbar button:hover, .ql-snow .ql-toolbar button:hover, .ql-snow.ql-toolbar button:focus, .ql-snow .ql-toolbar button:focus, .ql-snow.ql-toolbar button.ql-active, .ql-snow .ql-toolbar button.ql-active, .ql-snow.ql-toolbar .ql-picker-label:hover, .ql-snow .ql-toolbar .ql-picker-label:hover, .ql-snow.ql-toolbar .ql-picker-label.ql-active, .ql-snow .ql-toolbar .ql-picker-label.ql-active, .ql-snow.ql-toolbar .ql-picker-item:hover, .ql-snow .ql-toolbar .ql-picker-item:hover, .ql-snow.ql-toolbar .ql-picker-item.ql-selected, .ql-snow .ql-toolbar .ql-picker-item.ql-selected{
-  color: theme("colors.primary.500")
+  color: theme("colors.theme.500")
 }
 .editor .ql-snow.ql-toolbar button:hover .ql-fill, .ql-snow .ql-toolbar button:hover .ql-fill, .ql-snow.ql-toolbar button:focus .ql-fill, .ql-snow .ql-toolbar button:focus .ql-fill, .ql-snow.ql-toolbar button.ql-active .ql-fill, .ql-snow .ql-toolbar button.ql-active .ql-fill, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-fill, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-fill, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-fill, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-fill, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-fill, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-fill, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-fill, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-fill, .ql-snow.ql-toolbar button:hover .ql-stroke.ql-fill, .ql-snow .ql-toolbar button:hover .ql-stroke.ql-fill, .ql-snow.ql-toolbar button:focus .ql-stroke.ql-fill, .ql-snow .ql-toolbar button:focus .ql-stroke.ql-fill, .ql-snow.ql-toolbar button.ql-active .ql-stroke.ql-fill, .ql-snow .ql-toolbar button.ql-active .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill{
-  fill:theme("colors.primary.500")
+  fill:theme("colors.theme.500")
 }
 .editor .ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow .ql-toolbar button:hover .ql-stroke, .ql-snow.ql-toolbar button:focus .ql-stroke, .ql-snow .ql-toolbar button:focus .ql-stroke, .ql-snow.ql-toolbar button.ql-active .ql-stroke, .ql-snow .ql-toolbar button.ql-active .ql-stroke, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-snow.ql-toolbar button:hover .ql-stroke-miter, .ql-snow .ql-toolbar button:hover .ql-stroke-miter, .ql-snow.ql-toolbar button:focus .ql-stroke-miter, .ql-snow .ql-toolbar button:focus .ql-stroke-miter, .ql-snow.ql-toolbar button.ql-active .ql-stroke-miter, .ql-snow .ql-toolbar button.ql-active .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter{
-  stroke: theme("colors.primary.500")
+  stroke: theme("colors.theme.500")
 }
 .editor .ql-snow.ql-toolbar button.ql-active .ql-stroke, .ql-snow .ql-toolbar button.ql-active .ql-stroke, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke, .ql-snow.ql-toolbar button.ql-active .ql-stroke-miter, .ql-snow .ql-toolbar button.ql-active .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke-miter, .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter, .ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter{
-  stroke: theme("colors.primary.500")
+  stroke: theme("colors.theme.500")
 }
 @media (prefers-color-scheme: light) {
   :root{

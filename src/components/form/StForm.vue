@@ -1,20 +1,25 @@
 <script setup lang="ts">
 import {computed, onMounted, reactive, ref, watch} from "vue";
 import Icons from "@/components/functional/Icons.vue";
-import StInput, {type IInput} from "@/components/form/StInput.vue";
-import StAria, {type IAria} from "@/components/form/StAria.vue";
-import StTextEditor, {type ITextEditor} from "@/components/form/StTextEditor.vue";
-import StSelect, {type ISelect} from "@/components/form/StSelect.vue";
-import StSwitch, {type ISwitch} from "@/components/form/StSwitch.vue";
-import type {ILabelMode} from "@/components/functional/Label.vue";
-import {getValidate, getAsyncValidate, type Rules} from "@/helpers/rules";
-import {removeParamsFromStructure} from "@/helpers/object";
-import StCalendar, {type ICalendar} from "@/components/form/StCalendar.vue";
+import StInput from "@/components/form/StInput.vue";
+import StAria from "@/components/form/StAria.vue";
+import StTextEditor from "@/components/form/StTextEditor.vue";
+import StSelect from "@/components/form/StSelect.vue";
+import StSwitch from "@/components/form/StSwitch.vue";
+import StCalendar from "@/components/form/StCalendar.vue";
 import Button from "@/components/functional/Button.vue";
 import Badge from "@/components/functional/Badge.vue";
+import {getValidate, getAsyncValidate, type Rules} from "@/helpers/rules";
+import {removeParamsFromStructure} from "@/helpers/object";
 // ---------------------------------------
 import type {IMode, StyleClass} from "@/components/BaseTypes";
-import type {ILayout} from "@/components/functional/InputLayout.vue";
+import type {ILabelMode} from "@/components/functional/Label";
+import type {IInput} from "@/components/form/StInput";
+import type {ISelect} from "@/components/form/StSelect";
+import type {IAria} from "@/components/form/StAria";
+import type {ICalendar} from "@/components/form/StCalendar";
+import type {ITextEditor} from "@/components/form/StTextEditor";
+import type {ISwitch} from "@/components/form/StSwitch";
 type classCol = "col-span-full"|"sm:col-span-3"|"sm:col-span-4"|"sm:col-span-5"|"sm:col-span-6"|string
 // ---------------------------------------
 export interface IRulesInput extends Rules {}
@@ -361,7 +366,7 @@ function submit(){
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
                       v-bind="{...removeParamsFromStructure(field, calculatedFieldsInput), id: field.name}"
-                      @change:model-value="changeField(field)">
+                      @update:model-value="changeField(field)">
                       <template #footerPicker></template>
                       <template #before>
                         <Icons v-if="field.beforeIcon" :type="field.beforeIcon" class="mr-2 h-5 w-5 text-gray-400 dark:text-gray-600"/>

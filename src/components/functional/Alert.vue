@@ -9,13 +9,10 @@ import {
   ChatBubbleOvalLeftIcon
 } from "@heroicons/vue/20/solid";
 import Button from "@/components/functional/Button.vue";
-import {IAlert} from "@/components/functional/Alert.ts";
+import type {IAlertProps} from "@/components/functional/Alert";
 import type {StyleClass} from "@/components/BaseTypes";
 import {cn} from "@/helpers/tailwind";
 // ---------------------------------------
-export interface IAlertProps extends Omit<IAlert, 'position'> {
-  position?: "top"|"bottom"|"left"|"right"|"center"
-}
 const props = defineProps<IAlertProps>()
 const emit = defineEmits<{
   (event: 'update:modelValue', payload: boolean): void;
@@ -26,10 +23,10 @@ const isVisible = ref(props.modelValue)
 const type = computed<NonNullable<IAlertProps["type"]>>(()=> props.type ?? "success")
 const title = computed<NonNullable<IAlertProps["title"]>>(()=> props.title ?? "")
 const subtitle = computed<NonNullable<IAlertProps["subtitle"]>>(()=> props.subtitle ?? "")
-const displayTime = computed<number>(()=> !!+props.displayTime ? +props.displayTime : 0)
+const displayTime = computed<number>(()=> props.displayTime && !!+props.displayTime ? +props.displayTime : 0)
 const isCloseButton = computed<NonNullable<IAlertProps["closeButton"]>>(()=>props.closeButton ?? false)
 const position = computed<NonNullable<IAlertProps["position"]>>(()=> props.position ?? "top")
-const classClass = computed<StyleClass>(()=> props.class)
+const classClass = computed<IAlertProps["class"]>(()=> props.class)
 const startEnterAndLeaveClass = computed<StyleClass>(()=> {
   if (!props.notAnimate) {
     if(position.value.includes("left")){ return "-translate-x-[200%] opacity-0"}

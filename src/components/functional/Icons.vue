@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
-import {convertToCamelCase, convertToDashCase, convertToSnakeCase} from "@/helpers/string";
+import {computed, onMounted, ref} from "vue";
+import {convertToCamelCase} from "@/helpers/string";
 import {cn} from "@/helpers/tailwind";
-
-export interface IIcon {
-  type: string
-  class?: "h-5 w-5 text-gray-400 dark:text-gray-600"|string|Array<string|boolean>
-  style?: string
-}
 const props = defineProps<IIcon>()
+const classIcon = computed(()=>cn('h-5 w-5 text-gray-900 dark:text-gray-100',props.class,'select-none'))
 // ---------------------------------------
 import * as HeroIcons from "@heroicons/vue/24/outline"
 const heroIcons:any = HeroIcons
@@ -20,9 +15,11 @@ const heroIcons:any = HeroIcons
 // const ohIcons:any = new Set(AllIcons.map(icon=>icon?.name))
 // addIcons(...AllIcons);
 // ---------------------------------------
-import {Icon, loadIcons} from '@iconify/vue';
+// https://icon-sets.iconify.design/
+import {Icon, type IconifyIconName, loadIcons} from '@iconify/vue';
+import type {IIcon} from "@/components/functional/Icons";
 const isViewIcon = ref(false)
-function loadTestIcons(icons) {
+function loadTestIcons(icons: (IconifyIconName | string)[]) {
   return new Promise((fulfill, reject) => {
     loadIcons(icons, (loaded, missing) => {
       if (missing.length) {
@@ -37,7 +34,7 @@ function loadTestIcons(icons) {
 }
 async function isIcon(iconName:string) {
   return loadTestIcons([iconName])
-    .then((result)=>{
+    .then((result:any)=>{
       return !!result.loaded?.length
     })
     .catch((err) => {
@@ -54,23 +51,6 @@ onMounted(async ()=>{
 </script>
 
 <template>
-  <component
-    v-if="heroIcons[convertToCamelCase(props.type)+'Icon']"
-    :is="heroIcons[convertToCamelCase(props.type)+'Icon']"
-    :class="cn(
-      'h-5 w-5 text-gray-900 dark:text-gray-100',
-      props.class,
-      'select-none')"
-    :style="style"
-    aria-hidden="true"/>
-  <Icon
-    v-else-if="isViewIcon"
-    :icon="props.type"
-    :class="cn(
-      'h-5 w-5 text-gray-900 dark:text-gray-100',
-      props.class,
-      'select-none')"
-    aria-hidden="true"/>
+  <component v-if="heroIcons[convertToCamelCase(props.type)+'Icon']" :is="heroIcons[convertToCamelCase(props.type)+'Icon']" :class="classIcon" :style="props.style" aria-hidden="true"/>
+  <Icon v-else-if="isViewIcon" :icon="props.type" :class="classIcon" :style="props.style" aria-hidden="true"/>
 </template>
-<!--  <OhVueIcon v-else-if="ohIcons.has(convertToDashCase(props.type))" :name="convertToDashCase(props.type)" :class="[props.class||'h-5 w-5 font-light text-gray-400 dark:text-gray-600 select-none']" aria-hidden="true"/>-->
-<!--  <span v-else :class="props.class" class="material-symbols-sharp h-5 w-5 font-light text-gray-400 dark:text-gray-600 select-none" aria-hidden="true">{{ convertToSnakeCase(props.type) }}</span>-->

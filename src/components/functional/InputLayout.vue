@@ -1,37 +1,18 @@
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref, useSlots} from "vue";
-import type {IHeight, IMode, IWidth} from "@/components/BaseTypes";
-import Label, {type ILabelMode} from "@/components/functional/Label.vue";
+import Label from "@/components/functional/Label.vue";
 import {cn} from "@/helpers/tailwind";
 import {getLabelType} from "@/helpers/label";
 import Dropdown from "@/components/functional/Dropdown.vue";
+import FixWindow from "@/components/functional/FixWindow.vue";
 import {
   CheckIcon, DocumentDuplicateIcon,
   ExclamationCircleIcon,
   QuestionMarkCircleIcon,
   XCircleIcon
 } from "@heroicons/vue/20/solid";
-import Tooltip from "@/components/functional/Tooltip.vue";
-// ---------------------------------------
-export interface ILayout {
-  value: any
-  isValue?: boolean
-  mode?: IMode
-  label?: string
-  labelMode?: ILabelMode
-  isInvalid?: boolean
-  messageInvalid?: string
-  required?: boolean
-  loading?: boolean
-  disabled?:boolean
-  help?: string
-  clear?: boolean
-  width?: IWidth
-  height?: IHeight
-  animation?: "transition-all duration-500"|"transition-none"|string
-  classBody?: string|Array<string|null>|'mb-6 rounded-md'
-  class?: string|Array<string>
-}
+import type {ILayout} from "@/components/functional/InputLayout";
+import type {ILabelMode} from "@/components/functional/Label";
 // ---------------------------------------
 const props = defineProps<ILayout>()
 // ---------------------------------------
@@ -108,9 +89,7 @@ async function copy() {
     await navigator.clipboard.writeText(String(value.value))
     isCopy.value = true
     setTimeout(()=>isCopy.value = false, 3000)
-  } catch (err) {
-    console.error('Failed to copy: ', err);
-  }
+  } catch (err) { console.error('Failed to copy: ', err) }
 }
 </script>
 
@@ -132,14 +111,15 @@ async function copy() {
     <div
       ref="input"
       :class="cn(
+        'rounded-md w-full max-h-20 text-gray-900 dark:text-gray-100 sm:text-sm sm:leading-6 focus-visible:ring-0',
         !(mode === 'outlined')||'border border-gray-300 dark:border-gray-600 bg-white dark:bg-neutral-950',
         !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b bg-stone-50 dark:bg-stone-950',
         !(mode === 'filled')||`${isDisabled ? 'border-dotted border-2 border-slate-200' : 'border-0 border-transparent'} bg-stone-100 dark:bg-stone-900`,
-        'classLayout block peer w-full max-h-20 overflow-auto rounded-md text-gray-900 dark:text-gray-100 sm:text-sm sm:leading-6 focus-visible:ring-0',
         animation,
         props.class,
         !isInvalid||'border-red-500 ring-1 ring-inset ring-red-500 scroll-mt-10',
         !isDisabled||'bg-neutral-50 dark:bg-neutral-950 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
+        'classLayout block peer overflow-auto'
         )"
       :style="`width:${width};height:${height};min-height: ${baseHeight}px;padding-left: ${beforeWidth||10}px; padding-right: ${afterWidth||10}px;`">
       <slot/>
@@ -166,7 +146,7 @@ async function copy() {
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
           <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition cursor-help" aria-hidden="true" />
-          <Tooltip>Дополнительная информация</Tooltip>
+          <FixWindow :mode="mode" :delay="10" :padding-window="40">Дополнительная информация</FixWindow>
         </template>
       </Dropdown>
       <template v-if="!isDisabled">
@@ -175,31 +155,32 @@ async function copy() {
           <Dropdown v-if="isInvalid&&messageInvalid" :content="messageInvalid">
             <template #head>
               <ExclamationCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-red-500 cursor-pointer" aria-hidden="true" />
-              <Tooltip class="text-red-500">{{ messageInvalid }}</Tooltip>
+              <FixWindow :mode="mode" :delay="10" :padding-window="40" class="text-red-500">{{ messageInvalid }}</FixWindow>
             </template>
           </Dropdown>
         </transition>
         <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-          <div v-if="clear && (value?.length||value>0)" class="h-5 w-5 mr-2">
-            <XCircleIcon class="h-5 w-5 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition-all duration-300 cursor-pointer" aria-hidden="true" @click.stop="emit('clear')" />
-            <Tooltip>Очистить</Tooltip>
+          <div v-if="clear && (value?.length||value>0)" class="relative h-5 w-5 mr-2">
+            <div>
+              <XCircleIcon class="h-5 w-5 text-gray-400 dark:text-gray-600 hover:text-red-600 hover:dark:text-red-500 transition-all duration-300 cursor-pointer" aria-hidden="true" @click.stop="emit('clear')" />
+              <FixWindow :mode="mode" :delay="10" :padding-window="40">Очистить</FixWindow>
+            </div>
           </div>
         </transition>
       </template>
       <template v-else-if="value?.length">
-        <div v-if="!isCopy" class="flex items-center h-[38px]">
-          <DocumentDuplicateIcon  class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-gray-600 hover:dark:text-gray-400 transition" aria-hidden="true" @click="copy"/>
-          <Tooltip>Копировать</Tooltip>
+        <div v-if="!isCopy" class="relative h-5 w-5 mr-2">
+          <div>
+            <DocumentDuplicateIcon class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-gray-600 hover:dark:text-gray-400 transition" aria-hidden="true" @click="copy"/>
+            <FixWindow :mode="mode" :delay="10" :padding-window="40">Копировать</FixWindow>
+          </div>
         </div>
         <CheckIcon v-else class="h-5 w-5 mr-2 text-emerald-400 dark:text-emerald-600" aria-hidden="true" />
       </template>
     </span>
     <p
-      :class="cn(
-        'absolute block text-red-600 dark:text-red-400 text-sm truncate ml-1',
-        isInvalid ? 'visible' : 'invisible'
-        )"
+      :class="cn('absolute block text-red-600 dark:text-red-400 text-sm truncate ml-1',isInvalid ? 'visible' : 'invisible')"
       :style="`max-width: ${inputBody?.['offsetWidth']||10}px`">
       {{ messageInvalid }}
     </p>

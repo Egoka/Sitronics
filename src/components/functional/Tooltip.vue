@@ -92,16 +92,18 @@ function update() {
     const paddingBody = 2
     const body = element.value.getBoundingClientRect()
     const tooltipRect = tooltip.value?.getBoundingClientRect()
-    x.value = body.x + (body.width - tooltipRect.width)/2
-    y.value = body.y + (body.height - tooltipRect.height)/2
-    x.value = x.value + (body.width/2 + tooltipRect.width/2 + paddingBody)*
-      (position.value.match("left") ? -1 : position.value.match("right") ? 1 : 0)
-    y.value = y.value + (body.height/2 + tooltipRect.height/2 + paddingBody)*
-      (position.value.match("top") ? -1 : position.value.match("bottom") ? 1 : 0)
-    if (x.value < 0){ x.value = body.x+body.width+paddingBody }
-    if (window.innerWidth - (x.value + tooltipRect.width) < 0){ x.value = body.x - (paddingBody + tooltipRect.width)}
-    if (y.value < 0){ y.value = body.y+body.height+paddingBody }
-    if (window.innerHeight - (y.value + tooltipRect.height) < 0){ y.value = body.y - (paddingBody + tooltipRect.height)}
+    if (body && tooltipRect) {
+      x.value = body.x + (body.width - tooltipRect.width)/2
+      y.value = body.y + (body.height - tooltipRect.height)/2
+      x.value = x.value + (body.width/2 + tooltipRect.width/2 + paddingBody)*
+        (position.value.match("left") ? -1 : position.value.match("right") ? 1 : 0)
+      y.value = y.value + (body.height/2 + tooltipRect.height/2 + paddingBody)*
+        (position.value.match("top") ? -1 : position.value.match("bottom") ? 1 : 0)
+      if (x.value < 0){ x.value = body.x+body.width+paddingBody }
+      if (window.innerWidth - (x.value + tooltipRect.width) < 0){ x.value = body.x - (paddingBody + tooltipRect.width)}
+      if (y.value < 0){ y.value = body.y+body.height+paddingBody }
+      if (window.innerHeight - (y.value + tooltipRect.height) < 0){ y.value = body.y - (paddingBody + tooltipRect.height)}
+    }
   }
 }
 </script>

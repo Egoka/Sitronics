@@ -15,6 +15,10 @@ export interface IAlert {
   notAnimate?: boolean
   closeButton?: boolean|undefined
 }
+export interface IAlertProps extends Omit<IAlert, 'position'> {
+  position?: "top"|"bottom"|"left"|"right"|"center"
+}
+// ---------------------------------------
 export default function openAlert(optionsAlert:IAlert) {
   /////////////////////////////////////////////////////////
   // SET options

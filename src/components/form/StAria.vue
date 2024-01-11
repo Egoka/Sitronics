@@ -1,22 +1,10 @@
 <script setup lang="ts">
-import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
-import {computed, getCurrentInstance, reactive, ref, useSlots, watch} from "vue";
+import InputLayout from "@/components/functional/InputLayout.vue";
+import {computed, getCurrentInstance, ref, useSlots, watch} from "vue";
 import {onkeydown} from "@/helpers/numbers";
 import {cn} from "@/helpers/tailwind";
-// ---------------------------------------
-export interface IDataAria {
-  placeholder?: string
-  autocomplete?: "on" | "off"
-  wrap?: "soft" | "hard" | "off"
-  rows?: number
-  maxLength?: number
-  classInput?: string|Array<string|null>
-}
-export interface IAria extends Omit<ILayout, "value"|"isValue">{
-  id?: string
-  modelValue?: string|number|null|undefined,
-  paramsAria?: Partial<IDataAria>
-}
+import type {IAria, IDataAria} from "@/components/form/StAria";
+import type {ILayout} from "@/components/functional/InputLayout";
 // ---------------------------------------
 const props = defineProps<IAria>()
 const emit = defineEmits<{
@@ -103,7 +91,7 @@ function clear() {
           'w-full ring-0 border-0 bg-transparent p-0 mt-2 mb-1 min-h-[28px] max-h-[10rem] rounded-md text-gray-900 dark:text-gray-100',
           'placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600',
           '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
-          'focus:outline-0 focus:ring-0',
+          'focus:outline-0 focus:ring-0 caret-theme-500',
           props.paramsAria?.classInput,
           'classInput block'
         )"

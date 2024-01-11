@@ -1,35 +1,15 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, ref, watch, useSlots, onMounted} from "vue";
-import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
+import InputLayout from "@/components/functional/InputLayout.vue";
 import {CheckIcon, MagnifyingGlassIcon, FunnelIcon} from "@heroicons/vue/20/solid";
 import StInput from "@/components/form/StInput.vue";
 import * as LData from "lodash";
 import gsap from 'gsap'
 import Badge from "@/components/functional/Badge.vue";
-import FixWindow, {type IFixWindow} from "@/components/functional/FixWindow.vue";
+import FixWindow from "@/components/functional/FixWindow.vue";
 import {cn} from "@/helpers/tailwind";
-// ---------------------------------------
-type IDataItem = {[key:string]: any}
-type BaseDataItem = string|number|IDataItem
-export interface IDateSelect {
-  dataSelect?: Array<BaseDataItem>
-  autoFocus?: boolean
-  keySelect?: string|"id"
-  valueSelect?: string|"value"
-  multiple?:boolean
-  maxVisible?:number
-  noData?: string
-  noQuery?: boolean
-  classSelect?: string|"justify-end"
-  classSelectList?: string
-  classMaskQuery?: "font-bold text-theme-700 dark:text-theme-300"|string
-  paramsFixWindow?: Omit<IFixWindow, "modelValue">
-}
-export interface ISelect extends Omit<ILayout, "value"|"isValue">{
-  id?: string
-  modelValue?: number|string|{}|[]|null
-  paramsSelect?: IDateSelect
-}
+import type {BaseDataItem, IDataItem, IDateSelect, ISelect, ISelectExpose} from "@/components/form/StSelect";
+import type {ILayout} from "@/components/functional/InputLayout";
 // ---------------------------------------
 const props = defineProps<ISelect>()
 // ---------------------------------------
@@ -40,18 +20,7 @@ const emit = defineEmits<{
   (event: 'isActive', payload: boolean): void;
 }>()
 const slots = useSlots()
-export interface ISelectExpose {
-  focusSelect(isFocus):void
-  openSelect():void
-  closeSelect(evt:MouseEvent):void
-  select(selectValue:BaseDataItem|null):void
-}
-defineExpose<ISelectExpose>({
-  focusSelect,
-  openSelect,
-  closeSelect,
-  select
-})
+defineExpose<ISelectExpose>({focusSelect, openSelect, closeSelect, select})
 // ---------------------------------------
 const selectBody = ref<HTMLElement>()
 const selectList = ref<HTMLElement>()
@@ -67,7 +36,11 @@ watch(()=>props.modelValue,()=>{
 // ---------------------------------------
 const id = ref(props.id ?? getCurrentInstance()?.uid)
 const visibleValue = ref<Array<any>>([])
-const valueKeys = computed<Array<any>>(()=>visibleValue.value.map(item=>item[keySelect.value]))
+const valueKeys = computed<Array<any>>(()=> {
+  return keySelect.value
+    ? visibleValue.value.map(item => item[keySelect.value as string])
+    : []
+})
 const keySelect = computed<IDateSelect["keySelect"] | null>(()=> {
   if (props.paramsSelect?.dataSelect && props.paramsSelect?.dataSelect.length) {
     if (typeof props.paramsSelect?.dataSelect[0] === "object") {
@@ -86,10 +59,12 @@ const valueSelect = computed<IDateSelect["valueSelect"] | null>(()=> {
     } else { return "value" }
   } else { return null }
 })
-const dataSelect = computed<IDateSelect["dataSelect"]>(()=> ( !!keySelect.value && !!valueSelect.value
-  ? (props.paramsSelect?.dataSelect as Array<IDataItem>).map(item=>{
-    return { [(keySelect.value as string)]: typeof item === "object" ? item[(keySelect.value as string)] : item,
-             [(valueSelect.value as string)]: typeof item === "object" ? item[(valueSelect.value as string)] : item }})
+const dataSelect = computed<IDateSelect["dataSelect"]>(()=> (
+  !!keySelect.value && !!valueSelect.value
+  ? (props.paramsSelect?.dataSelect as Array<IDataItem>).map(item=>({
+    [(keySelect.value as string)]: typeof item === "object" ? item[(keySelect.value as string)] : item,
+    [(valueSelect.value as string)]: typeof item === "object" ? item[(valueSelect.value as string)] : item
+  }))
   : props.paramsSelect?.dataSelect)|| [])
 const autoFocus = computed<NonNullable<IDateSelect["autoFocus"]>>(()=> props.paramsSelect?.autoFocus ?? false)
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
@@ -104,10 +79,14 @@ const noData = computed<NonNullable<IDateSelect["noData"]>>(()=> props.paramsSel
 const isQuery = computed<NonNullable<IDateSelect["noQuery"]>>(()=> !props.paramsSelect?.noQuery)
 const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery ?? "font-bold text-theme-700 dark:text-theme-300")
 const paramsFixWindow = computed<NonNullable<IDateSelect["paramsFixWindow"]>>(()=> ({
-  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 5, ...props.paramsSelect.paramsFixWindow
+  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 5, ...props.paramsSelect?.paramsFixWindow
 }))
 // ---------------------------------------
-const valueLayout = computed<string|null>(()=> visibleValue.value?.map(item => item[valueSelect.value])?.join(", ")||null)
+const valueLayout = computed<string|null>(()=> {
+  return valueSelect.value
+    ? visibleValue.value?.map(item => item[valueSelect.value as string])?.join(", ")
+    : null
+})
 // ---------------------------------------
 const inputLayout = computed(()=>{ return {isValue: isValue.value, mode: mode.value, classBody: props.classBody, class: props.class,
   label: props.label, labelMode: props.labelMode, isInvalid: isInvalid.value, messageInvalid: messageInvalid.value,
@@ -127,17 +106,19 @@ watch(isOpenList, (value)=>{
   emit('isActive', value)
 })
 watch(value, ()=>{
-  if (value.value) {
+  if (dataSelect.value && value.value && keySelect.value) {
     if (isMultiple.value) {
       visibleValue.value = dataSelect.value
-        ?.filter(item=>Array.isArray(value.value)
-          ? (value.value as [])?.includes(item[keySelect.value])
-          : item[keySelect.value] === value.value)
+        .filter(item=> {
+          return Array.isArray(value.value)
+            ? value.value?.includes((typeof item === 'object' ? item[keySelect.value as string] : item))
+            : (typeof item === 'object' ? item[keySelect.value as string] : item) === value.value
+        })
     } else {
       const result = dataSelect.value
         ?.find(item=>Array.isArray(value.value)
-          ? (value.value as [])?.includes(item[keySelect.value])
-          : item[keySelect.value] === value.value)
+          ? value.value?.includes((typeof item === 'object' ? item[keySelect.value as string] : item))
+          : (typeof item === 'object' ? item[keySelect.value as string] : item) === value.value)
       visibleValue.value = result ? [result] : []
     }
   } else { visibleValue.value = [] }
@@ -150,7 +131,7 @@ function keydownSelect(evt:KeyboardEvent){
   } else { selectSearch.value?.focus() }
 }
 // ---------------------------------------
-function focusSelect(isFocus) {
+function focusSelect(isFocus:boolean) {
   classLayout.value = (props.class??"")+(isFocus ? " border-theme-600 dark:border-theme-700 ring-2 ring-inset ring-theme-600 dark:ring-theme-700": "")
 }
 function openSelect() {
@@ -167,8 +148,9 @@ function closeSelect(evt:MouseEvent) {
 }
 // ---------------------------------------
 function select(selectValue:BaseDataItem|null) {
-  if (selectValue) {
-    const index = visibleValue.value.findIndex(value=>value[keySelect.value] === selectValue[keySelect.value])
+  if (selectValue && keySelect.value) {
+    keySelect.value
+    const index = visibleValue.value.findIndex(value=>value[keySelect.value as string] === (typeof selectValue === "object" ? selectValue[keySelect.value as string]: selectValue))
     if (index >= 0) {
       visibleValue.value.splice(index, 1)
     } else {
@@ -181,17 +163,17 @@ function select(selectValue:BaseDataItem|null) {
   emit('update:modelValue', value.value, visibleValue.value)
 }
 // ---------------------------------------
-const dataList = computed<object>(()=> {
-  if (isQuery.value) {
+const dataList = computed<Array<any>>(()=> {
+  if (dataSelect.value?.length && valueSelect.value && isQuery.value) {
     return LData.map(
-      LData.filter(dataSelect.value, item => String(item[valueSelect.value]).toLowerCase().includes(query.value.toLowerCase())),
+      LData.filter(dataSelect.value, item => String((typeof item === "object" ? item[valueSelect.value as string] : item)).toLowerCase().includes(query.value.toLowerCase())),
       (item: any) => {
         item.marker = query.value.length
-          ? String(item[valueSelect.value]).replace(new RegExp(query.value, "gi"), `<span class="${classMaskQuery.value}">$&</span>`)
-          : String(item[valueSelect.value])
+          ? String(item[valueSelect.value as string]).replace(new RegExp(query.value, "gi"), `<span class="${classMaskQuery.value}">$&</span>`)
+          : String(item[valueSelect.value as string])
         return item
       })
-  } else { return dataSelect.value }
+  } else { return dataSelect.value ?? [] }
 })
 // ---------------------------------------
 function onBeforeEnter(el:any) {
@@ -208,10 +190,11 @@ function onEnter(el:any, done:any) {
 }
 const delay = computed<number>(():number=> {
   const d = dataSelect.value?.length
+  if (!d) return 0
   if (d>=0 && d<10) { return 0.15
   } else if (d>=10 && d<30) { return 0.05
   } else if (d>=30 && d<80) { return 0.01
-  } else if (d>=80) { return 0 }
+  } return 0
 })
 function onLeave(el:any, done:any) {
   gsap.to(el, {
@@ -243,14 +226,14 @@ function onLeave(el:any, done:any) {
                             enter-active-class="transition ease-in-out duration-300" enter-from-class="opacity-0 -translate-x-5" enter-to-class="opacity-100 translate-x-0">
             <div v-for="item in typeof maxVisible === 'number' ? visibleValue.slice(0, maxVisible) : visibleValue" :key="item[keySelect]" class="z-10">
               <slot name="values" :selected="item" :key="valueSelect ? valueSelect : keySelect" :delete-select="select">
-                <Badge mode="neutral" close-button class-content="fill-theme-500" @delete="select(item)" class="m-1 mb-0 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20 rounded-full">
+                <Badge mode="neutral" close-button class-content="fill-theme-500" @delete="select(item)" class="m-1 mb-0 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20">
                   {{valueSelect? item[valueSelect] : item[keySelect]}}
                 </Badge>
               </slot>
             </div>
             <div v-if="visibleValue.length > maxVisible" class="z-10">
               <slot name="values" :selected="visibleValue.length" :key="null" :delete-select="select">
-                <Badge mode="neutral" class-content="fill-theme-500" class="m-1 mb-0 px-3 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20 rounded-full">
+                <Badge mode="neutral" class-content="fill-theme-500" class="m-1 mb-0 px-3 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20">
                   <FunnelIcon aria-hidden="true" class="h-3 w-3 mr-2 text-theme-400 dark:text-theme-600"/> {{visibleValue.length}}
                 </Badge>
               </slot>

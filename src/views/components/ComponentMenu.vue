@@ -1,24 +1,22 @@
 <script setup lang="ts">
 
 import ComponentViews from "@/components/ComponentViews.vue";
-import Badge from "@/components/functional/Badge.vue";
-import Menu, {type IGroups} from "@/components/functional/Menu.vue";
+import Menu from "@/components/functional/Menu.vue";
 import {ref} from "vue";
 import Button from "@/components/functional/Button.vue";
-import openAlert, {IAlert} from "@/components/functional/Alert";
+import openAlert from "@/components/functional/Alert";
 import FixWindow from "@/components/functional/FixWindow.vue";
 import {Bars3Icon, ChevronDownIcon} from "@heroicons/vue/20/solid";
-import Alert from "@/components/functional/Alert.vue";
-import Separator from "@/components/functional/Separator.vue";
 import StSwitch from "@/components/form/StSwitch.vue";
+import type {IGroups} from "@/components/functional/Menu";
 
 const baseMenu1 = ref<IGroups>([{items: [{title: 'Profile',/*icon: 'user',info: '<div>+1</div>',*/},{title: 'Billing',/*icon: 'credit-card',info: '⌘B',*/},{title: 'Settings',/*icon: 'cog-6-tooth',info: '⌘S'*/},{title: 'Keyboard shortcuts', disabled: true, /*icon: 'solar:keyboard-outline',info: '⌘K'*/},]}])
 const baseMenu2 = ref<IGroups>([{items: [{title: 'Profile',icon: 'user',/*info: '<div>+1</div>',*/},{title: 'Billing',icon: 'credit-card',/*info: '⌘B',*/},{title: 'Settings',icon: 'cog-6-tooth',/*info: '⌘S'*/},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',/*info: '⌘K'*/},]}])
 const baseMenu21 = ref<IGroups>([{items: [{title: 'Profile',icon: 'chevron-right',/*info: '<div>+1</div>',*/},{title: 'Billing',icon: 'chevron-right',/*info: '⌘B',*/},{title: 'Settings',icon: 'chevron-right',/*info: '⌘S'*/},{title: 'Keyboard shortcuts',icon: 'chevron-right',/*info: '⌘K'*/},]}])
-const baseMenu22 = ref<IGroups>([{items: [{/*title: 'Electronics',*/icon: 'carbon:home',/*info: '<div>+1</div>',*/},{title: 'Electronics',icon: 'chevron-right',/*info: '<div>+1</div>',*/},{title: 'Computer',icon: 'chevron-right',/*info: '⌘B',*/},{title: 'Accessories',icon: 'chevron-right',/*info: '⌘S'*/},{title: 'Keyboard',icon: 'solar:keyboard-outline',/*info: '⌘K'*/},]}])
+// const baseMenu22 = ref<IGroups>([{items: [{/*title: 'Electronics',*/icon: 'carbon:home',/*info: '<div>+1</div>',*/},{title: 'Electronics',icon: 'chevron-right',/*info: '<div>+1</div>',*/},{title: 'Computer',icon: 'chevron-right',/*info: '⌘B',*/},{title: 'Accessories',icon: 'chevron-right',/*info: '⌘S'*/},{title: 'Keyboard',icon: 'solar:keyboard-outline',/*info: '⌘K'*/},]}])
 const baseMenu3 = ref<IGroups>([{items: [{title: 'Profile',icon: 'user',info: '<div>+1</div>'},{title: 'Billing',icon: 'credit-card',info: '⌘B'},{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]}])
 const baseMenu31 = ref<IGroups>([{items: [{title: 'Home',icon: 'carbon:home'}], separator: {isVisible: false}}, {items: [{title: 'Profile',icon: 'user'}]},{items: [{title: 'Billing',icon: 'credit-card',info: '⌘B'}]},{items: [{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'}]},{items: [{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]}])
-const baseMenu4 = ref<IGroups>([{items: [{title: 'Profile',icon: '',info: '<div>+1</div>'},{title: 'Billing',icon: 'credit-card',info: '⌘B'},{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]},{separator: {/*icon: 'akar-icons:github-outline-fill'*/},items: [{title: 'GitHub',icon: 'akar-icons:github-outline-fill',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'Support',icon: 'system-uicons:support',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'API',icon: 'bi:cloudy',info: '⌘+T',disabled: true},]}])
+const baseMenu4 = ref<IGroups>([{title: "Пользователь", items: [{title: 'Profile',icon: '',info: '<div>+1</div>'},{title: 'Billing',icon: 'credit-card',info: '⌘B'},{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]},{separator: {/*icon: 'akar-icons:github-outline-fill'*/},items: [{title: 'GitHub',icon: 'akar-icons:github-outline-fill',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'Support',icon: 'system-uicons:support',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'API',icon: 'bi:cloudy',info: '⌘+T',disabled: true},]}])
 const groupsMenu = ref<IGroups>([
   {
     separator: {

@@ -1,32 +1,12 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, ref} from 'vue'
-import type {IMode} from "@/components/BaseTypes";
 import {QuestionMarkCircleIcon} from "@heroicons/vue/20/solid";
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
 import Dropdown from "../functional/Dropdown.vue";
-import Icons, {type IIcon} from "@/components/functional/Icons.vue";
-import Tooltip from "@/components/functional/Tooltip.vue";
+import Icons from "@/components/functional/Icons.vue";
+import FixWindow from "@/components/functional/FixWindow.vue";
 import {cn} from "@/helpers/tailwind";
-type IModeSwitch = IMode|'none'
-
-export interface IDataSwitch {
-  switchingType?:"checkbox"|"switch"
-  rounded?: 1|2|3|4|5|6|7|8|9|10|number|"full"
-  iconActive?: IIcon["type"]
-  iconInactive?: IIcon["type"]
-  mode?: IModeSwitch
-}
-export interface ISwitch {
-  id?: string
-  modelValue?: boolean|null|undefined,
-  paramsSwitch?: IDataSwitch
-  mode?: IMode
-  label?: string
-  disabled?:boolean
-  help?: string
-  required?: boolean
-  class?: string
-}
+import type {IDataSwitch, ISwitch} from "@/components/form/StSwitch";
 // ---------------------------------------
 const props = defineProps<ISwitch>()
 // ---------------------------------------
@@ -163,7 +143,7 @@ function changeModelValue(value:any) {
       <Dropdown v-if="help?.length" :content="help">
         <template #head>
           <QuestionMarkCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-gray-400 dark:text-gray-600 hover:text-yellow-500 transition cursor-help" aria-hidden="true" />
-          <Tooltip>Дополнительная информация</Tooltip>
+          <FixWindow :mode="mode">Дополнительная информация</FixWindow>
         </template>
       </Dropdown>
     </div>

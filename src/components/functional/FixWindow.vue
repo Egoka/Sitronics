@@ -1,26 +1,8 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, ref, watch, onMounted, onUnmounted} from "vue";
-import type {Ref, UnwrapRef} from "vue";
 import Button from "@/components/functional/Button.vue";
 import {XMarkIcon} from "@heroicons/vue/20/solid";
-import type {StyleClass, Position, RefLink} from "@/components/BaseTypes";
-// ---------------------------------------
-export type EventFixWindow = "hover"|"click"|"mousedown"|"mouseup"|"dblclick"|"contextmenu"|"none"
-export interface IFixWindow {
-  modelValue?: boolean
-  el?: RefLink
-  scrollableEl?: RefLink
-  position?: Position
-  class?: StyleClass
-  eventOpen?: EventFixWindow
-  eventClose?: EventFixWindow
-  delay?: number|1|5|10|15|20
-  marginPx?: number|2|5|10
-  translatePx?: number|2|5|10
-  paddingWindow?: number|2|5|10
-  byCursor?: boolean
-  closeButton?: boolean
-}
+import type {EventFixWindow, IFixWindow, IFixWindowExpose} from "@/components/functional/FixWindow";
 // ---PROPS-EMITS-SLOTS-------------------
 const props = defineProps<IFixWindow>()
 const emit = defineEmits<{
@@ -29,8 +11,8 @@ const emit = defineEmits<{
   (event: 'close', env: MouseEvent): void
 }>()
 // ---REF-LINK----------------------------
-const fixWindow = ref<HTMLElement>()
-const scrollableEl = ref<HTMLElement>()
+const fixWindow = ref<Element>()
+const scrollableEl = ref<Element>()
 // ---STATE-------------------------------
 const x = ref<number>(0)
 const y = ref<number>(0)
@@ -40,11 +22,11 @@ const countTimer = ref<number>(0)
 const positionMouse = ref<{x:number, y:number}>()
 // ---PROPS-------------------------------
 const position = computed<NonNullable<IFixWindow["position"]>>(()=>props.position ?? "top")
-const delay = computed<NonNullable<IFixWindow["delay"]>>(()=>props.delay > 0 ? props.delay : 0)
+const delay = computed<NonNullable<IFixWindow["delay"]>>(()=>props.delay && props.delay > 0 ? props.delay : 0)
 const marginPx = computed<NonNullable<IFixWindow["marginPx"]>>(()=>props.marginPx ?? 10)
 const translatePx = computed<NonNullable<IFixWindow["translatePx"]>>(()=>props.translatePx ?? 0)
 const eventOpen = computed<EventFixWindow>(()=>props.eventOpen ?? "hover")
-const eventClose = computed<EventFixWindow>(()=> props.eventClose ?? defaultCloseEvent(props.eventOpen as EventFixWindow) ?? "hover")
+const eventClose = computed<EventFixWindow>(()=> props.eventClose ?? defaultCloseEvent(eventOpen.value as EventFixWindow) ?? "hover")
 const paddingWindow = computed<NonNullable<IFixWindow["paddingWindow"]>>(()=> props.paddingWindow ?? 0)
 const byCursor = computed<NonNullable<IFixWindow["byCursor"]>>(()=>props.byCursor)
 const isCloseButton = computed<NonNullable<IFixWindow["closeButton"]>>(()=>props.closeButton ?? false)
@@ -65,25 +47,16 @@ const border = computed<string>(()=> {
   }
   return ""
 })
+const mode = computed<string>(()=>{
+  const baseStyle = "flex items-center px-1 border border-neutral-200 dark:border-neutral-800 text-black dark:text-zinc-300"
+  switch (props.mode) {
+    case "filled": return `${baseStyle} bg-stone-100 dark:bg-stone-900 rounded-md`;
+    case "outlined": return `${baseStyle} bg-white dark:bg-neutral-950 rounded-md`;
+    case "underlined": return `${baseStyle} bg-stone-50 dark:bg-stone-950`;
+    default: return ""
+  }
+})
 // ---EXPOSE------------------------------
-export interface IFixWindowExpose {
-  // ---STATE-------------------------
-  x: Readonly<Ref<UnwrapRef<number>>>
-  y: Readonly<Ref<UnwrapRef<number>>>
-  isOpen: Readonly<Ref<UnwrapRef<boolean>>>
-  // ---PROPS-------------------------
-  position: Readonly<Ref<UnwrapRef<IFixWindow["position"]>>>
-  delay: Readonly<Ref<UnwrapRef<IFixWindow["delay"]>>>
-  marginPx: Readonly<Ref<UnwrapRef<IFixWindow["marginPx"]>>>
-  isCloseButton: Readonly<Ref<UnwrapRef<IFixWindow["isCloseButton"]>>>
-  eventOpen: Readonly<Ref<UnwrapRef<EventFixWindow>>>
-  eventClose: Readonly<Ref<UnwrapRef<EventFixWindow>>>
-  element: Readonly<Ref<UnwrapRef<HTMLElement>>>
-  // ---METHODS-----------------------
-  open():void
-  close():void
-  updatePosition():void
-}
 defineExpose<IFixWindowExpose>({
   // ---STATE-------------------------
   x, y, isOpen,
@@ -106,10 +79,11 @@ onUnmounted(()=>{
   removePositionListener()
 })
 // ---WATCHERS----------------------------
-watch(()=>props.scrollableEl, (value)=>{
+watch(()=>props.scrollableEl as IFixWindow["scrollableEl"], (value)=>{
   if (value) {
     if (typeof value === "string"){
-      scrollableEl.value = document.querySelector(value)
+      const el = document.querySelector(value)
+      if (el) scrollableEl.value = el
       addPositionListener()
     } else {
       scrollableEl.value = value
@@ -213,25 +187,23 @@ function open(env?:MouseEvent) {
     }, 100);
   }
 }
-function close(env?:MouseEvent) {
+function close(event?:MouseEvent) {
   if (typeof timer.value === "number"){
     clearInterval(timer.value)
     timer.value = null
   }
   countTimer.value = 0
   isOpen.value = false
-  if (env) {
-    emit('close', env)
-  }
+  if (event) emit('close', event)
 }
 // ---METHODS-----------------------------
-function openOnContextMenu(evt) {
-  evt.preventDefault()
-  open(evt)
+function openOnContextMenu(event:MouseEvent) {
+  event.preventDefault()
+  open(event)
 }
-function closeOnClick(evt) {
-  if (!evt.composedPath().includes(element.value as HTMLElement)) {
-    close(evt)
+function closeOnClick(event:MouseEvent) {
+  if (!event.composedPath().includes(element.value as HTMLElement)) {
+    close(event)
   }
 }
 function defaultCloseEvent(event:EventFixWindow):EventFixWindow {
@@ -242,6 +214,7 @@ function defaultCloseEvent(event:EventFixWindow):EventFixWindow {
     case "mouseup": return "mouseup"
     case "dblclick": return "click"
     case "contextmenu": return "click"
+    default: return "click"
   }
 }
 // ---UPDATE-POSITION---------------------
@@ -249,75 +222,77 @@ function updatePosition() {
   if (isOpen.value) {
     const body = element.value.getBoundingClientRect()
     const child = fixWindow.value?.getBoundingClientRect()
-    const el = <{
-      xCenter:number,
-      yCenter:number,
-      xTranslate: number
-      yTranslate: number
-      xValue:number
-      yValue:number
-      xPositionIndex: 0 | 1 | -1
-      yPositionIndex: 0 | 1 | -1
-    }>{}
-    if (["absolute", "fixed"].includes(getComputedStyle(element.value.offsetParent as HTMLElement).position)) {
-      const parent = (element.value.offsetParent as HTMLElement)?.getBoundingClientRect()
-      body.x = body.x - parent.x
-      body.y = body.y - parent.y
-      const elParent = element.value.offsetParent as HTMLElement
-      const borderLeft = parseFloat(getComputedStyle(elParent).borderLeftWidth),
-        borderTop = parseFloat(getComputedStyle(elParent).borderTopWidth)
-      if (borderLeft > 0){
-        body.x = body.x - borderLeft
-      } else if (borderTop > 0){
-        body.y = body.y - borderTop
+    if (body && child) {
+      const el = <{
+        xCenter:number,
+        yCenter:number,
+        xTranslate: number
+        yTranslate: number
+        xValue:number
+        yValue:number
+        xPositionIndex: 0 | 1 | -1
+        yPositionIndex: 0 | 1 | -1
+      }>{}
+      if (["absolute", "fixed"].includes(getComputedStyle(element.value.offsetParent as HTMLElement).position)) {
+        const parent = (element.value.offsetParent as HTMLElement)?.getBoundingClientRect()
+        body.x = body.x - parent.x
+        body.y = body.y - parent.y
+        const elParent = element.value.offsetParent as HTMLElement
+        const borderLeft = parseFloat(getComputedStyle(elParent).borderLeftWidth),
+          borderTop = parseFloat(getComputedStyle(elParent).borderTopWidth)
+        if (borderLeft > 0){
+          body.x = body.x - borderLeft
+        } else if (borderTop > 0){
+          body.y = body.y - borderTop
+        }
       }
-    }
-    if (byCursor.value && typeof positionMouse.value?.x === "number" && typeof positionMouse.value?.y === "number") {
-      body.x = positionMouse.value?.x as number
-      body.y = positionMouse.value?.y as number
-      body.width = 0
-      body.height = 0
-    }
-    //
-    el.xCenter = body.x + (body.width - child.width)/2
-    el.yCenter = body.y + (body.height - child.height)/2
-    //
-    el.xTranslate = body.width/2 + child.width/2
-    el.yTranslate = body.height/2 + child.height/2
-    //
-    el.xPositionIndex = position.value.match("^left") ? -1 : position.value.match("^right") ? 1 : 0
-    el.yPositionIndex = position.value.match("^top") ? -1 : position.value.match("^bottom") ? 1 : 0
-    //
-    el.xValue = position.value.match("-left$") ? body.x : position.value.match("-right$") ? body.x + body.width - child.width : 0
-    el.yValue = position.value.match("-top$") ? body.y : position.value.match("-bottom$") ? body.y + body.height - child.height : 0
-    //
-    x.value = Math.floor(el.xPositionIndex !== 0 || el.xValue === 0 ? el.xCenter + el.xTranslate * el.xPositionIndex : el.xValue) + el.xPositionIndex * translatePx.value
-    y.value = Math.floor(el.yPositionIndex !== 0 || el.yValue === 0 ? el.yCenter + el.yTranslate * el.yPositionIndex : el.yValue) + el.yPositionIndex * translatePx.value
-    //
-    if (x.value < paddingWindow.value){
-      x.value = body.width + body.x - paddingWindow.value > 0
-        ? position.value.match("^left")
-          ? body.x + body.width
-          : paddingWindow.value
-        : body.width + body.x }
-    if (y.value < paddingWindow.value){
-      y.value = body.height + body.y - paddingWindow.value > 0
-        ? position.value.match("^top")
-          ? body.y + body.height
-          : paddingWindow.value
-        : body.height + body.y }
-    if (window.innerWidth - (x.value + child.width) < paddingWindow.value){
-      x.value = body.x > window.innerWidth - paddingWindow.value
-        ? body.x - child.width
-        : position.value.match("^right")
+      if (byCursor.value && typeof positionMouse.value?.x === "number" && typeof positionMouse.value?.y === "number") {
+        body.x = positionMouse.value?.x as number
+        body.y = positionMouse.value?.y as number
+        body.width = 0
+        body.height = 0
+      }
+      //
+      el.xCenter = body.x + (body.width - child.width)/2
+      el.yCenter = body.y + (body.height - child.height)/2
+      //
+      el.xTranslate = body.width/2 + child.width/2
+      el.yTranslate = body.height/2 + child.height/2
+      //
+      el.xPositionIndex = position.value.match("^left") ? -1 : position.value.match("^right") ? 1 : 0
+      el.yPositionIndex = position.value.match("^top") ? -1 : position.value.match("^bottom") ? 1 : 0
+      //
+      el.xValue = position.value.match("-left$") ? body.x : position.value.match("-right$") ? body.x + body.width - child.width : 0
+      el.yValue = position.value.match("-top$") ? body.y : position.value.match("-bottom$") ? body.y + body.height - child.height : 0
+      //
+      x.value = Math.floor(el.xPositionIndex !== 0 || el.xValue === 0 ? el.xCenter + el.xTranslate * el.xPositionIndex : el.xValue) + el.xPositionIndex * translatePx.value
+      y.value = Math.floor(el.yPositionIndex !== 0 || el.yValue === 0 ? el.yCenter + el.yTranslate * el.yPositionIndex : el.yValue) + el.yPositionIndex * translatePx.value
+      //
+      if (x.value < paddingWindow.value){
+        x.value = body.width + body.x - paddingWindow.value > 0
+          ? position.value.match("^left")
+            ? body.x + body.width
+            : paddingWindow.value
+          : body.width + body.x }
+      if (y.value < paddingWindow.value){
+        y.value = body.height + body.y - paddingWindow.value > 0
+          ? position.value.match("^top")
+            ? body.y + body.height
+            : paddingWindow.value
+          : body.height + body.y }
+      if (window.innerWidth - (x.value + child.width) < paddingWindow.value){
+        x.value = body.x > window.innerWidth - paddingWindow.value
           ? body.x - child.width
-          : window.innerWidth - paddingWindow.value - child.width}
-    if (window.innerHeight - (y.value + child.height) < paddingWindow.value){
-      y.value = body.y > window.innerHeight - paddingWindow.value
-        ? body.y - child.height
-        : position.value.match("^bottom")
+          : position.value.match("^right")
+            ? body.x - child.width
+            : window.innerWidth - paddingWindow.value - child.width}
+      if (window.innerHeight - (y.value + child.height) < paddingWindow.value){
+        y.value = body.y > window.innerHeight - paddingWindow.value
           ? body.y - child.height
-          : window.innerHeight - paddingWindow.value - child.height}
+          : position.value.match("^bottom")
+            ? body.y - child.height
+            : window.innerHeight - paddingWindow.value - child.height}
+    }
   }
 }
 </script>
@@ -330,7 +305,9 @@ function updatePosition() {
     ref="fixWindow"
     :class="props.class"
     :style="`position: fixed;left: 0px; top: 0px;transform: translate(${x}px, ${y}px);${border}`">
-    <slot/>
+    <div :class="mode">
+      <slot/>
+    </div>
     <Button v-if="isCloseButton" mode="ghost" class="absolute top-2 right-2 px-[5px] m-0.5 h-9 w-9" @click="close">
       <XMarkIcon aria-hidden="true" class="h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>
     </Button>

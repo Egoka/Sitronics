@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ComponentViews from "@/components/ComponentViews.vue";
 import Table from "@/components/functional/Table.vue";
-import type {IColumn, ISummary, ITable, ITableExpose, ITableStyles} from "@/components/functional/Table.vue";
+import type {IColumn, ISummary, ITableExpose, ITableStyles} from "@/components/functional/Table";
 import Badge from "@/components/functional/Badge.vue";
 import Button from "@/components/functional/Button.vue";
 import { StarIcon as InStar } from "@heroicons/vue/24/outline";
@@ -12,7 +12,7 @@ import StSelect from "@/components/form/StSelect.vue";
 import type {IMode} from "@/components/BaseTypes";
 import dayjs from "dayjs";
 import StSwitch from "@/components/form/StSwitch.vue";
-import {useRoute, useRouter} from "vue-router";
+import {useRoute} from "vue-router";
 import Dialog from "@/components/functional/Dialog.vue";
 import StForm, {IFormStructure} from "@/components/form/StForm.vue";
 import openAlert from "@/components/functional/Alert";
@@ -41,7 +41,7 @@ function generateData (size:number) {
       t4: item%15,
     };
   });
-};
+}
 const data =reactive({
   generateData1000: generateData(1000),
   generateData100: generateData(100),
@@ -107,7 +107,7 @@ async function getEntries() {
     const result = await response.json()
     entries.value = result.entries
   } catch (e) {
-    openAlert({title:"Не удалось загрузить данные таблицы", type: "error", displayTime: 3000, subtitle: e})
+    openAlert({title:"Не удалось загрузить данные таблицы", type: "error", displayTime: 3000, subtitle: `${e}`})
   } finally {
     table.value?.stopLoading()
   }
@@ -158,7 +158,7 @@ const classesDataSelect = ref([
   {id: 'pagination', value: 'pagination', key: {pagination:'bg-theme-300 dark:bg-theme-800'}},
 ])
 const activeRow = ref()
-function clickRow(params) {
+function clickRow(params: any) {
   if(params){
     const activeTr = params.eventEl.parentElement.querySelector(".active-tr")
     if (activeTr) {
@@ -174,10 +174,10 @@ function addRow(){
   dialog.value = true
   formFields.value = {}
 }
-function deleteRow(key) {
+function deleteRow(key:any) {
   tableEdit.value?.deleteRow(key)
 }
-function submit(fields) {
+function submit(fields:any) {
   if (fields) {
     dialog.value = false
     if (activeRow.value) {
@@ -355,8 +355,8 @@ const structureDialog = ref<Array<IFormStructure>>([
             {dataField: 't2', caption: 'Rating', type: 'select', isSort:true, isFilter:true, cellTemplate:'rating'},
             ]">
             <template #rating="{value:countStars}">
-              <InStar v-for="star in 5-countStars" class="w-5 h-5 text-neutral-300 dark:text-neutral-700"></InStar>
-              <OutStar v-for="star in Number(countStars)" class="w-5 h-5 text-amber-300 dark:text-amber-700"></OutStar>
+              <InStar v-for="star in 5-countStars" :key="star" class="w-5 h-5 text-neutral-300 dark:text-neutral-700"></InStar>
+              <OutStar v-for="star in Number(countStars)" :key="star" class="w-5 h-5 text-amber-300 dark:text-amber-700"></OutStar>
             </template>
             <template #status="{value}">
               <Badge v-if="value === 'true'" mode="neutral" :class="styleOne.green">yes</Badge>
@@ -704,7 +704,7 @@ const structureDialog = ref<Array<IFormStructure>>([
           <Table
             ref="tableEdit"
             :data-source="data.generateData1000"
-            :count-visible-rows="7" filter sort resized-columns search
+            :count-visible-rows="7" :filter="{isClearAllFilter: true}" sort resized-columns search
             :columns="[{},{width: 110},{type:'date'},{type:'select'},{type:'select'},{type:'select'},{type:'select'},{type:'select'},{dataField: 'delete',caption: '', cellTemplate:'delete', maxWidth: 50, class:{td:'px-0 py-0 text-gray-800 dark:text-gray-300 sticky right-0', cellText: 'flex justify-center items-center whitespace-pre-line overflow-auto'}, isFilter: false, isSort: false, isResized: false}]"
             :pagination="{sizePage:50, isHiddenNavigationButtons: true, isInfoText: true}"
             toolbar
@@ -733,16 +733,16 @@ const structureDialog = ref<Array<IFormStructure>>([
           <Button @click="switchSizePage">Загрузить таблицу</Button>
       </div>
     </div>
-    <Table ref="table"
-           :data-source="entries"
-           :columns="columnsApi"
-           filter
-           resized-columns
-           :count-visible-rows="6"
-           :pagination="{sizePage: 50, isInfoText: true, isPageSizeSelector: true}"
-           no-data="Загрузите данные"
-           :styles="{verticalLines: true, horizontalLines: false}"
-    >
+    <Table
+      ref="table"
+      :data-source="entries"
+      :columns="columnsApi"
+      filter
+      resized-columns
+      :count-visible-rows="6"
+      :pagination="{sizePage: 50, isInfoText: true, isPageSizeSelector: true}"
+      no-data="Загрузите данные"
+      :styles="{verticalLines: true, horizontalLines: false}">
       <template #cors="{value}">
         <Badge v-if="value === 'yes'" mode="neutral" :class="styleOne.green">yes</Badge>
         <Badge v-else-if="value === 'no'" mode="neutral" :class="styleOne.red">no</Badge>

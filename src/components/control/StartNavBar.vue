@@ -79,7 +79,7 @@ const mobileMenuOpen = ref(false)
         </button>
       </div>
       <div class="hidden lg:flex lg:gap-x-12">
-        <Button v-for="item in navigation" :key="item.title" mode="text" :link="item.href" :class="[baseUrl !== item.name ? 'router-link-active': '', 'leading-6 text-gray-900 dark:text-gray-300 rounded-0']">{{ item.title }}</Button>
+        <Button v-for="item in navigation" :key="item.title" type="link" mode="outline" color="theme" :link="item.href" :class="[baseUrl !== item.name ? 'router-link-active': '', 'leading-6 text-gray-900 dark:text-gray-300 rounded-0']">{{ item.title }}</Button>
       </div>
       <div class="hidden lg:flex lg:flex-1 lg:justify-end">
         <a href="#" class="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-300">Log in <span aria-hidden="true">&rarr;</span></a>
@@ -130,6 +130,7 @@ const mobileMenuOpen = ref(false)
           <div class="-my-6 divide-y divide-gray-500/10">
             <div class="space-y-2 py-6">
               <Button v-for="item in navigation" :key="item.title"
+                      type="link"
                       :link="item.href"
                       mode="secondary"
                       :class="[baseUrl !== item.name ? 'router-link-active': '', 'text-gray-900 dark:text-gray-300 shadow-none rounded-lg w-full']"

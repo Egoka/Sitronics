@@ -67,7 +67,7 @@ function required(value:boolean|string|number|{[index:string]:any}|[any]):boolea
       return !!(value?.length)
     }else if (Object.prototype.toString.call(value) === '[object Date]' || typeof value === "number"){
       return true
-    } else if (!!Object.values(value)?.filter(i=>i).length) {
+    } else if (!!Object.values(value)?.length) {
       return !!Object.values(value)?.filter(i=>i).length
     } else { return !!(value) }
   } return false

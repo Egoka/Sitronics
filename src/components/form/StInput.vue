@@ -1,29 +1,13 @@
 <script setup lang="ts">
 import {computed, getCurrentInstance, ref, watch, useSlots, onMounted} from "vue";
-import type {Ref, UnwrapRef} from "vue";
-import InputLayout, {type ILayout} from "@/components/functional/InputLayout.vue";
+import InputLayout from "@/components/functional/InputLayout.vue";
 import {convertToNumber, convertToPhone, onkeydown, toNumber, toPhone} from "@/helpers/numbers";
 import {EyeIcon, EyeSlashIcon} from "@heroicons/vue/20/solid";
 import {cn} from "@/helpers/tailwind";
+import type {IDataInput, IInput, IInputExpose, IInputType} from "@/components/form/StInput";
+import type {ILayout} from "@/components/functional/InputLayout";
 // ---------------------------------------
 const arrayInputType:Array<IInputType> = ['text','number','email','password']
-export type IInputType = 'text'|'number'|'email'|'password'
-export type IInputMask = 'phone'|'number'|'price'
-export interface IDataInput {
-  type?: NonNullable<IInputType>
-  autoFocus?: boolean
-  placeholder?: string
-  autocomplete?: "on"|"off"
-  mask?: IInputMask
-  lengthInteger?: number
-  lengthDecimal?: number
-  classInput?: string|Array<string|null>
-}
-export interface IInput extends Omit<ILayout, "value"|"isValue">{
-  id?: string
-  modelValue?: string|number|null|undefined
-  paramsInput?: Partial<IDataInput>
-}
 // ---------------------------------------
 const props = defineProps<IInput>()
 const emit = defineEmits<{
@@ -61,33 +45,6 @@ const isLoading = computed<NonNullable<IInput["isInvalid"]>>(()=> props.loading 
 const isInvalid = computed<NonNullable<IInput["isInvalid"]>>(()=> !isDisabled.value ? props.isInvalid : false)
 const messageInvalid = computed<NonNullable<IInput["messageInvalid"]>>(()=> props.messageInvalid ?? "")
 // ---EXPOSE------------------------------
-export interface IInputExpose {
-  //---STATE-------------------------
-  // inputRef: Readonly<Ref<UnwrapRef<HTMLElement>>>
-  isActiveInput: Readonly<Ref<UnwrapRef<boolean>>>
-  // ---PROPS-------------------------------
-  id: Readonly<Ref<UnwrapRef<IInput["id"]>>>
-  type: Readonly<Ref<UnwrapRef<IInput["type"]>>>
-  value: Readonly<Ref<UnwrapRef<IInput["modelValue"]>>>
-  autoFocus: Readonly<Ref<UnwrapRef<IInput["autoFocus"]>>>
-  placeholder: Readonly<Ref<UnwrapRef<IInput["placeholder"]>>>
-  autocomplete: Readonly<Ref<UnwrapRef<IInput["autocomplete"]>>>
-  lengthInteger: Readonly<Ref<UnwrapRef<IInput["lengthInteger"]>>>
-  lengthDecimal: Readonly<Ref<UnwrapRef<IInput["lengthDecimal"]>>>
-  isValue: Readonly<Ref<UnwrapRef<boolean>>>
-  mode: Readonly<Ref<UnwrapRef<IInput["mode"]>>>
-  isDisabled: Readonly<Ref<UnwrapRef<IInput["disabled"]>>>
-  isLoading: Readonly<Ref<UnwrapRef<IInput["isInvalid"]>>>
-  isInvalid: Readonly<Ref<UnwrapRef<IInput["isInvalid"]>>>
-  messageInvalid: Readonly<Ref<UnwrapRef<IInput["messageInvalid"]>>>
-  // ---METHODS-----------------------------
-  toMask(baseValue:string|number): string
-  inputModelValue(valueResult:any): void
-  changeModelValue(valueResult:any): void
-  clear(): void
-  focus(env:FocusEvent): void
-  blur(env:FocusEvent): void
-}
 defineExpose<IInputExpose>({
   //---STATE-------------------------
   // inputRef,
@@ -174,10 +131,9 @@ function blur(env:FocusEvent) {
         'ring-0 border-0 w-full bg-transparent p-1 h-[28px] my-1 rounded-md text-gray-900 dark:text-gray-100',
         'placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600',
         '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
-        'focus:outline-0 focus:ring-0 transition-all',
+        'focus:outline-0 focus:ring-0 transition-all caret-theme-500',
         props.paramsInput?.classInput,
-        'classInput flex'
-        )"
+        'classInput flex')"
       @focus="focus"
       @blur="blur"
       @input="inputEvent"

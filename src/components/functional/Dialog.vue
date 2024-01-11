@@ -2,21 +2,9 @@
 import {computed, watch} from "vue";
 import Button from "@/components/functional/Button.vue";
 import {XMarkIcon} from "@heroicons/vue/20/solid";
-import type {PositionShort, Size, StyleClass} from "@/components/BaseTypes";
+import type {StyleClass} from "@/components/BaseTypes";
 import {cn} from "@/helpers/tailwind";
-
-// ---------------------------------------
-export interface IDialog {
-  modelValue: boolean
-  class?: string
-  size?: Size
-  position?: PositionShort
-  notAnimate?: boolean
-  closeButton?: boolean
-  withoutMargin?: boolean
-  notCloseBackground?: boolean
-  toTeleport?: string
-}
+import type {IDialog} from "@/components/functional/Dialog";
 // ---------------------------------------
 const props = defineProps<IDialog>()
 const emit = defineEmits<{
@@ -38,7 +26,7 @@ const notCloseBackground = computed<IDialog["notCloseBackground"]>(()=>props.not
 const withoutMargin = computed<IDialog["withoutMargin"]>(()=>props.withoutMargin ?? false)
 // ---------------------------------------
 const position = computed<NonNullable<IDialog["position"]>>(()=> props.position ?? "center")
-const classDialog = computed<StyleClass>(()=> props.class)
+const classDialog = computed<IDialog["class"]>(()=> props.class)
 const enterAndLeaveClass = computed<StyleClass>(()=> {
   if (!props.notAnimate) {
     if(position.value.includes("left")){ return "-translate-x-full"}
@@ -63,9 +51,9 @@ const classPosition = computed<Array<string>>(()=>{
 watch(isOpen,(value)=>{
   const bodyEl = document.querySelector("body")
   if (value) {
-    bodyEl.classList.add("overflow-hidden")
+    bodyEl?.classList.add("overflow-hidden")
   } else {
-    bodyEl.classList.remove("overflow-hidden")
+    bodyEl?.classList.remove("overflow-hidden")
   }
 })
 // ---------------------------------------

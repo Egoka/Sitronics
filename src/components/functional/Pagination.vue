@@ -6,22 +6,10 @@ import {
   EllipsisHorizontalIcon
 } from '@heroicons/vue/20/solid'
 import Button from "@/components/functional/Button.vue";
-import StSelect, {type IDateSelect, ISelectExpose} from "@/components/form/StSelect.vue";
-import type {IMode} from "@/components/BaseTypes";
+import StSelect from "@/components/form/StSelect.vue";
 import {cn} from "@/helpers/tailwind";
-// ---------------------------------------
-export type Page = number
-export interface IPagination {
-  modelValue?: Page
-  mode?: IMode
-  sizePage?: number|5|15|20|50|100|150
-  sizesSelector?: [5,15,20,50,100,150]|Array<number>
-  visibleNumberPages?:5|6|7|8|9|10|11
-  total?: number
-  isInfoText?:boolean
-  isPageSizeSelector?:boolean
-  isHiddenNavigationButtons?:boolean
-}
+import type {IDateSelect, ISelectExpose} from "@/components/form/StSelect";
+import type {IPagination, Page} from "@/components/functional/Pagination";
 // ---------------------------------------
 const props = defineProps<IPagination>()
 const emit = defineEmits<{
@@ -31,13 +19,12 @@ const emit = defineEmits<{
 // ---------------------------------------
 const selectPageSize = ref<ISelectExpose|null>()
 // ---------------------------------------
-const activePage = computed<Page>(()=>props.modelValue ?? pages[0])
-const sizePage = computed<IPagination["sizePage"]>(()=>props.sizePage > 0 ? props.sizePage : 5)
-const visibleNumberPages = computed<IPagination["visibleNumberPages"]>(()=>(props.visibleNumberPages >= 5 ? props.visibleNumberPages : 5) ?? 5)
-const total = computed<IPagination["total"]>(()=>props.total ?? 0)
+const sizePage = computed<NonNullable<IPagination["sizePage"]>>(()=>props.sizePage && props.sizePage > 0 ? props.sizePage : 5)
+const visibleNumberPages = computed<NonNullable<IPagination["visibleNumberPages"]>>(()=>(props.visibleNumberPages && props.visibleNumberPages >= 5 ? props.visibleNumberPages : 5) ?? 5)
+const total = computed<NonNullable<IPagination["total"]>>(()=>props.total ?? 0)
 const isInfoText = computed<IPagination["isInfoText"]>(()=>props.isInfoText ?? false)
 const isPageSizeSelector = computed<IPagination["isPageSizeSelector"]>(()=>(props.isPageSizeSelector || !!props.sizesSelector?.length) ?? false)
-const isNavigationButtons = computed<IPagination["isNavigationButtons"]>(()=>!props.isHiddenNavigationButtons ?? false)
+const isNavigationButtons = computed<IPagination["isHiddenNavigationButtons"]>(()=>!props.isHiddenNavigationButtons ?? false)
 const arraySizesSelector = computed<Array<{key:number, value: string}>>(()=>
   ((props.sizesSelector ?? [...new Set([+sizePage.value,5,15,20,50,100,150])]) as Array<number>)
     ?.sort((a, b) => a - b)
@@ -67,6 +54,7 @@ const pages = computed<Array<Page>>(()=> {
     ].flat()
   } else { return resultArray.length ? resultArray : [0] }
 })
+const activePage = computed<Page>(()=>props.modelValue ?? pages.value[0])
 const mode = computed<NonNullable<IPagination["mode"]>>(()=> props.mode ?? "outlined")
 const modeStyleSelect = computed<string>(()=>
   (mode.value === "filled") ? "bg-stone-100 dark:bg-stone-900" :
@@ -83,17 +71,17 @@ const paramsSelect = computed<IDateSelect>(()=>({
   dataSelect:arraySizesSelector.value
 }))
 // ---------------------------------------
-function switchPage(value) {
+function switchPage(value: Page|Array<Page>) {
   let page
   if (Array.isArray(value)){
-    page = value.filter(i=>i).reduce((active, page, index, array) => {
+    page = value.filter(i=>i).reduce((active:Page, page:number, index:number, array:Array<Page>) => {
       if (page === activePage.value) { return array[index+1] }
       return active
-    }, null)
+    }, 0)
   } else { page = value }
   emit('update:modelValue', page === undefined || page === null || page <= 0 ? activePage.value : page)
 }
-function switchSizePage(sizePageValue) {
+function switchSizePage(sizePageValue:Page) {
   emit('update:sizePage', sizePageValue)
 }
 </script>
@@ -104,7 +92,7 @@ function switchSizePage(sizePageValue) {
       <button
         :class="cn('inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors duration-300 disabled:cursor-not-allowed', modeStyle)"
         :disabled="[0, activePage].includes(pages[pages.length-1])"
-        @click="switchPage(pages)">
+        @click="switchPage(pages.slice().reverse())">
         Previous
       </button>
       <!-- -------------------------------- -->

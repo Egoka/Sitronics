@@ -1,74 +1,23 @@
 <script setup lang="ts">
 import {computed, ref, useSlots} from "vue";
-import type {Ref, UnwrapRef} from "vue";
 import {ChevronRightIcon} from "@heroicons/vue/20/solid";
-import { v4 as uuidv4, type v4 as uuid } from 'uuid';
-import type {StyleClass, IMode, IWidth, IHeight} from "@/components/BaseTypes";
+import { v4 as uuidv4 } from 'uuid';
+import type {_key} from "@/components/BaseTypes";
 import Icons from "@/components/functional/Icons.vue";
-import FixWindow, {type IFixWindow} from "@/components/functional/FixWindow.vue";
-import Separator, {type ISeparator} from "@/components/functional/Separator.vue";
+import FixWindow from "@/components/functional/FixWindow.vue";
+import Separator from "@/components/functional/Separator.vue";
 import {removeParamsFromStructure} from "@/helpers/object";
 import {cn} from "@/helpers/tailwind";
-// ---TYPES-------------------------------
-type _key = uuid
-export type IGroups = Array<IGroupMenu>|[]
-type GroupsPrivate = Array<IGroupMenuPrivate>|[]
-// ---INTERFACES--------------------------
-export interface IItemMenu {
-  title?: string
-  icon?: string
-  info?: string
-  disabled?: boolean
-  onActive?(event:MouseEvent, item:IItemMenuPrivate):void
-  onInactive?(event:MouseEvent, item:IItemMenuPrivate):void
-  onClick?(event:PointerEvent, item:IItemMenuPrivate):void
-  class?: StyleClass
-  menu?: IMenuItem|null
-}
-export interface IItemMenuPrivate extends IItemMenu{
-  _key: _key
-}
-export interface IMenuSeparator extends Omit<ISeparator, "vertical">{
-  icon?: string
-  isVisible?: boolean
-}
-export interface IGroupMenu {
-  items?: Array<IItemMenu>
-  class?: StyleClass
-  separator?: IMenuSeparator
-}
-interface IGroupMenuPrivate extends Omit<IGroupMenu, "items"> {
-  items?: Array<IItemMenuPrivate>
-}
-export interface IMenuStyles {
-  class?: {
-  
-  }
-  width?: IWidth
-  height?: IHeight
-  animation?: "transition-all duration-500"|"transition-none"|string
-  hoverRows?:string|"hover:bg-neutral-100/90 dark:hover:bg-neutral-900/50"|boolean
-  border?: {
-  
-  }
-}
-export interface IMenuItem {
-  title?: string
-  separator?: IMenuSeparator
-  paramsWindowMenu?: IFixWindow
-  groups?: IGroups
-}
-interface IMenuItemPrivate extends Omit<IMenuItem, "groups">{
-  groups?: GroupsPrivate
-}
-// ---------------------------------------
-export interface IMenu extends IMenuItem{
-  mode?:IMode
-  selected?:boolean
-  horizontal?: boolean
-  onlyIcons?: boolean
-  styles?: IMenuStyles
-}
+import type {
+  IMenu,
+  IItemMenuPrivate,
+  IMenuSeparator,
+  GroupsPrivate,
+  IMenuItemPrivate,
+  IMenuStyles,
+  IGroupMenuPrivate, IMenuExpose
+} from "@/components/functional/Menu";
+import type {IFixWindow} from "@/components/functional/FixWindow";
 // ---PROPS-EMITS-SLOTS-------------------
 const props = defineProps<IMenu>()
 const emit = defineEmits<{
@@ -114,9 +63,6 @@ const styles = computed<IMenuStyles>(()=>{
     height: s?.height? typeof s?.height === "number" ? `${s?.height}px` : s?.height : "",
     animation: s?.animation ?? "transition-all duration-500",
     hoverRows: s?.animation ?? "hover:bg-neutral-100/90 dark:hover:bg-neutral-900/50"
-    // border: {
-    //
-    // }
   }
 })
 const modeStyle = computed<string>(()=>
@@ -125,24 +71,6 @@ const modeStyle = computed<string>(()=>
       (mode.value === "underlined") ? "bg-stone-50 dark:bg-stone-950" : ""))
 const borderColor = computed<string>(()=>"border-neutral-200 dark:border-neutral-800")
 // ---EXPOSE------------------------------
-export interface IMenuExpose {
-  // ---STATE-------------------------
-  activeItemIndex: Readonly<Ref<UnwrapRef<_key|null>>>
-  // ---PROPS-------------------------
-  mode: Readonly<Ref<UnwrapRef<IMenu["mode"]>>>
-  title: Readonly<Ref<UnwrapRef<IMenu["title"]>>>
-  iconSeparator: Readonly<Ref<UnwrapRef<IMenu["iconSeparator"]>>>
-  isSeparator: Readonly<Ref<UnwrapRef<IMenu["isSeparator"]>>>
-  listGroups: Readonly<Ref<UnwrapRef<GroupsPrivate>>>
-  selected: Readonly<Ref<UnwrapRef<IMenu["selected"]>>>
-  horizontal: Readonly<Ref<UnwrapRef<IMenu["horizontal"]>>>
-  onlyIcons: Readonly<Ref<UnwrapRef<IMenu["onlyIcons"]>>>
-  paramsWindowMenu: Readonly<Ref<UnwrapRef<IMenu["paramsWindowMenu"]>>>
-  separator: Readonly<Ref<UnwrapRef<IMenuSeparator>>>
-  styles: Readonly<Ref<UnwrapRef<IMenuStyles>>>
-  // ---METHODS-----------------------
-  setActiveItem (itemKey:_key|null):void
-}
 defineExpose<IMenuExpose>({
   // ---STATE-------------------------
   activeItemIndex,
@@ -184,7 +112,7 @@ function setActiveItem (itemKey:_key|null):void {
     activeItemIndex.value = itemKey
   }
 }
-function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemPrivate> {
+function setItems (menu:IMenuItemPrivate, depth:number=0):NonNullable<IMenuItemPrivate> {
   return {
     ...menu,
     groups: menu.groups
@@ -208,8 +136,7 @@ function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemP
                 ...item?.menu?.paramsWindowMenu,
               } as IFixWindow,
               ...item?.menu
-            } as IMenuItemPrivate,
-              depth > 0 ? depth+1 : 1) : null
+            } as IMenuItemPrivate, depth > 0 ? depth + 1 : 1) : null
           }
         })
       })) : []
@@ -222,7 +149,7 @@ function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemP
     ref="menuRefLink"
     role="menu"
     :class="cn(
-      'p-1 w-min max-w-4xl shadow-md border text-black dark:text-zinc-50',
+      'p-1 w-min max-w-4xl shadow-md border text-black dark:text-zinc-300',
       borderColor,
       !horizontal||'flex flex-row',
       modeStyle,
@@ -242,6 +169,7 @@ function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemP
           (listGroups.length !== 1) &&
           (keyGroup !== 0 || (group?.separator?.icon?.length ?? iconSeparator?.length) || title.length)"
         v-bind="group?.separator ?? separator"
+        class="my-1"
         :vertical="horizontal">
         <Icons
           v-if="group?.separator?.icon?.length ?? iconSeparator?.length"
@@ -249,6 +177,9 @@ function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemP
           class="h-4 w-4 text-neutral-200 dark:text-neutral-800"/>
       </Separator>
       <div role="group" :class="cn(!horizontal||'flex flex-row')">
+        <div v-if="!onlyIcons && group.title" class="mt-2 ml-8 leading-4 text-neutral-400 dark:text-neutral-500 uppercase text-[10px] font-bold">
+          {{ group.title }}
+        </div>
         <div
           v-for="(item, keyItem) in group.items" :key="keyItem" role="menuitem"
           :data-collection-item="item?._key"
@@ -272,11 +203,9 @@ function setItems (menu:IMenuItemPrivate, depth?: number):NonNullable<IMenuItemP
                 <span :class="cn('w-max', !item?.title||'mx-2')">{{ item?.title }}</span>
                 <span :class="cn('ml-auto text-xs tracking-widest opacity-50', !item?.info||'pl-2')" v-html="item?.info"/>
             </template>
-            <FixWindow v-else :position="horizontal ? 'top' : 'right'" :delay="5" :margin-px="10" :scrollable-el="menuRefLink">
-              <div :class="cn('items-center px-1 rounded border', borderColor, modeStyle, 'flex')">
+            <FixWindow v-else :position="horizontal ? 'top' : 'right'" :delay="5" :margin-px="10" :scrollable-el="menuRefLink" :mode="mode">
                 <span class="w-max">{{ item?.title }}</span>
                 <span :class="cn('ml-auto text-xs tracking-widest opacity-50', !item?.info||'pl-2')" v-html="item?.info"/>
-              </div>
             </FixWindow>
           </slot>
           <ChevronRightIcon v-if="item?.menu && !onlyIcons" class="h-4 w-4 opacity-60"/>

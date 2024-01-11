@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, reactive, ref, toRaw, useSlots, watch} from "vue";
-import type {Ref, UnwrapRef} from "vue";
 import {
   ArrowLongUpIcon, ArrowLongDownIcon,
   BarsArrowUpIcon, BarsArrowDownIcon,
@@ -8,192 +7,51 @@ import {
 } from "@heroicons/vue/20/solid";
 import * as LData from "lodash";
 import dayjs from 'dayjs'
-import { v4 as uuidv4, type v4 as uuid } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import isBetween from 'dayjs/plugin/isBetween'
 import Button from "@/components/functional/Button.vue";
-import Tooltip from "@/components/functional/Tooltip.vue";
+import FixWindow from "@/components/functional/FixWindow.vue";
 import Loading from "@/components/functional/Loading.vue";
-import Pagination, {type IPagination} from "@/components/functional/Pagination.vue";
-import StInput, {type IDataInput} from "@/components/form/StInput.vue";
-import StSelect, {type IDateSelect} from "@/components/form/StSelect.vue";
-import StCalendar, {type IDatePicker, type IRangeValue} from "@/components/form/StCalendar.vue";
+import Pagination from "@/components/functional/Pagination.vue";
+import StInput from "@/components/form/StInput.vue";
+import StSelect from "@/components/form/StSelect.vue";
+import StCalendar from "@/components/form/StCalendar.vue";
 import {convertToNumber, convertToPhone} from "@/helpers/numbers";
-import type {StyleClass, IMode, IWidth, IHeight} from "@/components/BaseTypes";
 import {cn} from "@/helpers/tailwind";
-// ---TYPES-------------------------------
-type DataField = string
-type DataType = "string"|"number"|"select"|"date"
-type Sort = "asc"|"desc"|null
-type Search = string
-type Page = number
-type Loading = boolean
-type Sorted = { [dataField:DataField]: Sort }
-type Widths = { [dataField:DataField]: number }
-type Filters = { [dataField:DataField]: any }
-type ResultData = { [dataField:DataField]: Array<any> }
-// ---INTERFACES--------------------------
-export interface IToolbar {
-  visible?:boolean
-  search?:boolean
-}
-export interface ISort {
-  visible?:boolean
-  icon?:"Bars"|"Arrow"
-}
-export interface IFilter {
-  visible?:boolean
-  noFilter?:string
-  isClearAllFilter?:boolean
-}
-export interface IGrouping {
-  visible?:boolean
-  groupField?:string
-}
-interface EditorCell {
-  isEdit?:boolean
-  paramsInput?: IDataInput
-  paramsSelect?: IDateSelect
-  paramsDatePicker?: Partial<IDatePicker>
-}
-export interface IColumn {
-  dataField?:DataField
-  name?:string
-  caption?:string
-  type?:DataType
-  visible?:boolean
-  width?:number
-  minWidth?:number
-  maxWidth?:number
-  isFilter?:boolean
-  isSort?:boolean
-  isResized?:boolean
-  edit?: boolean | EditorCell
-  defaultFilter?: any
-  defaultSort?: Sort
-  mask?:IDataInput["mask"]
-  paramsInput?: IDataInput
-  paramsSelect?: IDateSelect
-  paramsDatePicker?: Partial<IDatePicker>
-  cellTemplate?: string
-  setCellValue?(column:IColumn, value:any, data?:any):any,
-  class?:{
-    th?: StyleClass
-    colFilter?: StyleClass
-    colFilterClass?: StyleClass|"border-none font-normal"
-    colFilterClassBody?: StyleClass|"tm-0 my-1"
-    colText?: StyleClass|"text-left text-gray-400 dark:text-gray-500"
-    td?: StyleClass|"px-6 py-4 text-gray-800 dark:text-gray-300"
-    cellText?: StyleClass|"flex items-center whitespace-pre-line overflow-auto"
-    tf?: StyleClass
-    sumText?: StyleClass|"text-left text-gray-400 dark:text-gray-500"
-  }
-}
-interface IColumnPrivate extends Omit<IColumn, 'dataField'|'edit'> {
-  id: string
-  dataField:string
-  isEdit: boolean
-  edit: {
-    paramsInput?: IDataInput
-    paramsSelect?: IDateSelect
-    paramsDatePicker?: Partial<IDatePicker>
-  }
-}
-export interface ISummary {
-  dataField?: string
-  name?: string
-  displayFormat?: string|"Sum: {0}"|"Min: {0}"|"Max: {0}"|"Avg: {0}"|"Count: {0}"
-  type?: "sum"|"min"|"max"|"avg"|"count"
-  dataType?: DataType
-  customizeText?(summary:ISummary, result:string):string
-}
-interface ISummaryPrivate extends ISummary {
-  id: string
-  dataType: DataType
-}
-export interface ITablePagination extends Omit<IPagination, 'total'|'modelValue'> {
-  visible?:boolean
-  startPage?:number
-}
-type border = string|'border-neutral-200 dark:border-neutral-800'
-export interface ITableStyles {
-  class?: {
-    body?: StyleClass
-    toolbar?: StyleClass
-    bodyTable?: StyleClass
-    slotHeader?: StyleClass
-    slotFooter?: StyleClass
-    table?: StyleClass
-    thead?: StyleClass
-    tbody?: StyleClass
-    tfoot?: StyleClass
-    group?: StyleClass
-    groupText?: StyleClass
-    cellText?: StyleClass
-    pagination?: StyleClass
-  }
-  width?: IWidth
-  height?: IHeight
-  animation?: "transition-all duration-500"|"transition-none"|string
-  hoverRows?:string|"hover:bg-neutral-100/90 dark:hover:bg-neutral-900/50"|boolean
-  isStripedRows?:boolean
-  horizontalLines?:boolean
-  verticalLines?:boolean
-  borderRadiusPx?: number
-  heightCell?:number
-  filterLines?:boolean
-  defaultWidthColumn?: "max-width: 600px;min-width:100px;width:auto"|string
-  maskQuery?: "font-bold text-theme-700 dark:text-theme-300"|string
-  border?: border|'border-0 border-b-0 border-t-0 border-r-0'|{
-    table?: border|'border-0'
-    header?: border|'border-b-0'
-    filter?: border|'border-r-0'
-    head?: border|'border-b-0'
-    cell?: border|'border-r-0 border-b-0'
-    summary?: border|'border-t-0'
-    pagination?: border|'border-t-0'
-    footer?: border|'border-t-0'
-  }
-}
-// ---------------------------------------
-export interface ITable {
-  mode?:IMode
-  dataSource?: Array<any>|[]
-  toolbar?: IToolbar|boolean
-  edit?:boolean
-  sort?: ISort|boolean
-  filter?: IFilter|boolean
-  grouping?: IGrouping|string
-  resizedColumns?:boolean
-  pagination?: ITablePagination|boolean
-  search?:boolean
-  columns?: boolean|Array<IColumn>
-  summary?: boolean|Array<ISummary>
-  countVisibleRows?: number
-  noData?:string
-  noColumn?:string
-  countDataOnLoading?:number|100|1000|10000
-  totalCount?:number
-  styles?:ITableStyles
-}
+import type {
+  DataType, EditorCell,
+  Filters,
+  IColumn, IColumnPrivate, IFilter, IGrouping, ISort, ISummaryPrivate,
+  ITable,
+  ITableExpose, ITablePagination, ITableStyles, ITableStylesBorder, ITableStylesClass, IToolbar,
+  Page,
+  ResultData,
+  Search, Sort,
+  Sorted, Widths
+} from "@/components/functional/Table";
+import type {TLoading} from "@/components/BaseTypes";
+import type {IDataInput} from "@/components/form/StInput";
+import type {IDateSelect} from "@/components/form/StSelect";
+import type {IDatePicker, IRangeValue} from "@/components/form/StCalendar";
 // ---PROPS-EMITS-SLOTS-------------------
 const props = defineProps<ITable>()
 const emit = defineEmits<{
   (event: 'sort', payload: {dataColumns:Array<IColumn>, sortedFields:Sorted}): void
   (event: 'filter', payload: {dataColumns:Array<IColumn>, filteredFields: Filters}): void
-  (event: 'search', payload: Search)
-  (event: 'result-data', payload: ResultData)
-  (event: 'switch-page', payload: Page)
-  (event: 'switch-size-page', payload: Page)
-  (event: 'before-edit-cell', payload: {newValue: any, oldValue: any, _key: uuid, column:IColumn})
-  (event: 'after-edit-cell', payload: {newValue: any, oldValue: any, _key: uuid, column:IColumn})
-  (event: 'before-edit-row', payload: {newValue: any, oldValue: any, _key: uuid})
-  (event: 'after-edit-row', payload: {newValue: any, oldValue: any, _key: uuid})
-  (event: 'add-row', payload: {value: any, index: number, _key: uuid})
-  (event: 'delete-row', payload: {value: any, index: number, _key: uuid})
-  (event: 'click-row', payload: { eventEl:HTMLElement, data:any, indexRow:number })
-  (event: 'click-cell', payload: { eventEl:HTMLElement, column:IColumn, value:any, valueWithMarker:any, data:any, indexRow:number })
-  (event: 'loading', payload:boolean)
-  (event: 'clear-filter')
+  (event: 'search', payload: Search): void
+  (event: 'result-data', payload: ResultData): void
+  (event: 'switch-page', payload: Page): void
+  (event: 'switch-size-page', payload: Page): void
+  (event: 'before-edit-cell', payload: {newValue: any, oldValue: any, _key: string, column:IColumn}): void
+  (event: 'after-edit-cell', payload: {newValue: any, oldValue: any, _key: string, column:IColumn}): void
+  (event: 'before-edit-row', payload: {newValue: any, oldValue: any, _key: string}): void
+  (event: 'after-edit-row', payload: {newValue: any, oldValue: any, _key: string}): void
+  (event: 'add-row', payload: {value: any, index: number, _key: string}): void
+  (event: 'delete-row', payload: {value: any, index: number, _key: string}): void
+  (event: 'click-row', payload: { eventEl:HTMLElement, data:any, indexRow:number }): void
+  (event: 'click-cell', payload: { eventEl:HTMLElement, column:IColumn, value:any, valueWithMarker:any, data:any, indexRow:number }): void
+  (event: 'loading', payload:boolean): void
+  (event: 'clear-filter'): void
 }>()
 const slots = useSlots()
 // ---REF-LINK----------------------------
@@ -214,8 +72,8 @@ const sizeTable = ref<Page>(5)
 const widthsColumns = reactive<Widths>({})
 const sortColumns = reactive<Sorted>({})
 const filterColumns = reactive<Filters>({})
-const allData = ref<ITable["dataSource"]>([])
-const isLoading = ref<Loading>(false)
+const allData = ref<NonNullable<ITable["dataSource"]>>([])
+const isLoading = ref<TLoading>(false)
 const editableCell = ref<{indexRow:number, indexCol:number}|null>()
 // ---PROPS-------------------------------
 const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode ?? "outlined")
@@ -224,14 +82,14 @@ const isSearch = computed<boolean>(()=> (props?.toolbar as IToolbar)?.search ?? 
 const isFilterClear = computed<boolean>(()=>((props.filter as IFilter)?.isClearAllFilter ?? false) && (!!noEmptyFilters(filterColumns).length || !!queryTable.value.length))
 const isColumns = computed<boolean>(()=> typeof props.columns === "boolean" ? props.columns : Array.isArray(props.columns))
 const isSummary = computed<boolean>(()=> typeof props.summary === "boolean" ? props.summary : Array.isArray(props.summary))
-const countDataOnLoading = computed<ITable["countDataOnLoading"]>(()=> props.countDataOnLoading ?? 1000)
-const classMaskQuery = computed<NonNullable<ITable["classMaskQuery"]>>(()=> props.styles?.maskQuery ?? "font-bold text-theme-700 dark:text-theme-400")
+const countDataOnLoading = computed<NonNullable<ITable["countDataOnLoading"]>>(()=> props.countDataOnLoading ?? 1000)
+const classMaskQuery = computed<NonNullable<ITableStyles["maskQuery"]>>(()=> props.styles?.maskQuery ?? "font-bold text-theme-700 dark:text-theme-400")
 const noData = computed<NonNullable<ITable["noData"]>>(()=> props.noData ?? "Нет данных")
 const noColumn = computed<NonNullable<ITable["noData"]>>(()=> props.noColumn ?? "Нет колонок")
 const noFilter = computed<NonNullable<IFilter["noFilter"]>>(()=> (props.filter as IFilter)?.noFilter ?? "Не найдено подходящих данных")
 const iconSort = computed<ISort["icon"]>(()=>(props?.sort as ISort)?.icon ?? "Arrow")
 const resizedColumns = computed<ITable["resizedColumns"]>(()=>props.resizedColumns)
-const isEditCells = computed<ITable["isEditCells"]>(()=>props.edit)
+const isEditCells = computed<NonNullable<ITable["edit"]>>(()=>props.edit)
 const lengthData = computed<number>(()=> props.totalCount ?? dataSource.value.length)
 const groupField = computed<IGrouping["groupField"]|null>(()=>typeof props?.grouping === "object"
   ? typeof props?.grouping?.groupField === "string" ? props.grouping.groupField : null
@@ -274,7 +132,7 @@ const dataSource = computed<Array<any>>(()=> {
     data = LData.filter(data,(row) => Object.keys(filter)
       .filter(item => {
         const column = dataColumns.value.find(col=>col.dataField === item)
-        return isEqualsValue(column, row[column.dataField], filter[column.dataField])
+        if (column) return isEqualsValue(column, row[column.dataField], filter[column.dataField])
       }).length === Object.keys(filter).length) }
   // Search
   if (data && queryTable.value.length){
@@ -287,10 +145,10 @@ const dataSource = computed<Array<any>>(()=> {
 const resultDataSource = computed<ResultData>(()=> {
   let resultData:any = toRaw(dataSource.value)
   if (isPagination.value) {
-    if (isGroup.value) {
-      resultData = Object.values(LData.groupBy(resultData, (item) => item[groupField.value])).flat() }
+    if (isGroup.value && groupField.value) {
+      resultData = Object.values(LData.groupBy(resultData, (item) => item[groupField.value as string])).flat() }
     resultData = LData.slice(resultData, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value)) }
-  resultData = isGroup.value ? LData.groupBy(resultData, (item) => item[groupField.value]) : {0: resultData}
+  resultData = isGroup.value && groupField.value ? LData.groupBy(resultData, (item) => item[groupField.value as string]) : {0: resultData}
   emit('result-data', resultData)
   return resultData
 })
@@ -314,7 +172,6 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
           isSort: typeof column.isSort === "boolean" ? column.isSort : isSort.value,
           isResized: typeof column.isResized === "boolean" ? column.isResized : resizedColumns.value,
           isEdit: typeof column.edit === "boolean" ? column.edit : column?.edit?.isEdit ?? isEditCells.value,
-          edit: {},
           type: column.type ?? "string",
           class: {
             ...column.class,
@@ -329,10 +186,11 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
         switch (options.type) {
           case "string": {
             options.paramsInput = <IDataInput>{autocomplete: "off", ...column.paramsInput};
-            options.edit.paramsInput = <IDataInput>{
-              ...options.paramsInput,
-              autoFocus:true,
-              ...(column?.edit as EditorCell)?.paramsInput}
+            options.edit = {
+              paramsInput: <IDataInput>{
+                ...options.paramsInput,
+                autoFocus:true,
+                ...(column?.edit as EditorCell)?.paramsInput}}
             break
           }
           case "number": {
@@ -340,10 +198,11 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
               autocomplete: "off",
               mask: "number",
               ...column.paramsInput};
-            options.edit.paramsInput = <IDataInput>{
+            options.edit = {
+              paramsInput: <IDataInput>{
               ...options.paramsInput,
               autoFocus:true,
-              ...(column?.edit as EditorCell)?.paramsInput}
+              ...(column?.edit as EditorCell)?.paramsInput}}
             break
           }
           case "select": {
@@ -358,17 +217,17 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
                 ...column?.paramsSelect?.paramsFixWindow
               },
               ...column.paramsSelect};
-            options.edit.paramsSelect = <IDateSelect>{
-              ...options.paramsSelect,
-              autoFocus:true,
-              multiple: false,
-              ...(column?.edit as EditorCell)?.paramsSelect,
-              paramsFixWindow: {
-                position: 'bottom',
-                eventClose: "hover",
-                ...(column?.edit as EditorCell)?.paramsSelect?.paramsFixWindow
-              },
-            }
+            options.edit = {
+              paramsSelect: <IDateSelect>{
+                ...options.paramsSelect,
+                autoFocus:true,
+                multiple: false,
+                ...(column?.edit as EditorCell)?.paramsSelect,
+                paramsFixWindow: {
+                  position: 'bottom',
+                  eventClose: "hover",
+                  ...(column?.edit as EditorCell)?.paramsSelect?.paramsFixWindow
+                }}}
             break
           }
           case "date": {
@@ -387,24 +246,24 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
               mask: column.paramsDatePicker?.masks?.modelValue ?? "DD.MM.YYYY",
               ...column.paramsDatePicker
             };
-            options.edit.paramsDatePicker = <Partial<IDatePicker>>{
-              ...options.paramsDatePicker,
-              autoFocus:true,
-              isRange: false,
-              ...(column?.edit as EditorCell)?.paramsDatePicker,
-              paramsFixWindow: {
-                position: 'bottom',
-                eventClose: "hover",
-                ...(column?.edit as EditorCell)?.paramsSelect?.paramsFixWindow
-              },
-            }
+            options.edit = {
+              paramsDatePicker: <Partial<IDatePicker>>{
+                ...options.paramsDatePicker,
+                autoFocus:true,
+                isRange: false,
+                ...(column?.edit as EditorCell)?.paramsDatePicker,
+                paramsFixWindow: {
+                  position: 'bottom',
+                  eventClose: "hover",
+                  ...(column?.edit as EditorCell)?.paramsSelect?.paramsFixWindow
+                }}}
             break
           }
         }
         return options
       }).filter(i=>i)
   } else {
-    return <Array<IColumnPrivate>>listFields.map((column:string, index)=>{
+    return listFields.map<IColumnPrivate>((column, index):IColumnPrivate=>{
       return {
         id: `Col-${column}-${index}`,
         dataField: column,
@@ -413,7 +272,7 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
           : (column.charAt(0).toUpperCase() + column.slice(1))?.replace(/_/g, ' '),
         visible: true,
         isFilter: isFilter.value,
-        isSorting: isSort.value,
+        isSort: isSort.value,
         isResized: resizedColumns.value,
         isEdit: isEditCells.value,
         type: "string",
@@ -434,27 +293,29 @@ const dataSummary = computed<Array<ISummaryPrivate>>(()=> {
   if (Array.isArray(props.summary) && props.summary?.length){
     return <Array<ISummaryPrivate>>props.summary.map((summary, index)=>{
       const column = getColumn(summary.dataField, index)
-      const summaryName = summary.dataField ?? column.dataField
-      return {
-        id: `Sum-${summary.name ?? summaryName}-${index}`,
-        name: `Sum-${summary.name ?? summaryName}`,
-        dataField: summaryName,
-        displayFormat: summary.displayFormat ?? (
-                summary.type === "max" ? "Max: {0}"
+      if (column) {
+        const summaryName = summary.dataField ?? column.dataField
+        return {
+          id: `Sum-${summary.name ?? summaryName}-${index}`,
+          name: `Sum-${summary.name ?? summaryName}`,
+          dataField: summaryName,
+          displayFormat: summary.displayFormat ??
+            (summary.type === "max" ? "Max: {0}"
               : summary.type === "min" ? "Min: {0}"
-              : summary.type === "sum" ? "Sum: {0}"
-              : summary.type === "avg" ? "Avg: {0}"
-              : summary.type === "count"?"Count: {0}"
-              : "Count: {0}" ) ??
-          ((["string", "date"]).includes(column.type as string) ? "Кол. {0}"
-          : (["number", "select"]).includes(column.type as string) ? "Сум. {0}"
-            : "Кол. {0}"),
-        type: summary.type ?? ((["string", "date", "select"]).includes(column.type as string) ? "count"
-          : (["number"]).includes(column.type as string) ? "sum"
-            : "count"),
-        customizeText: summary.customizeText,
-        dataType: summary.dataType ?? column.type
-      }
+                : summary.type === "sum" ? "Sum: {0}"
+                  : summary.type === "avg" ? "Avg: {0}"
+                    : summary.type === "count" ? "Count: {0}"
+                      : "Count: {0}") ??
+            ((["string", "date"]).includes(column.type as string) ? "Кол. {0}"
+              : (["number", "select"]).includes(column.type as string) ? "Сум. {0}"
+                : "Кол. {0}"),
+          type: summary.type ?? ((["string", "date", "select"]).includes(column.type as string) ? "count"
+            : (["number"]).includes(column.type as string) ? "sum"
+              : "count"),
+          customizeText: summary.customizeText,
+          dataType: summary.dataType ?? column.type
+        }
+      } return {}
     })
   } else {
     return <Array<ISummaryPrivate>>dataColumns.value.filter(item => item.visible).map(column=>{
@@ -472,27 +333,26 @@ const dataSummary = computed<Array<ISummaryPrivate>>(()=> {
     })
   }
 })
-const summaryColumns = computed<object>(()=>{
-  if (!isSummary.value || !dataSummary.value?.length) { return {}}
-  return dataSummary.value
-    .reduce((result, summary)=> {
-      result[summary.dataField] = setSummary(summary)
-      return result
-    }, {})
+const summaryColumns = computed(()=>{
+  if (!isSummary.value || !dataSummary.value?.length) { return {} }
+  return dataSummary.value.reduce((result:{ [key: string]: string }, summary)=> {
+    result[summary.dataField] = setSummary(summary)
+    return result
+  }, {})
 })
 // ---STYLE-------------------------------
 const baseTableHeight = 240 // 15rem
 const heightTable = ref<string>(countVisibleRows.value ? `height: ${baseTableHeight}px` : "height: auto")
 const styles = computed<ITableStyles>(()=>{
   const s = props.styles
-  const sc = props.styles?.class
-  const border = <object>props.styles?.border
+  const sc:ITableStylesClass|undefined = props.styles?.class
+  const sb:ITableStylesBorder|undefined = (props.styles?.border as ITableStylesBorder|undefined)
   const hoverRows = typeof props.styles?.hoverRows === 'string'
     ? (props.styles?.hoverRows as string)
     : typeof props.styles?.hoverRows === 'boolean' && props.styles?.hoverRows
       ? "hover:bg-neutral-100/90 dark:hover:bg-neutral-900/50": ''
-  const defaultBorder = typeof (border as string|object) === "string"
-    ? border : "border-neutral-200 dark:border-neutral-800"
+  const defaultBorder:string = typeof props.styles?.border === "string"
+    ? props.styles?.border as string : "border-neutral-200 dark:border-neutral-800"
   return {
     class: {
       body: sc?.body, toolbar: sc?.toolbar, bodyTable: sc?.bodyTable,
@@ -512,14 +372,14 @@ const styles = computed<ITableStyles>(()=>{
     filterLines: s?.filterLines ?? false,
     defaultWidthColumn: s?.defaultWidthColumn ?? "max-width: 600px;min-width:100px;width:auto",
     border: {
-      table: border?.table ?? defaultBorder,
-      header: border?.header ?? defaultBorder,
-      filter: border?.filter ?? defaultBorder,
-      head: border?.head ?? defaultBorder,
-      cell: border?.cell ?? defaultBorder,
-      summary: border?.summary ?? defaultBorder,
-      pagination: border?.pagination ?? defaultBorder,
-      footer: border?.footer ?? defaultBorder,
+      table: sb?.table ?? defaultBorder,
+      header: sb?.header ?? defaultBorder,
+      filter: sb?.filter ?? defaultBorder,
+      head: sb?.head ?? defaultBorder,
+      cell: sb?.cell ?? defaultBorder,
+      summary: sb?.summary ?? defaultBorder,
+      pagination: sb?.pagination ?? defaultBorder,
+      footer: sb?.footer ?? defaultBorder,
     }
   }
 })
@@ -536,87 +396,17 @@ const modeStyle = computed<string>(()=>
 const tableObserver = new ResizeObserver(entries => entries.forEach(() => setFooterPaddingHeight()))
 const footerPaddingHeight = ref<number>(0)
 function setFooterPaddingHeight() {
-  const result = tableBody.value?.clientHeight -
-    (thead.value?.clientHeight + tbody.value?.clientHeight + tfoot.value?.clientHeight)
+  const result = (tableBody?.value?.clientHeight??0) -
+    ((thead.value?.clientHeight??0) + (tbody.value?.clientHeight??0) + (tfoot.value?.clientHeight??0))
   footerPaddingHeight.value = result ? result : 0
 }
 // ---IS-DARK-----------------------------
 const isDark = ref<boolean>(window.matchMedia('(prefers-color-scheme: dark)')?.matches)
 const colorSchemeQueryList = window.matchMedia('(prefers-color-scheme: dark)');
-const setColorScheme = e => isDark.value = e.matches
+const setColorScheme = (e:any) => isDark.value = e.matches
 setColorScheme(colorSchemeQueryList);
 colorSchemeQueryList.addEventListener('change', setColorScheme);
 // ---EXPOSE------------------------------
-export interface ITableExpose {
-  //---STATE-------------------------
-  widthsColumns: Readonly<Widths>
-  sortColumns: Readonly<Sorted>
-  filterColumns: Readonly<Filters>
-  queryTable: Readonly<Ref<UnwrapRef<Search>>>
-  pageTable: Readonly<Ref<UnwrapRef<Page>>>
-  sizeTable: Readonly<Ref<UnwrapRef<Page>>>
-  allData: Readonly<Ref<UnwrapRef<ITable["dataSource"]>>>
-  isLoading: Readonly<Ref<UnwrapRef<boolean>>>
-  // ---PROPS-------------------------------
-  mode: Readonly<Ref<UnwrapRef<ITable["mode"]>>>
-  isVisibleToolbar: Readonly<Ref<UnwrapRef<boolean>>>
-  isSearch: Readonly<Ref<UnwrapRef<boolean>>>
-  isFilterClear: Readonly<Ref<UnwrapRef<boolean>>>
-  isColumns: Readonly<Ref<UnwrapRef<boolean>>>
-  isSummary: Readonly<Ref<UnwrapRef<boolean>>>
-  countDataOnLoading: Readonly<Ref<UnwrapRef<ITable["countDataOnLoading"]>>>
-  classMaskQuery: Readonly<Ref<UnwrapRef<ITable["classMaskQuery"]>>>
-  noData: Readonly<Ref<UnwrapRef<ITable["noData"]>>>
-  noColumn: Readonly<Ref<UnwrapRef<ITable["noData"]>>>
-  noFilter: Readonly<Ref<UnwrapRef<IFilter["noFilter"]>>>
-  iconSort: Readonly<Ref<UnwrapRef<ISort["icon"]>>>
-  resizedColumns: Readonly<Ref<UnwrapRef<ITable["resizedColumns"]>>>
-  lengthData: Readonly<Ref<UnwrapRef<number>>>
-  groupField: Readonly<Ref<UnwrapRef<IGrouping["groupField"]|null>>>
-  isFilter: Readonly<Ref<UnwrapRef<boolean>>>
-  isSort: Readonly<Ref<UnwrapRef<boolean>>>
-  isGroup: Readonly<Ref<UnwrapRef<boolean>>>
-  isPagination: Readonly<Ref<UnwrapRef<boolean>>>
-  // ---PAGINATION--------------------------
-  startPage: Readonly<Ref<UnwrapRef<ITablePagination["startPage"]>>>
-  modePagination: Readonly<Ref<UnwrapRef<ITablePagination["mode"]>>>
-  sizePage: Readonly<Ref<UnwrapRef<ITablePagination["sizePage"]>>>
-  visibleNumberPages: Readonly<Ref<UnwrapRef<ITablePagination["visibleNumberPages"]>>>
-  sizesSelector: Readonly<Ref<UnwrapRef<ITablePagination["sizesSelector"]>>>
-  isInfoText: Readonly<Ref<UnwrapRef<ITablePagination["isInfoText"]>>>
-  isPageSizeSelector: Readonly<Ref<UnwrapRef<ITablePagination["isPageSizeSelector"]>>>
-  isHiddenNavigationButtons: Readonly<Ref<UnwrapRef<ITablePagination["isHiddenNavigationButtons"]>>>
-  // ---CELL--------------------------------
-  heightCell: Readonly<Ref<UnwrapRef<number>>>
-  countVisibleRows: Readonly<Ref<UnwrapRef<ITable["countVisibleRows"]>>>
-  heightTable: Readonly<Ref<UnwrapRef<string>>>
-  // ---DATA--------------------------------
-  dataSource: Readonly<Ref<UnwrapRef<Array<any>>>>
-  resultDataSource: Readonly<Ref<UnwrapRef<ResultData>>>
-  dataColumns: Readonly<Ref<UnwrapRef<Array<IColumnPrivate>>>>
-  dataSummary: Readonly<Ref<UnwrapRef<Array<ISummaryPrivate>>>>
-  summaryColumns: Readonly<Ref<UnwrapRef<object>>>
-  // ---STYLE-------------------------------
-  styles: Readonly<Ref<UnwrapRef<ITableStyles>>>
-  tableBodyStyle: Readonly<Ref<UnwrapRef<string>>>
-  modeStyle: Readonly<Ref<UnwrapRef<string>>>
-  isDark: Readonly<Ref<UnwrapRef<boolean>>>
-  // ---METHODS-----------------------------
-  addRow(data:any):number
-  deleteRow(_key:uuid):false|any
-  updateRow(_key:uuid, data:any):false|any
-  updateCell(_key:uuid, column:IColumn, value: any):false|any
-  getColumn(dataField:IColumn["dataField"], index?:number):IColumn
-  sorting(dataField:IColumn["dataField"], value?:Sort):void
-  filtering(dataField:IColumn["dataField"], value:any):void
-  searching(value:Search):void
-  switchPage(page:Page):void
-  switchSizePage(sizePage:Page):void
-  startLoading():void
-  stopLoading():void
-  clearFilter():void
-  updateHeightTable():void
-}
 defineExpose<ITableExpose>({
   //---STATE-------------------------
   widthsColumns, sortColumns, filterColumns, queryTable, pageTable, sizeTable, allData, isLoading,
@@ -643,16 +433,17 @@ defineExpose<ITableExpose>({
 // ---MOUNT-UNMOUNT-----------------------
 onMounted(()=>{
   if (tbody.value) { tableObserver.observe(tbody.value as Element) }
-  const resultSort = dataColumns.value.map((column)=>[column.dataField,column.defaultSort??null])
-  Object.assign(sortColumns, Object.fromEntries(new Map(resultSort)))
-  const resultFilter = dataColumns.value.map((column)=>[column.dataField,column.defaultFilter??null])
-  Object.assign(filterColumns, Object.fromEntries(new Map(resultFilter)))
-  const resultWidths = dataColumns.value.map((column)=>[column.dataField,column.width??column.maxWidth??column.minWidth])
-  Object.assign(widthsColumns, Object.fromEntries(new Map(resultWidths)))
+  Object.assign(sortColumns, Object.fromEntries(new Map(
+    dataColumns.value.map((column)=>[column.dataField,column.defaultSort??null]))))
+  Object.assign(filterColumns, Object.fromEntries(new Map(
+    dataColumns.value.map((column)=>[column.dataField,column.defaultFilter??null]))))
+  Object.assign(widthsColumns, Object.fromEntries(new Map(
+    dataColumns.value.map((column)=>[column.dataField,column.width??column.maxWidth??column.minWidth]))))
   setTimeout(()=>updateHeightTable(),10)
 })
 onUnmounted(()=>{
   tableObserver.disconnect();
+  colorSchemeQueryList.removeEventListener('change', setColorScheme);
 })
 // ---WATCHERS----------------------------
 watch(()=>[countVisibleRows.value, styles.value.height],(value, oldValue)=> {
@@ -669,9 +460,9 @@ watch(()=>filterColumns, ()=> {
   switchPage(1)
   emit('filter', {dataColumns: dataColumns.value, filteredFields: getFilters(filterColumns)})
 }, {deep: true})
-watch(()=>queryTable.value.length, ()=> {
+watch(()=>queryTable.value, (query)=> {
   switchPage(1)
-  emit('search', queryTable.value)
+  emit('search', query)
 })
 watch(startPage,(numberPage:number)=>{
   setTimeout(()=>switchPage(numberPage),10)
@@ -680,17 +471,17 @@ watch(sizePage,(sizePageValue:number)=>{
   switchSizePage (sizePageValue ?? sizePage.value)
 }, {immediate: true})
 // ---METHODS-----------------------------
-function getHeightVisibleRows () {
+function getHeightVisibleRows():number {
   if (countVisibleRows.value && tbody.value && componentTable.value) {
-    const tagTrs = [...(tbody.value as HTMLElement)?.querySelectorAll(`tr:nth-child(-n+${countVisibleRows.value??1})`)]
+    const tagTrs = [...tbody.value?.querySelectorAll(`tr:nth-child(-n+${countVisibleRows.value??1})`)] as Array<HTMLElement>
     if (tagTrs) {
-      return tagTrs.reduce((sum, item:HTMLElement)=>sum + item?.offsetHeight, 0)
+      return tagTrs.reduce<number>((sum, item:HTMLElement)=>sum + item?.offsetHeight, 0)
     } else { return countVisibleRows.value * (32 + heightCell.value + 1) }
-  }
+  } return 0
 }
-function updateHeightTable() {
+function updateHeightTable():void {
   if (styles.value.height) {
-    const componentTableHeight = componentTable.value?.clientHeight -
+    const componentTableHeight = (componentTable.value?.clientHeight??0) -
       parseFloat(getComputedStyle(componentTable.value as HTMLElement).paddingTop) -
       parseFloat(getComputedStyle(componentTable.value as HTMLElement).paddingBottom)
     const height = (componentTableHeight ?? 0) - (tableToolbar.value?.clientHeight ?? 0) -
@@ -701,7 +492,7 @@ function updateHeightTable() {
     heightTable.value = `height: ${resultHeight > 0 ? resultHeight : baseTableHeight}px;`
   } else { heightTable.value = "height: auto;" }
 }
-function getColumn(dataField:IColumn["dataField"], index?:number):IColumnPrivate {
+function getColumn(dataField:IColumn["dataField"], index?:number):IColumnPrivate|undefined {
   return dataColumns.value.find((column, item)=>dataField ? column.dataField === dataField : item === index)
 }
 function sorting(dataField:IColumn["dataField"], value?:Sort) {
@@ -729,7 +520,7 @@ function filtering(dataField:IColumn["dataField"], value:any) {
   },timeout)
 }
 function searching(value:Search|null) {
-  const isLoading = queryTable.value?.length > value?.length
+  const isLoading = queryTable.value?.length > (value?.length??0)
   let timeout = allData.value?.length > countDataOnLoading.value
     ? lengthData.value > countDataOnLoading.value||value === null||value === ""||isLoading ? 800 : 0 : 0
   if (timeout > 100){ startLoading() }
@@ -771,6 +562,7 @@ function isEqualsValue(column:IColumnPrivate, columnValue:any, value: any): bool
         } else { return false }
       }
     }
+    default: return false
   }
 }
 function setSummary(summary:ISummaryPrivate):string{
@@ -807,11 +599,12 @@ function setSummary(summary:ISummaryPrivate):string{
     }
   }
   if (result === null || result === undefined) { return "" }
-  result = setCell(getColumn(summary.dataField), String(result))
-  if (summary?.customizeText) {
-    return <string>summary?.customizeText(summary, result)
+  const column = getColumn(summary.dataField)
+  if (column) result = setCell(column, String(result))
+  if (summary?.customizeText && typeof summary.customizeText === "function") {
+    return summary?.customizeText(summary, `${result}`)
   } else {
-    return String(summary?.displayFormat).replace(/\{0}/g, result)
+    return String(summary?.displayFormat).replace(/\{0}/g, `${result}`)
   }
 }
 function setCell(column:IColumnPrivate, value:any, data?:any):string{
@@ -833,8 +626,8 @@ function setCell(column:IColumnPrivate, value:any, data?:any):string{
   let valueCell
   if (value === null || value === undefined) {
     valueCell = null
-  } else if ("setCellValue" in column) {
-    valueCell = column?.setCellValue(column, value, data)
+  } else if ("setCellValue" in column && typeof column.setCellValue === "function") {
+    valueCell = column.setCellValue(column, value, data)
   } else {
     switch (column.type) {
       case "string": valueCell = toMask();break
@@ -855,10 +648,11 @@ function setMarker (column:IColumnPrivate, valueCell:any):string {
   return valueCell
 }
 function getSorted(sorted:Sorted):Sorted {
-  return Object.keys(sorted).reduce((result, column)=>{
+  return Object.keys(sorted).reduce((result:Sorted, column)=>{
     if (sorted[column] === "asc" || sorted[column] === "desc"){
       result[column] = sorted[column] }
-    return result }, {})
+    return result
+  }, {})
 }
 function getFilters(filters:Filters):Filters {
   return noEmptyFilters(filters)
@@ -904,12 +698,12 @@ function clickCell(key:string, column:IColumn, value:any, valueWithMarker:any, d
   emit( "click-cell", {eventEl: (tbody.value as HTMLElement)?.querySelector(`.${key}`) as HTMLElement ?? null, column, value, valueWithMarker, data, indexRow})
 }
 function addRow(data:any):number {
-  const newValueRow = {...data, _key: uuidv4()}
-  const index:number = allData.value?.push(newValueRow) - 1
-  emit('add-row', {value:newValueRow, index, _key: newValueRow._key})
+  const newValueRow:any = {...data, _key: uuidv4()}
+  const index:number = (allData.value as Array<any>)?.push(newValueRow) - 1
+  emit('add-row', {value:data, index, _key: newValueRow._key})
   return index
 }
-function deleteRow(_key:uuid):false|any {
+function deleteRow(_key:string):false|any {
   if (_key && allData.value) {
     const index = allData.value?.findIndex(i=>i._key === _key)
     if (index >= 0){
@@ -918,7 +712,7 @@ function deleteRow(_key:uuid):false|any {
     }
   } return false
 }
-function updateRow(_key:uuid, data:any):false|any {
+function updateRow(_key:string, data:any):false|any {
   if (_key) {
     const index = allData.value?.findIndex(i=>i._key === _key)
     if (index >= 0){
@@ -930,8 +724,8 @@ function updateRow(_key:uuid, data:any):false|any {
     }
   } return false
 }
-function updateCell(_key:uuid, column:IColumn, value: any):false|any {
-  if (_key && column) {
+function updateCell(_key:string, column:IColumn, value: any):false|any {
+  if (_key && column && column?.dataField) {
     const index = allData.value?.findIndex(i=>i._key === _key)
     if (index >= 0 && column.dataField in allData.value[index]){
       emit('before-edit-cell', {newValue: value, oldValue: allData.value[index][column.dataField], _key, column})
@@ -943,15 +737,15 @@ function updateCell(_key:uuid, column:IColumn, value: any):false|any {
 }
 // ---RESIZE-COLUMN-----------------------
 function resizeColumn($event: MouseEvent, columnId: string) {
-  const columnEl: HTMLElement = (thead.value as HTMLElement)?.querySelector(`.${columnId}`);
+  const columnEl = (thead.value as HTMLElement)?.querySelector(`.${columnId}`);
   if (columnEl) {
     const column = <IColumnPrivate>dataColumns.value.find(item=>item.id === columnId)
     const rect = columnEl.getBoundingClientRect();
     let newW = $event.pageX - rect.left
     const maxW = column.maxWidth
-    if (newW > maxW && maxW) { newW = maxW }
+    if (maxW && (newW > maxW)) { newW = maxW }
     const minW = column.minWidth ?? 100
-    if (newW < minW && minW) { newW = minW }
+    if (minW && (newW < minW)) { newW = minW }
     widthsColumns[column.dataField] = Math.round(newW)
   }
 }
@@ -969,6 +763,7 @@ function startResizeColumn($event: MouseEvent, column: IColumnPrivate["id"]) {
 function stopResizeColumn() {
   resizableColumn.value = null
   window.removeEventListener('mousemove', moveResizedColumns);
+  window.removeEventListener('mouseup', stopResizeColumn);
 }
 // ---------------------------------------
 </script>
@@ -994,7 +789,7 @@ function stopResizeColumn() {
           :mode="mode"
           label-mode="vanishing"
           :params-input="{autocomplete: 'off', classInput: 'min-w-[5rem] max-w-[5rem] focus:max-w-[8rem] focus:min-w-[8rem] sm:focus:max-w-[15rem] sm:focus:min-w-[15rem] transition-all duration-500'}"
-          :class-body="`sticky top-1 rounded-md ease-out ${modeStyle}`"
+          :class-body="`sticky top-1 rounded-md ease-out ${modeStyle} mb-2`"
           @change:model-value="(v)=>searching(v)"
           @update:model-value="(v)=>lengthData > 100||searching(v)">
           <template #before>
@@ -1006,7 +801,7 @@ function stopResizeColumn() {
                   enter-active-class="transition ease-in duration-1000" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <Button v-if="isFilterClear" class="group rounded-md ml-2 h-[38px] min-w-[38px] px-2 bg-stone-100 dark:bg-stone-900" @click="clearFilter">
             <FunnelIcon aria-hidden="true" class="h-4 w-4 text-gray-400 dark:text-gray-600 group-hover:text-red-400 group-hover:dark:text-red-600"/>
-            <Tooltip>Очистить все фильтры</Tooltip>
+            <FixWindow :mode="mode">Очистить все фильтры</FixWindow>
           </Button>
       </transition>
     </div>
@@ -1074,7 +869,7 @@ function stopResizeColumn() {
                         :class-body="column.class?.colFilterClassBody"
                         :style="`min-width: ${widthsColumns[column.dataField]? widthsColumns[column.dataField]-30 : column.width||column.minWidth||50}px`"
                         clear
-                        @change:model-value="(v)=>filtering(column?.dataField, v)"/>
+                        @update:model-value="(v)=>filtering(column?.dataField, v)"/>
                     </div>
                     <div v-else :class="cn('block text-sm font-medium truncate', column.class?.colText)">
                       {{ column.caption }}
@@ -1160,8 +955,8 @@ function stopResizeColumn() {
                             :label="column.caption"
                             :mode="mode"
                             :params-input="{
-                              ...column.edit.paramsInput,
-                              classInput: `pt-[5px] pl-[10px] ${styles.class?.cellText} ${column.edit.paramsInput?.classInput}`}"
+                              ...column.edit?.paramsInput,
+                              classInput: `pt-[5px] pl-[10px] ${styles.class?.cellText} ${column.edit?.paramsInput?.classInput}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-0 -my-3 w-full"
                             label-mode="vanishing"
@@ -1173,9 +968,9 @@ function stopResizeColumn() {
                             :label="column.caption"
                             :mode="mode"
                             :params-select="{
-                              ...column.edit.paramsSelect,
-                              paramsFixWindow: {scrollableEl: tableBody, ...column.edit.paramsSelect?.paramsFixWindow},
-                              classSelect: `pl-[10px] ${styles.class?.cellText} ${column.edit.paramsSelect?.classSelect}`}"
+                              ...column.edit?.paramsSelect,
+                              paramsFixWindow: {scrollableEl: tableBody, ...column.edit?.paramsSelect?.paramsFixWindow},
+                              classSelect: `pl-[10px] ${styles.class?.cellText} ${column.edit?.paramsSelect?.classSelect}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-[2px] -my-3 w-full"
                             label-mode="vanishing"
@@ -1188,14 +983,14 @@ function stopResizeColumn() {
                             :label="column.caption"
                             :mode="mode"
                             :params-date-picker="{
-                              ...column.edit.paramsDatePicker,
-                              paramsFixWindow: {scrollableEl: tableBody, ...column.edit.paramsDatePicker?.paramsFixWindow},
-                              classDateText: `pt-[7px] pl-[10px] ${styles.class?.cellText} ${column.edit.paramsDatePicker?.classDateText}`}"
+                              ...column.edit?.paramsDatePicker,
+                              paramsFixWindow: {scrollableEl: tableBody, ...column.edit?.paramsDatePicker?.paramsFixWindow},
+                              classDateText: `pt-[7px] pl-[10px] ${styles.class?.cellText} ${column.edit?.paramsDatePicker?.classDateText}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-0 -my-3 w-full"
                             label-mode="vanishing"
                             @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
-                            @change:model-value="(value)=>updateCell(data?._key, column, value)"/>
+                            @update:model-value="(value)=>updateCell(data?._key, column, value)"/>
                         </template>
                       </div>
                       <div
@@ -1239,27 +1034,30 @@ function stopResizeColumn() {
           </table>
         </div>
   <!-- -------------------------------- -->
-        <div v-if="isPagination && allData?.length" ref="pager"
-             :class="cn(!isSummary||'relative sm:px-5', modeStyle)"
-             :style="!slots.footer ?`border-bottom-left-radius: ${styles.borderRadiusPx}px;border-bottom-right-radius: ${styles.borderRadiusPx}px;`:''">
-          <Pagination :model-value="pageTable"
-                      :size-page="+sizeTable"
-                      :mode="modePagination"
-                      :total="lengthData"
-                      :visible-number-pages="visibleNumberPages"
-                      :is-info-text="isInfoText"
-                      :sizes-selector="sizesSelector"
-                      :is-page-size-selector="isPageSizeSelector"
-                      :is-hidden-navigation-buttons="isHiddenNavigationButtons"
-                      :class="cn('classPagination border-t sm:px-2', styles.class?.pagination, (styles.border as {'pagination'})?.pagination)"
-                      @update:model-value="switchPage"
-                      @update:size-page="switchSizePage"/></div>
+        <div
+          v-if="isPagination && allData?.length" ref="pager"
+          :class="cn(!isSummary||'relative sm:px-5', modeStyle)"
+          :style="!slots.footer ?`border-bottom-left-radius: ${styles.borderRadiusPx}px;border-bottom-right-radius: ${styles.borderRadiusPx}px;`:''">
+          <Pagination
+            :model-value="pageTable"
+            :size-page="+sizeTable"
+            :mode="modePagination"
+            :total="lengthData"
+            :visible-number-pages="visibleNumberPages"
+            :is-info-text="isInfoText"
+            :sizes-selector="sizesSelector"
+            :is-page-size-selector="isPageSizeSelector"
+            :is-hidden-navigation-buttons="isHiddenNavigationButtons"
+            :class="cn('classPagination border-t sm:px-2', styles.class?.pagination, (styles.border as {'pagination'})?.pagination)"
+            @update:model-value="switchPage"
+            @update:size-page="switchSizePage"/>
+        </div>
   <!-- -------------------------------- -->
         <transition leave-active-class="transition ease-in duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <div v-if="isLoading" class="absolute z-30 top-0 bottom-0 left-0 w-full select-none text-center text-sm text-gray-500">
             <div class="flex justify-center items-center h-full w-full rounded-lg bg-neutral-100/70 dark:bg-neutral-800/50">
-              <Loading type="Fingerprint" :size="100" :color="isDark? 'primary.800' : 'primary.500'"/>
+              <Loading type="Fingerprint" :size="100" :color="isDark? 'theme.800' : 'theme.500'"/>
             </div>
           </div>
         </transition>
