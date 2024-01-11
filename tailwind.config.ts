@@ -14,7 +14,6 @@ export default {
     extend: {
       colors: {
         theme: {
-          base: "hsl(var(--color-theme) / <alpha-value>)",
           50: "hsl(var(--color-theme-50) / <alpha-value>)",
           100: "hsl(var(--color-theme-100) / <alpha-value>)",
           200: "hsl(var(--color-theme-200) / <alpha-value>)",
@@ -22,6 +21,7 @@ export default {
           400: "hsl(var(--color-theme-400) / <alpha-value>)",
           500: "hsl(var(--color-theme-500) / <alpha-value>)",
           600: "hsl(var(--color-theme-600) / <alpha-value>)",
+          700: "hsl(var(--color-theme-700) / <alpha-value>)",
           800: "hsl(var(--color-theme-800) / <alpha-value>)",
           900: "hsl(var(--color-theme-900) / <alpha-value>)",
           950: "hsl(var(--color-theme-950) / <alpha-value>)",
