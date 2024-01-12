@@ -9,6 +9,7 @@ export type IFixWindow = {
   scrollableEl?: RefLink
   position?: Position
   class?: StyleClass
+  classBody?: StyleClass
   mode?: IMode
   eventOpen?: EventFixWindow
   eventClose?: EventFixWindow

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import ComponentViews from "@/components/ComponentViews.vue";
-import StForm, {type IFormExpose, type IFormStructure} from "@/components/form/StForm.vue";
+import StForm from "@/components/form/StForm.vue";
 import Button from "@/components/functional/Button.vue";
 import {ref, watch} from "vue";
 import {type IResultCallback} from "@/helpers/rules";
+import type {IFormExpose, IFormStructure} from "@/components/form/StForm";
 const form = ref<any>(null)
-const formTest = ref<IFormExpose|null>(null)
+const formTest = ref<IFormExpose>()
 
 const structures = ref<Array<IFormStructure>>([
   {
@@ -28,7 +29,9 @@ const structures = ref<Array<IFormStructure>>([
         name: "nameDop",
         label:"Имя",
         clear: true,
-        beforeIcon: "UserCircle",
+        slots: {
+          beforeIcon: "UserCircle",
+        },
         help: "<img src='https://cdn-icons-png.flaticon.com/512/1828/1828439.png' class='w-10 m-auto' alt=''> Ваше имя должно начинаться с большой буквы. Это поле будет выводиться публично",
         rules: {
           required: "Имя обязательно для заполнения"
@@ -38,9 +41,7 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Input",
         name: "surname",
         modelValue: "Bonda",
-        paramsInput: {
-          placeholder: "Bonda",
-        },
+        placeholder: "Bonda",
         rules: {
           length: {
             min: 5,
@@ -51,7 +52,9 @@ const structures = ref<Array<IFormStructure>>([
         label:"Фамилия",
         required: true,
         clear: true,
-        beforeIcon: "User"
+        slots: {
+          beforeIcon: "User"
+        }
       },
       {
         typeComponent: "Input",
@@ -59,35 +62,35 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "25",
         label: "Возраст",
         required: true,
-        paramsInput: {
-          placeholder: "25",
-          mask: "number",
-          lengthInteger: 3,
-          classInput: "text-right"
-        },
+        placeholder: "25",
+        mask: "number",
+        lengthInteger: 3,
+        classInput: "text-right",
         clear: true,
-        afterText: "лет",
+        slots: {
+          afterText: "лет",
+          beforeIcon: "manage_accounts",
+        },
         classCol: "sm:col-span-3",
-        beforeIcon: "manage_accounts",
       },
       {
         typeComponent: "Select",
         name: "professionType",
         label: "Профессия",
-        beforeIcon: "BookOpen",
+        slots: {
+          beforeIcon: "BookOpen",
+        },
         modelValue: ["t2"],
-        paramsSelect: {
-          dataSelect: ["apple", "banana", "cherry", "t1", "t2", "t3"],
-          keySelect: "value",
-          valueSelect: "label",
-          multiple: false,
+        dataSelect: ["apple", "banana", "cherry", "t1", "t2", "t3"],
+        keySelect: "value",
+        valueSelect: "label",
+        multiple: false,
         // dataSelect: [
         //   {value: 1, label: "Програмиист"},
         //   {value: 2, label: "HR"},
         //   {value: 3, label: "Дизайнер"},
         //   {value: 4, label: "1C"},
         // ],
-        },
         clear: true,
         required: true,
         rules: {
@@ -103,21 +106,21 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Select",
         name: "professionType1",
         label: "Профессия",
-        beforeIcon: "BookOpen",
+        slots: {
+          beforeIcon: "BookOpen",
+        },
         // disabled: true,
         modelValue: ["apple"],
-        paramsSelect: {
-          dataSelect: ["apple", "banana", "cherry"],
-          keySelect: "value",
-          valueSelect: "label",
-          multiple: true,
+        dataSelect: ["apple", "banana", "cherry"],
+        keySelect: "value",
+        valueSelect: "label",
+        multiple: true,
         // dataSelect: [
         //   {value: 1, label: "Програмиист"},
         //   {value: 2, label: "HR"},
         //   {value: 3, label: "Дизайнер"},
         //   {value: 4, label: "1C"},
         // ],
-        },
         clear: true,
         required: true,
         rules: {
@@ -133,9 +136,11 @@ const structures = ref<Array<IFormStructure>>([
         name: "birthday1",
         label: "День рождения",
         modelValue: "2023-08-02T21:00:00.000Z",
-        afterIcon: "cil:birthday-cake",
-        beforeIcon: "cil:birthday-cake",
-        afterText: "Text",
+        slots: {
+          afterText: "Text",
+          afterIcon: "cil:birthday-cake",
+          beforeIcon: "cil:birthday-cake"
+        },
         paramsDatePicker: {
           placeholder: "Дата 01.01.2023",
           minDate: new Date('2023-08-01T21:00:00.000Z'),
@@ -152,7 +157,9 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: { "start": "2023-08-02T21:00:00.000Z", "end": "2023-08-10T21:00:00.000Z" },
         paramsDatePicker: { placeholder: "Дата 01.01.2023", isRange: true, masks: {modelValue :"DD.MM.YYYY"} },
         label: "День рождения",
-        beforeIcon: "cil:birthday-cake",
+        slots: {
+          beforeIcon: "cil:birthday-cake"
+        },
         help: "Dates",
         required: true,
         clear: true
@@ -161,14 +168,14 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Aria",
         name: "about",
         label: "About",
-        beforeIcon: "bi:chat-left-quote",
+        slots: {
+          beforeIcon: "bi:chat-left-quote",
+        },
         modelValue: "",
         required: true,
         clear: true,
-        paramsAria:{
-          maxLength: 30,
-          rows: 2
-        },
+        maxLength: 30,
+        rows: 2,
         rules: {
           length: {
             min: 5,
@@ -183,16 +190,16 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "<h2>Тестовый </h2><p>текст с описанием </p><p>Этот текст тоже должен быть скопирован</p>",
         label: "Приложенные правила",
         // disabled: true,
-        beforeIcon: "material-symbols-light:attach-file"
+        slots: {
+          beforeIcon: "material-symbols-light:attach-file"
+        },
       },
       {
         typeComponent: "Switch",
         name: "isInfo",
-        paramsSwitch: {
-          switchingType: "checkbox",
-          rounded: 4,
-          mode: "none"
-        },
+        switchingType: "checkbox",
+        rounded: 4,
+        mode: "none",
         modelValue: false,
         // iconActive: "Sun",
         // iconInactive: "Moon",
@@ -216,14 +223,14 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "",
         label: "Стоимость услуги",
         required: true,
-        paramsInput: {
-          mask: "price",
-          lengthInteger: 6,
-          classInput: "text-right",
-        },
+        mask: "price",
+        lengthInteger: 6,
+        classInput: "text-right",
         clear: true,
-        afterText: "рубля",
-        beforeIcon: "material-symbols:currency-ruble"
+        slots: {
+          afterText: "рубля",
+          beforeIcon: "material-symbols:currency-ruble"
+        },
         // classCol: "sm:col-span-3"
       },
       {
@@ -233,16 +240,16 @@ const structures = ref<Array<IFormStructure>>([
         label: "Номер телевона",
         required: true,
         clear: true,
-        paramsInput: {
-          placeholder: "+7 (000) 000-00-00",
-          mask: "phone",
-          lengthInteger: 6,
-        },
+        placeholder: "+7 (000) 000-00-00",
+        mask: "phone",
+        lengthInteger: 6,
         rules: {
           phone: "Не верный формат номера телефона"
         },
         // classCol: "sm:col-span-3"
-        beforeIcon: "Phone"
+        slots: {
+          beforeIcon: "Phone"
+        },
       },
       {
         typeComponent: "Input",
@@ -254,12 +261,11 @@ const structures = ref<Array<IFormStructure>>([
           email: "Не верный формат почты"
         },
         clear: true,
-        
-        paramsInput: {
-          placeholder: "test@gmail.com",
+        placeholder: "test@gmail.com",
+        slots: {
+          beforeIcon: "Envelope"
         },
         // classCol: "sm:col-span-3"
-        beforeIcon: "Envelope"
       },
       {
         typeComponent: "Input",
@@ -268,11 +274,11 @@ const structures = ref<Array<IFormStructure>>([
         label: "Возраст",
         // required: true,
         clear: true,
-        paramsInput: {
-          classInput: "text-right",
-        },
+        classInput: "text-right",
         // beforeIcon: "counter_1",
-        beforeIcon: "academicons:hal",
+        slots: {
+          beforeIcon: "academicons:hal",
+        },
         help: "Поле должно состоять только из числа",
         rules: {
           range: {
@@ -296,7 +302,9 @@ const structures = ref<Array<IFormStructure>>([
         label: "Логин",
         required: true,
         clear: true,
-        beforeIcon: "AtSymbol",
+        slots: {
+          beforeIcon: "AtSymbol",
+        },
         help: "От 3 до 30 символов",
         rules: {
           custom: {
@@ -317,12 +325,12 @@ const structures = ref<Array<IFormStructure>>([
         name: "password",
         modelValue: "",
         label: "Пароль",
-        paramsInput: {
-          type: "password",
-        },
+        type: "password",
         required: true,
         clear: true,
-        beforeIcon: "FingerPrint",
+        slots: {
+          beforeIcon: "FingerPrint",
+        },
         help: "От 3 до 30 символов",
         rules: {
           async: {
@@ -355,12 +363,12 @@ const structures = ref<Array<IFormStructure>>([
         name: "verificationPassword",
         modelValue: "",
         label: "Пароль для проерки",
-        paramsInput: {
-          type: "password",
-        },
+        type: "password",
         // required: true,
         clear: true,
-        beforeIcon: "FingerPrint",
+        slots: {
+          beforeIcon: "FingerPrint",
+        },
         help: "От 3 до 30 символов",
         rules: {
           required: true,

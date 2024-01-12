@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import {ref, watch} from "vue";
-import Dialog, {type IDialog} from "@/components/functional/Dialog.vue";
+import Dialog from "@/components/functional/Dialog.vue";
 import ComponentViews from "@/components/ComponentViews.vue";
 import Button from "@/components/functional/Button.vue";
-import StForm, {IFormExpose, IFormStructure} from "@/components/form/StForm.vue";
+import StForm from "@/components/form/StForm.vue";
 import {IResultCallback} from "@/helpers/rules";
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline'
 import Icons from "@/components/functional/Icons.vue";
 import Badge from "@/components/functional/Badge.vue";
+import type {IDialog} from "@/components/functional/Dialog";
+import type {IFormExpose, IFormStructure} from "@/components/form/StForm";
 const form = ref<any>(null)
-const formTest = ref<IFormExpose|null>(null)
+const formTest = ref<IFormExpose>()
 const structures = ref<Array<IFormStructure>>([
   {
     title: "Профиль",
@@ -31,7 +33,9 @@ const structures = ref<Array<IFormStructure>>([
         name: "nameDop",
         label:"Имя",
         clear: true,
-        beforeIcon: "UserCircle",
+        slots: {
+          beforeIcon: "UserCircle",
+        },
         help: "<img src='https://cdn-icons-png.flaticon.com/512/1828/1828439.png' class='w-10 m-auto' alt=''> Ваше имя должно начинаться с большой буквы. Это поле будет выводиться публично",
         rules: {
           required: "Имя обязательно для заполнения"
@@ -41,9 +45,7 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Input",
         name: "surname",
         modelValue: "Bonda",
-        paramsInput: {
-          placeholder: "Bonda",
-        },
+        placeholder: "Bonda",
         rules: {
           length: {
             min: 5,
@@ -54,7 +56,9 @@ const structures = ref<Array<IFormStructure>>([
         label:"Фамилия",
         required: true,
         clear: true,
-        beforeIcon: "User"
+        slots: {
+          beforeIcon: "User"
+        }
       },
       {
         typeComponent: "Input",
@@ -62,34 +66,35 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "25",
         label: "Возраст",
         required: true,
-        paramsInput: {
-          placeholder: "25",
-          mask: "number",
-          lengthInteger: 3,
-          classInput: "text-right"
-        },
+        placeholder: "25",
+        mask: "number",
+        lengthInteger: 3,
+        classInput: "text-right",
         clear: true,
-        afterText: "лет",
+        slots: {
+          afterText: "лет",
+          beforeIcon: "manage_accounts",
+        },
         classCol: "sm:col-span-3",
-        beforeIcon: "manage_accounts",
       },
       {
         typeComponent: "Select",
         name: "professionType",
         label: "Профессия",
-        beforeIcon: "BookOpen",
-        paramsSelect: {
-          dataSelect: ["apple", "banana", "cherry", "apple", "cherry", " t1", "t2", "t3"],
-          keySelect: "value",
-          valueSelect: "label",
-          multiple: true,
-          // dataSelect: [
-          //   {value: 1, label: "Програмиист"},
-          //   {value: 2, label: "HR"},
-          //   {value: 3, label: "Дизайнер"},
-          //   {value: 4, label: "1C"},
-          // ],
+        slots: {
+          beforeIcon: "BookOpen",
         },
+        modelValue: ["t2"],
+        dataSelect: ["apple", "banana", "cherry", "t1", "t2", "t3"],
+        keySelect: "value",
+        valueSelect: "label",
+        multiple: false,
+        // dataSelect: [
+        //   {value: 1, label: "Програмиист"},
+        //   {value: 2, label: "HR"},
+        //   {value: 3, label: "Дизайнер"},
+        //   {value: 4, label: "1C"},
+        // ],
         clear: true,
         required: true,
         rules: {
@@ -105,26 +110,26 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Select",
         name: "professionType1",
         label: "Профессия",
-        beforeIcon: "BookOpen",
+        slots: {
+          beforeIcon: "BookOpen",
+        },
         // disabled: true,
         modelValue: ["apple"],
-        paramsSelect: {
-          dataSelect: ["apple", "banana", "cherry", "apple", "cherry"],
-          keySelect: "value",
-          valueSelect: "label",
-          multiple: true,
-          // dataSelect: [
-          //   {value: 1, label: "Програмиист"},
-          //   {value: 2, label: "HR"},
-          //   {value: 3, label: "Дизайнер"},
-          //   {value: 4, label: "1C"},
-          // ],
-        },
+        dataSelect: ["apple", "banana", "cherry"],
+        keySelect: "value",
+        valueSelect: "label",
+        multiple: true,
+        // dataSelect: [
+        //   {value: 1, label: "Програмиист"},
+        //   {value: 2, label: "HR"},
+        //   {value: 3, label: "Дизайнер"},
+        //   {value: 4, label: "1C"},
+        // ],
         clear: true,
         required: true,
         rules: {
           length: {
-            message: "Максимальная длина 2",
+            message: "Выберете 3 или 4 продукта",
             max: 4,
             min: 3
           },
@@ -135,10 +140,13 @@ const structures = ref<Array<IFormStructure>>([
         name: "birthday1",
         label: "День рождения",
         modelValue: "2023-08-02T21:00:00.000Z",
-        afterIcon: "CoBirthdayCake",
-        beforeIcon: "CoBirthdayCake",
-        afterText: "Text",
+        slots: {
+          afterText: "Text",
+          afterIcon: "cil:birthday-cake",
+          beforeIcon: "cil:birthday-cake"
+        },
         paramsDatePicker: {
+          placeholder: "Дата 01.01.2023",
           minDate: new Date('2023-08-01T21:00:00.000Z'),
         },
         // disabled: true,
@@ -151,9 +159,11 @@ const structures = ref<Array<IFormStructure>>([
         // disabled: true,
         // modelValue: "2023-08-09T21:00:00.000Z",
         modelValue: { "start": "2023-08-02T21:00:00.000Z", "end": "2023-08-10T21:00:00.000Z" },
-        paramsDatePicker: { isRange: true, masks: {modelValue :"DD.MM.YYYY"} },
+        paramsDatePicker: { placeholder: "Дата 01.01.2023", isRange: true, masks: {modelValue :"DD.MM.YYYY"} },
         label: "День рождения",
-        beforeIcon: "CoBirthdayCake",
+        slots: {
+          beforeIcon: "cil:birthday-cake"
+        },
         help: "Dates",
         required: true,
         clear: true
@@ -162,14 +172,14 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Aria",
         name: "about",
         label: "About",
-        beforeIcon: "BiChatLeftQuote",
+        slots: {
+          beforeIcon: "bi:chat-left-quote",
+        },
         modelValue: "",
         required: true,
         clear: true,
-        paramsAria:{
-          maxLength: 30,
-          rows: 2
-        },
+        maxLength: 30,
+        rows: 2,
         rules: {
           length: {
             min: 5,
@@ -184,16 +194,16 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "<h2>Тестовый </h2><p>текст с описанием </p><p>Этот текст тоже должен быть скопирован</p>",
         label: "Приложенные правила",
         // disabled: true,
-        beforeIcon: "attach_file"
+        slots: {
+          beforeIcon: "material-symbols-light:attach-file"
+        },
       },
       {
         typeComponent: "Switch",
         name: "isInfo",
-        paramsSwitch: {
-          switchingType: "switch",
-          rounded: 9,
-          mode: "none"
-        },
+        switchingType: "checkbox",
+        rounded: 4,
+        mode: "none",
         modelValue: false,
         // iconActive: "Sun",
         // iconInactive: "Moon",
@@ -217,14 +227,14 @@ const structures = ref<Array<IFormStructure>>([
         modelValue: "",
         label: "Стоимость услуги",
         required: true,
-        paramsInput: {
-          mask: "price",
-          lengthInteger: 6,
-          classInput: "text-right",
-        },
+        mask: "price",
+        lengthInteger: 6,
+        classInput: "text-right",
         clear: true,
-        afterText: "рубля",
-        beforeIcon: "currency_ruble"
+        slots: {
+          afterText: "рубля",
+          beforeIcon: "material-symbols:currency-ruble"
+        },
         // classCol: "sm:col-span-3"
       },
       {
@@ -234,16 +244,16 @@ const structures = ref<Array<IFormStructure>>([
         label: "Номер телевона",
         required: true,
         clear: true,
-        paramsInput: {
-          placeholder: "+7 (000) 000-00-00",
-          mask: "phone",
-          lengthInteger: 6,
-        },
+        placeholder: "+7 (000) 000-00-00",
+        mask: "phone",
+        lengthInteger: 6,
         rules: {
           phone: "Не верный формат номера телефона"
         },
         // classCol: "sm:col-span-3"
-        beforeIcon: "Phone"
+        slots: {
+          beforeIcon: "Phone"
+        },
       },
       {
         typeComponent: "Input",
@@ -255,12 +265,11 @@ const structures = ref<Array<IFormStructure>>([
           email: "Не верный формат почты"
         },
         clear: true,
-        
-        paramsInput: {
-          placeholder: "test@gmail.com",
+        placeholder: "test@gmail.com",
+        slots: {
+          beforeIcon: "Envelope"
         },
         // classCol: "sm:col-span-3"
-        beforeIcon: "Envelope"
       },
       {
         typeComponent: "Input",
@@ -269,11 +278,11 @@ const structures = ref<Array<IFormStructure>>([
         label: "Возраст",
         // required: true,
         clear: true,
-        paramsInput: {
-          classInput: "text-right",
-        },
+        classInput: "text-right",
         // beforeIcon: "counter_1",
-        beforeIcon: "ai-hal",
+        slots: {
+          beforeIcon: "academicons:hal",
+        },
         help: "Поле должно состоять только из числа",
         rules: {
           range: {
@@ -297,7 +306,9 @@ const structures = ref<Array<IFormStructure>>([
         label: "Логин",
         required: true,
         clear: true,
-        beforeIcon: "AtSymbol",
+        slots: {
+          beforeIcon: "AtSymbol",
+        },
         help: "От 3 до 30 символов",
         rules: {
           custom: {
@@ -318,12 +329,12 @@ const structures = ref<Array<IFormStructure>>([
         name: "password",
         modelValue: "",
         label: "Пароль",
-        paramsInput: {
-          type: "password",
-        },
+        type: "password",
         required: true,
         clear: true,
-        beforeIcon: "FingerPrint",
+        slots: {
+          beforeIcon: "FingerPrint",
+        },
         help: "От 3 до 30 символов",
         rules: {
           async: {
@@ -356,12 +367,12 @@ const structures = ref<Array<IFormStructure>>([
         name: "verificationPassword",
         modelValue: "",
         label: "Пароль для проерки",
-        paramsInput: {
-          type: "password",
-        },
+        type: "password",
         // required: true,
         clear: true,
-        beforeIcon: "FingerPrint",
+        slots: {
+          beforeIcon: "FingerPrint",
+        },
         help: "От 3 до 30 символов",
         rules: {
           required: true,
@@ -531,8 +542,9 @@ watch(form, ()=>{
         </StForm>
       </template>
     </Dialog>
-    <Dialog v-model="isOpen3" :position="positionDialog3" class="max-w-[60vw] m-5 p-0">
-      <iframe allow="autoplay; encrypted-media" allowfullscreen class="w-full aspect-video" src="https://www.youtube.com/embed/t2I3Yd27dGw?feature=oembed&autoplay=1"></iframe>
+    <Dialog v-model="isOpen3" :position="positionDialog3" class="max-w-[60vw] w-auto m-5 p-0">
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/RTifScOdX-U?autoplay=1&si=pJ_551bSBwKZk4bw&amp;controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<!--      <iframe allow="autoplay; encrypted-media" allowfullscreen class="w-full aspect-video" src="https://www.youtube.com/embed/t2I3Yd27dGw?feature=oembed&autoplay=1"></iframe>-->
     </Dialog>
     <Dialog v-model="isOpen4" :position="positionDialog4" not-close-background class="p-0">
       <template #default="{closeDialog}">

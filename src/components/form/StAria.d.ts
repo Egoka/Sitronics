@@ -8,8 +8,7 @@ export interface IDataAria {
   maxLength?: number
   classInput?: string|Array<string|null>
 }
-export interface IAria extends Omit<ILayout, "value"|"isValue">{
+export interface IAria extends Omit<ILayout, "value"|"isValue">, Partial<IDataAria>{
   id?: string
   modelValue?: string|number|null|undefined,
-  paramsAria?: Partial<IDataAria>
 }

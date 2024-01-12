@@ -7,7 +7,6 @@ import {ArrowsPointingOutIcon, ArrowsPointingInIcon} from "@heroicons/vue/20/sol
 import {QuillEditor} from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import '@vueup/vue-quill/dist/vue-quill.bubble.css';
-import {removeParamsFromStructure} from "@/helpers/object";
 import {cn} from "@/helpers/tailwind";
 import type {ILayout} from "@/components/functional/InputLayout";
 import type {IDataTextEditor, ITextEditor} from "@/components/form/StTextEditor";
@@ -28,7 +27,7 @@ const isActiveTextEditor = ref<boolean>(false)
 const additionalStyles = ref<string>('max-h-max h-max')
 // ---------------------------------------
 const id = ref<NonNullable<ITextEditor["id"]>>(String(props.id ?? getCurrentInstance()?.uid))
-const theme = ref<NonNullable<IDataTextEditor["theme"]>>(props.paramsTextEditor?.theme ?? "bubble")
+const theme = ref<NonNullable<ITextEditor["theme"]>>(props?.theme ?? "bubble")
 const value = computed<string>(()=> String(props.modelValue ?? ""))
 const isValue = computed<boolean>(()=> Boolean(value.value ? String(value.value).length : value.value ?? isActiveTextEditor.value))
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
@@ -108,7 +107,7 @@ function ready() {
         v-if="theme ==='bubble'"
         ref="quillEditor"
         theme="bubble"
-        v-bind="removeParamsFromStructure(paramsQuillEditor, ['theme'])"
+        v-bind="paramsQuillEditor"
         @update:content="inputModelValue" @focus="isActiveTextEditor = true"
         @blur="isActiveTextEditor = false" @ready="ready"/>
     </div>
@@ -128,7 +127,7 @@ function ready() {
           <QuillEditor
             v-if="theme ==='snow'"
             theme="snow"
-            v-bind="removeParamsFromStructure(paramsQuillEditor, ['theme'])"
+            v-bind="paramsQuillEditor"
             @update:content="inputModelValue"/>
           <div class="absolute top-[5px] right-[5px]" @click="theme = 'bubble'">
             <Button mode="ghost" class="group h-9 w-9 px-0 border-neutral-500 dark:border-neutral-500 hover:bg-transparent hover:dark:bg-transparent cursor-pointer">

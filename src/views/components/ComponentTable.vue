@@ -14,9 +14,10 @@ import dayjs from "dayjs";
 import StSwitch from "@/components/form/StSwitch.vue";
 import {useRoute} from "vue-router";
 import Dialog from "@/components/functional/Dialog.vue";
-import StForm, {IFormStructure} from "@/components/form/StForm.vue";
+import StForm from "@/components/form/StForm.vue";
 import openAlert from "@/components/functional/Alert";
 import {XMarkIcon, PlusIcon} from "@heroicons/vue/20/solid";
+import type {IFormStructure} from "@/components/form/StForm";
 onMounted(()=>{
   const route = useRoute();
   if (route.hash) {

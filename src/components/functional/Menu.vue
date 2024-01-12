@@ -213,7 +213,7 @@ function setItems (menu:IMenuItemPrivate, depth:number=0):NonNullable<IMenuItemP
             v-if="!!item?.menu"
             v-bind="item?.menu?.paramsWindowMenu ?? paramsWindowMenu"
             :scrollable-el="menuRefLink"
-            class="z-10">
+            class-body="z-10">
             <Menu
               v-bind="item?.menu"
               :mode="mode"

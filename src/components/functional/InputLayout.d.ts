@@ -1,5 +1,5 @@
 import type {THeight, IMode, TWidth} from "@/components/BaseTypes";
-import type {ILabelMode} from "@/components/functional/Label.ts";
+import type {ILabelMode} from "@/components/functional/Label";
 
 export interface ILayout {
   value: any

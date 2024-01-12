@@ -150,15 +150,12 @@ async function copy() {
         </template>
       </Dropdown>
       <template v-if="!isDisabled">
-        <transition leave-active-class="transition ease-in duration-1000" leave-from-class="opacity-100" leave-to-class="opacity-0"
-                    enter-active-class="transition ease-in duration-1000" enter-from-class="opacity-0" enter-to-class="opacity-100">
-          <Dropdown v-if="isInvalid&&messageInvalid" :content="messageInvalid">
-            <template #head>
-              <ExclamationCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-red-500 cursor-pointer" aria-hidden="true" />
-              <FixWindow :mode="mode" :delay="10" :padding-window="40" class="text-red-500">{{ messageInvalid }}</FixWindow>
-            </template>
-          </Dropdown>
-        </transition>
+        <Dropdown v-if="isInvalid&&messageInvalid" :content="messageInvalid">
+          <template #head>
+            <ExclamationCircleIcon class="h-5 w-5 mr-2 mt-[6px] text-red-500 cursor-pointer" aria-hidden="true" />
+            <FixWindow :mode="mode" :delay="10" :padding-window="40" class="text-red-500">{{ messageInvalid }}</FixWindow>
+          </template>
+        </Dropdown>
         <transition leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <div v-if="clear && (value?.length||value>0)" class="relative h-5 w-5 mr-2">

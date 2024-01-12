@@ -3,7 +3,7 @@ import InputLayout from "@/components/functional/InputLayout.vue";
 import {computed, getCurrentInstance, ref, useSlots, watch} from "vue";
 import {onkeydown} from "@/helpers/numbers";
 import {cn} from "@/helpers/tailwind";
-import type {IAria, IDataAria} from "@/components/form/StAria";
+import type {IAria} from "@/components/form/StAria";
 import type {ILayout} from "@/components/functional/InputLayout";
 // ---------------------------------------
 const props = defineProps<IAria>()
@@ -21,11 +21,11 @@ const additionalStyles = ref<string>('max-h-max')
 // ---------------------------------------
 const id = ref<NonNullable<IAria["id"]>>(String(props.id ?? getCurrentInstance()?.uid))
 const value = computed<string>(()=> String(props.modelValue ?? ""))
-const placeholder = computed<NonNullable<IDataAria["placeholder"]>>(()=> String(props.paramsAria?.placeholder ?? ""))
-const autocomplete = computed<NonNullable<IDataAria["autocomplete"]>>(()=> props.paramsAria?.autocomplete ?? "on")
-const wrap = computed<NonNullable<IDataAria["wrap"]>>(()=> props.paramsAria?.wrap ?? "soft")
-const rows = computed<NonNullable<IDataAria["rows"]>>(()=> props.paramsAria?.rows ?? 3)
-const maxLength = computed<NonNullable<IDataAria["maxLength"]>>(()=> props.paramsAria?.maxLength ?? 9999)
+const placeholder = computed<NonNullable<IAria["placeholder"]>>(()=> String(props?.placeholder ?? ""))
+const autocomplete = computed<NonNullable<IAria["autocomplete"]>>(()=> props?.autocomplete ?? "on")
+const wrap = computed<NonNullable<IAria["wrap"]>>(()=> props?.wrap ?? "soft")
+const rows = computed<NonNullable<IAria["rows"]>>(()=> props?.rows ?? 3)
+const maxLength = computed<NonNullable<IAria["maxLength"]>>(()=> props?.maxLength ?? 9999)
 const isValue = computed<boolean>(()=> !!value.value || isActiveAria.value)
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
 const isDisabled = computed<NonNullable<IAria["disabled"]>>(()=> props.disabled ?? false)
@@ -92,7 +92,7 @@ function clear() {
           'placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600',
           '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
           'focus:outline-0 focus:ring-0 caret-theme-500',
-          props.paramsAria?.classInput,
+          props?.classInput,
           'classInput block'
         )"
         @focus="isActiveAria = true"

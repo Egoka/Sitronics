@@ -3,6 +3,7 @@ import {computed, getCurrentInstance, ref, watch, onMounted, onUnmounted} from "
 import Button from "@/components/functional/Button.vue";
 import {XMarkIcon} from "@heroicons/vue/20/solid";
 import type {EventFixWindow, IFixWindow, IFixWindowExpose} from "@/components/functional/FixWindow";
+import {cn} from "@/helpers/tailwind";
 // ---PROPS-EMITS-SLOTS-------------------
 const props = defineProps<IFixWindow>()
 const emit = defineEmits<{
@@ -303,11 +304,9 @@ function updatePosition() {
   <div
     v-show="isOpen"
     ref="fixWindow"
-    :class="props.class"
+    :class="cn('text-neutral-800 dark:text-neutral-300', props.classBody)"
     :style="`position: fixed;left: 0px; top: 0px;transform: translate(${x}px, ${y}px);${border}`">
-    <div :class="mode">
-      <slot/>
-    </div>
+    <div :class="cn(mode, props.class)"><slot/></div>
     <Button v-if="isCloseButton" mode="ghost" class="absolute top-2 right-2 px-[5px] m-0.5 h-9 w-9" @click="close">
       <XMarkIcon aria-hidden="true" class="h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>
     </Button>

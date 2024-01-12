@@ -3,7 +3,8 @@ import {ref, watch} from 'vue'
 import { CubeIcon } from "@heroicons/vue/24/outline";
 import ComponentViews from "@/components/ComponentViews.vue";
 import StInput from "@/components/form/StInput.vue";
-import StForm, {IFormExpose, IFormStructure} from "@/components/form/StForm.vue";
+import StForm from "@/components/form/StForm.vue";
+import type {IFormExpose, IFormStructure} from "@/components/form/StForm";
 const isInvalid = ref(false)
 const messageValid = ref("")
 const dimension = ref("")
@@ -109,26 +110,30 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Input",
         name: "before",
         label: "Имя",
-        beforeIcon: "user-circle"
+        slots: {
+          beforeIcon: "user-circle"
+        }
       },
       {
         typeComponent: "Input",
         name: "after",
         label: "Стоимость",
-        afterIcon: "circle-stack",
-        afterText: "рубля",
-        paramsInput: {
-          mask: "price",
-          classInput: "text-right"
-        }
+        slots: {
+          afterIcon: "circle-stack",
+          afterText: "рубля",
+        },
+        mask: "price",
+        classInput: "text-right"
       },
       {
         typeComponent: "Input",
         name: "beforeAndAfter",
         label: "ник",
-        beforeIcon: "CoVk",
-        beforeText: "https://vk.com/",
-        afterText: ".php"
+        slots: {
+          beforeIcon: "CoVk",
+          beforeText: "https://vk.com/",
+          afterText: ".php"
+        },
       },
     ]
   },
@@ -140,17 +145,13 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Input",
         name: "autocomplete",
         label: "Отсутствие автозаполнения ↓",
-        paramsInput: {
-          autocomplete: "off",
-        }
+        autocomplete: "off",
       },
       {
         typeComponent: "Input",
         name: "placeholder",
         label: "Пример заполнения ↓",
-        paramsInput: {
-          placeholder: "Текст примера ввода"
-        }
+        placeholder: "Текст примера ввода"
       },
       {
         typeComponent: "Input",
@@ -180,9 +181,7 @@ const structures = ref<Array<IFormStructure>>([
         name: "switch",
         label: "Переключить",
         modelValue: false,
-        paramsSwitch: {
-          switchingType: "switch"
-        }
+        switchingType: "switch"
       },
       {
         typeComponent: "Input",
@@ -218,34 +217,34 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Input",
         name: "number",
         label: "number",
-        paramsInput: {
-          mask: "number",
-          lengthInteger: 3,
-          lengthDecimal: 2
-        },
-        beforeIcon: "MdDiscount"
+        mask: "number",
+        lengthInteger: 3,
+        lengthDecimal: 2,
+        slots: {
+          beforeIcon: "MdDiscount"
+        }
       },
       {
         typeComponent: "Input",
         name: "price",
         label: "price",
-        paramsInput: {
-          mask: "price",
-          classInput: "text-right",
-          lengthInteger: 7,
-          lengthDecimal: 2
-        },
-        beforeIcon: "FaRubleSign",
-        afterText: "рубля"
+        mask: "price",
+        classInput: "text-right",
+        lengthInteger: 7,
+        lengthDecimal: 2,
+        slots: {
+          beforeIcon: "FaRubleSign",
+          afterText: "рубля"
+        }
       },
       {
         typeComponent: "Input",
         name: "phone",
         label: "phone",
-        paramsInput: {
-          mask: "phone"
+        mask: "phone",
+        slots: {
+          beforeIcon: "phone"
         },
-        beforeIcon: "phone"
       },
     ]
   },
@@ -256,37 +255,37 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Input",
         name: "typeText",
         label: "text",
-        paramsInput: {
-          type: "text"
+        type: "text",
+        slots: {
+          beforeIcon: "BiBodyText"
         },
-        beforeIcon: "BiBodyText"
       },
       {
         typeComponent: "Input",
         name: "typeNumber",
         label: "number",
-        paramsInput: {
-          type: "number"
+        type: "number",
+        slots: {
+          beforeIcon: "OiNumber"
         },
-        beforeIcon: "OiNumber"
       },
       {
         typeComponent: "Input",
         name: "typeEmail",
         label: "email",
-        paramsInput: {
-          type: "email"
+        type: "email",
+        slots: {
+          beforeIcon: "MdAlternateemailSharp"
         },
-        beforeIcon: "MdAlternateemailSharp"
       },
       {
         typeComponent: "Input",
         name: "typePassword",
         label: "password",
-        paramsInput: {
-          type: "password"
+        type: "password",
+        slots: {
+          beforeIcon: "MdPassword"
         },
-        beforeIcon: "MdPassword"
       },
     ]
   },
@@ -298,15 +297,17 @@ const structures = ref<Array<IFormStructure>>([
         typeComponent: "Input",
         name: "customOne",
         label: "text",
-        paramsInput: {
-          classInput: "!text-theme-700 dark:!text-theme-300"
+        classInput: "!text-theme-700 dark:!text-theme-300",
+        slots: {
+          beforeIcon: "BiBodyText"
         },
-        beforeIcon: "BiBodyText"
       },
     ]
   }
 ])
 watch(form, ()=>{
+  // console.log(formTest.value?.getField("customOne"));
+  // formTest.value?.setStructureParam()
   if (form.value["switch"] === true || form.value["switch"] === false){
     formTest.value?.setFieldParam("disabled1", "disabled", form.value["switch"])
     formTest.value?.setFieldParam("disabled2", "disabled", form.value["switch"])

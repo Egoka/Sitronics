@@ -64,7 +64,7 @@ const modeStyle = computed<string>(()=>
   (mode.value === "filled") ? "bg-neutral-100 dark:bg-neutral-900 rounded-lg mx-1 mt-0 px-3.5 py-2 hover:bg-neutral-200 dark:hover:bg-neutral-800" :
     (mode.value === "outlined") ? "bg-white dark:bg-neutral-950 ring-1 ring-inset ring-neutral-300 dark:ring-neutral-700 rounded-lg mx-1 mt-0 px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-900" :
       (mode.value === "underlined") ? "border-t-2 border-transparent pt-4 px-4 hover:border-gray-300 hover:text-gray-700 dark:hover:border-gray-700 dark:hover:text-gray-300" : "")
-const paramsSelect = computed<IDateSelect>(()=>({
+const paramsSelect = computed<Partial<IDateSelect>>(()=>({
   noQuery: true,
   classSelect: 'font-bold text-gray-600 dark:text-gray-500',
   classSelectList: 'min-w-[8rem] top-[1rem] -translate-x-[25%] -translate-y-[120%] translate(-25%, -125%)',

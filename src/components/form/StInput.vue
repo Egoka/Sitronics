@@ -4,7 +4,7 @@ import InputLayout from "@/components/functional/InputLayout.vue";
 import {convertToNumber, convertToPhone, onkeydown, toNumber, toPhone} from "@/helpers/numbers";
 import {EyeIcon, EyeSlashIcon} from "@heroicons/vue/20/solid";
 import {cn} from "@/helpers/tailwind";
-import type {IDataInput, IInput, IInputExpose, IInputType} from "@/components/form/StInput";
+import type {IInput, IInputExpose, IInputType} from "@/components/form/StInput";
 import type {ILayout} from "@/components/functional/InputLayout";
 // ---------------------------------------
 const arrayInputType:Array<IInputType> = ['text','number','email','password']
@@ -25,19 +25,19 @@ const inputRef = ref<HTMLElement>()
 // ---------------------------------------
 const classLayout = ref<ILayout["class"]>()
 const isActiveInput = ref<boolean>(false)
-const mask = computed<IDataInput["mask"]|null>(()=> props.paramsInput?.mask ?? null)
+const mask = computed<IInput["mask"]|null>(()=> props?.mask ?? null)
 const value = ref<IInput["modelValue"]>()
 watch(()=>props.modelValue,(modelValue)=>{
   value.value = String(modelValue ? toMask(modelValue) : modelValue ?? "")
 },{immediate: true})
 // ---------------------------------------
 const id = ref<NonNullable<IInput["id"]>>(String(props.id ?? getCurrentInstance()?.uid))
-const type = ref<IDataInput["type"]>(props.paramsInput?.type && arrayInputType.includes(props.paramsInput.type) ? props.paramsInput?.type : "text")
-const autoFocus = computed<NonNullable<IDataInput["autoFocus"]>>(()=> props.paramsInput?.autoFocus ?? false)
-const placeholder = computed<NonNullable<IDataInput["placeholder"]>>(()=> String(props.paramsInput?.placeholder ?? ""))
-const autocomplete = computed<NonNullable<IDataInput["autocomplete"]>>(()=> props.paramsInput?.autocomplete ?? "on")
-const lengthInteger = computed<NonNullable<IDataInput["lengthInteger"]>>(()=> +(props.paramsInput?.lengthInteger ?? 20))
-const lengthDecimal = computed<NonNullable<IDataInput["lengthDecimal"]>>(()=> +(props.paramsInput?.lengthDecimal ?? 0))
+const type = ref<IInput["type"]>(props?.type && arrayInputType.includes(props.type) ? props?.type : "text")
+const autoFocus = computed<NonNullable<IInput["autoFocus"]>>(()=> props?.autoFocus ?? false)
+const placeholder = computed<NonNullable<IInput["placeholder"]>>(()=> String(props?.placeholder ?? ""))
+const autocomplete = computed<NonNullable<IInput["autocomplete"]>>(()=> props?.autocomplete ?? "on")
+const lengthInteger = computed<NonNullable<IInput["lengthInteger"]>>(()=> +(props?.lengthInteger ?? 20))
+const lengthDecimal = computed<NonNullable<IInput["lengthDecimal"]>>(()=> +(props?.lengthDecimal ?? 0))
 const isValue = computed<boolean>(()=> !!value.value || isActiveInput.value)
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
 const isDisabled = computed<NonNullable<IInput["disabled"]>>(()=> props.disabled ?? false)
@@ -132,7 +132,7 @@ function blur(env:FocusEvent) {
         'placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600',
         '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
         'focus:outline-0 focus:ring-0 transition-all caret-theme-500',
-        props.paramsInput?.classInput,
+        props?.classInput,
         'classInput flex')"
       @focus="focus"
       @blur="blur"
@@ -144,8 +144,8 @@ function blur(env:FocusEvent) {
     <template v-if="slots.before" #before><slot name="before"/></template>
     <template #after>
       <slot v-if="slots.after" name="after"/>
-      <EyeSlashIcon v-if="props.paramsInput?.type === 'password' && type === 'password'" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-cyan-500 transition cursor-pointer" aria-hidden="true" @click="type = 'text'" />
-      <EyeIcon v-if="props.paramsInput?.type === 'password' && type === 'text'" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-cyan-500 transition cursor-pointer" aria-hidden="true" @click="type = 'password'" />
+      <EyeSlashIcon v-if="props?.type === 'password' && type === 'password'" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-cyan-500 transition cursor-pointer" aria-hidden="true" @click="type = 'text'" />
+      <EyeIcon v-if="props?.type === 'password' && type === 'text'" class="h-5 w-5 mr-2 text-gray-400 dark:text-gray-600 hover:text-cyan-500 transition cursor-pointer" aria-hidden="true" @click="type = 'password'" />
     </template>
   </InputLayout>
 </template>

@@ -42,44 +42,44 @@ const valueKeys = computed<Array<any>>(()=> {
     : []
 })
 const keySelect = computed<IDateSelect["keySelect"] | null>(()=> {
-  if (props.paramsSelect?.dataSelect && props.paramsSelect?.dataSelect.length) {
-    if (typeof props.paramsSelect?.dataSelect[0] === "object") {
-      if (props.paramsSelect?.keySelect && Object.keys(props.paramsSelect?.dataSelect[0]).includes(props.paramsSelect.keySelect)) {
-        return props.paramsSelect.keySelect
-      } else { return Object.keys(props.paramsSelect.dataSelect[0])[0] }
+  if (props?.dataSelect && props?.dataSelect.length) {
+    if (typeof props?.dataSelect[0] === "object") {
+      if (props?.keySelect && Object.keys(props?.dataSelect[0]).includes(props.keySelect)) {
+        return props.keySelect
+      } else { return Object.keys(props.dataSelect[0])[0] }
     } else { return "id" }
   } else { return null }
 })
 const valueSelect = computed<IDateSelect["valueSelect"] | null>(()=> {
-  if (props.paramsSelect?.dataSelect && props.paramsSelect?.dataSelect.length) {
-    if (typeof props.paramsSelect?.dataSelect[0] === "object") {
-      if (props.paramsSelect?.valueSelect && Object.keys(props.paramsSelect?.dataSelect[0]).includes(props.paramsSelect.valueSelect)) {
-        return props.paramsSelect?.valueSelect
-      } else { return Object.keys(props.paramsSelect?.dataSelect[0])[1] }
+  if (props?.dataSelect && props?.dataSelect.length) {
+    if (typeof props?.dataSelect[0] === "object") {
+      if (props?.valueSelect && Object.keys(props?.dataSelect[0]).includes(props.valueSelect)) {
+        return props?.valueSelect
+      } else { return Object.keys(props?.dataSelect[0])[1] }
     } else { return "value" }
   } else { return null }
 })
 const dataSelect = computed<IDateSelect["dataSelect"]>(()=> (
   !!keySelect.value && !!valueSelect.value
-  ? (props.paramsSelect?.dataSelect as Array<IDataItem>).map(item=>({
+  ? (props?.dataSelect as Array<IDataItem>).map(item=>({
     [(keySelect.value as string)]: typeof item === "object" ? item[(keySelect.value as string)] : item,
     [(valueSelect.value as string)]: typeof item === "object" ? item[(valueSelect.value as string)] : item
   }))
-  : props.paramsSelect?.dataSelect)|| [])
-const autoFocus = computed<NonNullable<IDateSelect["autoFocus"]>>(()=> props.paramsSelect?.autoFocus ?? false)
+  : props?.dataSelect)|| [])
+const autoFocus = computed<NonNullable<IDateSelect["autoFocus"]>>(()=> props?.autoFocus ?? false)
 const mode = computed<NonNullable<ILayout["mode"]>>(()=> props.mode ?? "outlined")
 const isDisabled = computed<NonNullable<ILayout["disabled"]>>(()=> props.disabled ?? false)
 const isLoading = computed<NonNullable<ILayout["isInvalid"]>>(()=> props.loading ?? false)
 const isInvalid = computed<NonNullable<ILayout["isInvalid"]>>(()=> props.isInvalid ?? false)
 const messageInvalid = computed<ILayout["messageInvalid"]>(()=> props.messageInvalid)
 const isValue = computed<boolean>(()=> Boolean(isMultiple.value ? value.value ? String(value.value).length : value.value : value.value ?? isOpenList.value))
-const isMultiple = computed<NonNullable<IDateSelect["multiple"]>>(()=> props.paramsSelect?.multiple ?? false)
-const maxVisible = computed<IDateSelect["maxVisible"]>(()=> props.paramsSelect?.maxVisible)
-const noData = computed<NonNullable<IDateSelect["noData"]>>(()=> props.paramsSelect?.noData ?? "Нет данных")
-const isQuery = computed<NonNullable<IDateSelect["noQuery"]>>(()=> !props.paramsSelect?.noQuery)
-const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props.paramsSelect?.classMaskQuery ?? "font-bold text-theme-700 dark:text-theme-300")
+const isMultiple = computed<NonNullable<IDateSelect["multiple"]>>(()=> props?.multiple ?? false)
+const maxVisible = computed<IDateSelect["maxVisible"]|undefined>(()=> props?.maxVisible)
+const noData = computed<NonNullable<IDateSelect["noData"]>>(()=> props?.noData ?? "Нет данных")
+const isQuery = computed<NonNullable<IDateSelect["noQuery"]>>(()=> !props?.noQuery)
+const classMaskQuery = computed<NonNullable<IDateSelect["classMaskQuery"]>>(()=> props?.classMaskQuery ?? "font-bold text-theme-700 dark:text-theme-300")
 const paramsFixWindow = computed<NonNullable<IDateSelect["paramsFixWindow"]>>(()=> ({
-  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 5, ...props.paramsSelect?.paramsFixWindow
+  position: "bottom-left", eventOpen: "click", eventClose: "hover", marginPx: 5, ...props?.paramsFixWindow
 }))
 // ---------------------------------------
 const valueLayout = computed<string|null>(()=> {
@@ -214,7 +214,7 @@ function onLeave(el:any, done:any) {
     <div ref="selectBody" tabindex="0"
          :class="cn(
            'w-full min-h-[36px] max-h-16 focus:outline-0 focus:ring-0',
-            props.paramsSelect?.classSelect,
+            props?.classSelect,
             'classSelect flex overflow-auto cursor-pointer'
             )"
          @focusin="focusSelect(true)"
@@ -250,7 +250,7 @@ function onLeave(el:any, done:any) {
       </div>
     </div>
     <template #body>
-      <FixWindow v-bind="paramsFixWindow" :model-value="isOpenList" class="z-30" @close="env => closeSelect(env)">
+      <FixWindow v-bind="paramsFixWindow" :model-value="isOpenList" class-body="z-30" @close="env => closeSelect(env)">
         <div
           ref="selectList"
           :class="cn(
@@ -259,7 +259,7 @@ function onLeave(el:any, done:any) {
             !(mode === 'outlined')||'border border-gray-300 dark:border-gray-600 bg-white dark:bg-black',
             !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b bg-stone-50 dark:bg-stone-950',
             !(mode === 'filled')||'border-0 bg-stone-100 dark:bg-stone-900',
-            props.paramsSelect?.classSelectList,
+            props?.classSelectList,
             'classSelectList overflow-auto')"
           :style="`width: ${(selectBody as HTMLElement)?.clientWidth??0}px`">
           <div :class="cn(
@@ -305,7 +305,7 @@ function onLeave(el:any, done:any) {
                     'group/li relative cursor-default select-none flex transition-colors duration-75'
                     )"
                   @click="select(item)">
-                  <slot name="item" :item="item" :key="valueSelect">
+                  <slot name="item" :item="item" :key="valueSelect" :isQuery="isQuery && item?.marker">
                     <div
                       v-if="isQuery && item?.marker"
                       v-html="item?.marker"

@@ -6,7 +6,7 @@ import Dropdown from "../functional/Dropdown.vue";
 import Icons from "@/components/functional/Icons.vue";
 import FixWindow from "@/components/functional/FixWindow.vue";
 import {cn} from "@/helpers/tailwind";
-import type {IDataSwitch, ISwitch} from "@/components/form/StSwitch";
+import type {ISwitch} from "@/components/form/StSwitch";
 // ---------------------------------------
 const props = defineProps<ISwitch>()
 // ---------------------------------------
@@ -14,14 +14,14 @@ const isActiveSwitch = ref<boolean>(false)
 // ---------------------------------------
 const id = ref(props.id ?? getCurrentInstance()?.uid)
 const value = computed<boolean>(()=> Boolean(props.modelValue ?? false))
-const switchingType = computed<IDataSwitch["switchingType"]>(()=> props.paramsSwitch?.switchingType ?? "checkbox")
-const mode = computed<IDataSwitch["mode"]>(()=> props.paramsSwitch?.mode ?? props.mode ?? "none")
+const switchingType = computed<ISwitch["switchingType"]>(()=> props?.switchingType ?? "checkbox")
+const mode = computed<ISwitch["mode"]>(()=> props?.mode ?? "none")
 const label = computed<ISwitch["label"]>(()=> String(props.label ?? ""))
 const isDisabled = computed<ISwitch["disabled"]>(()=>props.disabled ?? false)
 const isRequired = computed<ISwitch["required"]>(()=>props.required ?? false)
-const rounded = computed<number>(()=> props.paramsSwitch?.rounded === "full" ? 9999 : props.paramsSwitch?.rounded ?? 9999)
-const iconActive = computed<IDataSwitch["iconActive"]>(()=> props.paramsSwitch?.iconActive ?? "")
-const iconInactive = computed<IDataSwitch["iconInactive"]>(()=> props.paramsSwitch?.iconInactive ?? "")
+const rounded = computed<number>(()=> props?.rounded === "full" ? 9999 : props?.rounded ?? 9999)
+const iconActive = computed<ISwitch["iconActive"]>(()=> props?.iconActive ?? "")
+const iconInactive = computed<ISwitch["iconInactive"]>(()=> props?.iconInactive ?? "")
 // ---------------------------------------
 function inputEvent (value:boolean) { inputModelValue(value) }
 // ---------------------------------------

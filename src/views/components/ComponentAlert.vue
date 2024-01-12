@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import ComponentViews from "@/components/ComponentViews.vue";
-import Alert, {IAlertProps} from "@/components/functional/Alert.vue";
+import Alert from "@/components/functional/Alert.vue";
 import Button from "@/components/functional/Button.vue";
-import openAlert, {IAlert} from "@/components/functional/Alert";
+import openAlert, {IAlert, type IAlertProps} from "@/components/functional/Alert";
 import {ref} from "vue";
 import Badge from "@/components/functional/Badge.vue";
 const badgesClass = "inline-flex items-center rounded-md bg-theme-50 dark:bg-theme-900 px-2 py-0.5 text-xs font-medium text-theme-600 dark:text-theme-400 ring-1 ring-inset ring-theme-500/10"

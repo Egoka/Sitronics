@@ -19,7 +19,7 @@ import StCalendar from "@/components/form/StCalendar.vue";
 import {convertToNumber, convertToPhone} from "@/helpers/numbers";
 import {cn} from "@/helpers/tailwind";
 import type {
-  DataType, EditorCell,
+  DataType,
   Filters,
   IColumn, IColumnPrivate, IFilter, IGrouping, ISort, ISummaryPrivate,
   ITable,
@@ -33,6 +33,7 @@ import type {TLoading} from "@/components/BaseTypes";
 import type {IDataInput} from "@/components/form/StInput";
 import type {IDateSelect} from "@/components/form/StSelect";
 import type {IDatePicker, IRangeValue} from "@/components/form/StCalendar";
+import type {ILayout} from "@/components/functional/InputLayout";
 // ---PROPS-EMITS-SLOTS-------------------
 const props = defineProps<ITable>()
 const emit = defineEmits<{
@@ -185,28 +186,28 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
         }
         switch (options.type) {
           case "string": {
-            options.paramsInput = <IDataInput>{autocomplete: "off", ...column.paramsInput};
+            options.paramsFilter = {autocomplete: "off", ...column.paramsFilter} as Partial<IDataInput>
             options.edit = {
-              paramsInput: <IDataInput>{
-                ...options.paramsInput,
+              paramsFilter: {
+                ...options.paramsFilter,
                 autoFocus:true,
-                ...(column?.edit as EditorCell)?.paramsInput}}
+                ...column?.edit?.paramsFilter} as Partial<IDataInput>}
             break
           }
           case "number": {
-            options.paramsInput = <IDataInput>{
+            options.paramsFilter = {
               autocomplete: "off",
               mask: "number",
-              ...column.paramsInput};
+              ...column.paramsFilter} as Partial<IDataInput>
             options.edit = {
-              paramsInput: <IDataInput>{
-              ...options.paramsInput,
-              autoFocus:true,
-              ...(column?.edit as EditorCell)?.paramsInput}}
+              paramsFilter: {
+                ...options.paramsFilter,
+                autoFocus:true,
+                ...column?.edit?.paramsFilter} as Partial<IDataInput>}
             break
           }
           case "select": {
-            options.paramsSelect = <IDateSelect>{
+            options.paramsFilter = {
               multiple: true,
               maxVisible: 0,
               classSelect: 'normal-case font-normal max-h-[25rem]',
@@ -214,49 +215,51 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
               dataSelect: LData.compact(LData.uniq(LData.map(allData.value, options.dataField ?? ""))) ?? [],
               paramsFixWindow: {
                 position: 'bottom',
-                ...column?.paramsSelect?.paramsFixWindow
+                ...(column?.paramsFilter as Partial<IDateSelect>)?.paramsFixWindow
               },
-              ...column.paramsSelect};
+              ...column.paramsFilter} as Partial<IDateSelect>
             options.edit = {
-              paramsSelect: <IDateSelect>{
-                ...options.paramsSelect,
+              paramsFilter: <IDateSelect>{
+                ...options.paramsFilter,
                 autoFocus:true,
                 multiple: false,
-                ...(column?.edit as EditorCell)?.paramsSelect,
+                ...column?.edit?.paramsFilter,
                 paramsFixWindow: {
                   position: 'bottom',
                   eventClose: "hover",
-                  ...(column?.edit as EditorCell)?.paramsSelect?.paramsFixWindow
-                }}}
+                  ...(column?.edit?.paramsFilter as Partial<IDateSelect>)?.paramsFixWindow
+                }} as Partial<IDateSelect>}
             break
           }
           case "date": {
-            options.paramsDatePicker = <Partial<IDatePicker>>{
-              isRange: true,
-              attributes: [{
-                highlight: {
-                  fillMode: 'light',
-                },
-                dates: LData.compact(LData.uniq(LData.map(allData.value, (item)=> item[options.dataField] ? String(item[options.dataField]) : null ))) ?? [],
-              }],
+            options.paramsFilter = {
+              paramsDatePicker: {
+                isRange: true,
+                attributes: [{
+                  highlight: { fillMode: 'light' },
+                  dates: LData.compact(LData.uniq(LData.map(allData.value, (item)=> item[options.dataField] ? String(item[options.dataField]) : null ))) ?? [],
+                }],
+                mask: (column.paramsFilter as Partial<IDatePicker>)?.paramsDatePicker?.masks?.modelValue ?? "DD.MM.YYYY",
+              },
               paramsFixWindow: {
                 position: 'bottom',
-                ...column?.paramsSelect?.paramsFixWindow
+                ...(column?.paramsFilter as Partial<IDatePicker>)?.paramsFixWindow
               },
-              mask: column.paramsDatePicker?.masks?.modelValue ?? "DD.MM.YYYY",
-              ...column.paramsDatePicker
-            };
+              ...column.paramsFilter
+            } as Partial<IDatePicker>
             options.edit = {
-              paramsDatePicker: <Partial<IDatePicker>>{
-                ...options.paramsDatePicker,
+              paramsFilter: {
+                ...options.paramsFilter,
+                paramsDatePicker: { ...(options?.paramsFilter as Partial<IDatePicker>)?.paramsDatePicker, isRange: false},
                 autoFocus:true,
-                isRange: false,
-                ...(column?.edit as EditorCell)?.paramsDatePicker,
+                ...column?.edit?.paramsFilter,
+                label: "",
+                labelMode: "none",
                 paramsFixWindow: {
                   position: 'bottom',
                   eventClose: "hover",
-                  ...(column?.edit as EditorCell)?.paramsSelect?.paramsFixWindow
-                }}}
+                  ...(column?.edit?.paramsFilter as Partial<IDatePicker>)?.paramsFixWindow
+                }} as Partial<IDatePicker> & Pick<ILayout, "label"|"labelMode">}
             break
           }
         }
@@ -397,7 +400,7 @@ const tableObserver = new ResizeObserver(entries => entries.forEach(() => setFoo
 const footerPaddingHeight = ref<number>(0)
 function setFooterPaddingHeight() {
   const result = (tableBody?.value?.clientHeight??0) -
-    ((thead.value?.clientHeight??0) + (tbody.value?.clientHeight??0) + (tfoot.value?.clientHeight??0))
+    ((thead.value?.clientHeight??0) + (tbody.value?.clientHeight??0) + (tfoot.value?.clientHeight??0) + footerPaddingHeight.value)
   footerPaddingHeight.value = result ? result : 0
 }
 // ---IS-DARK-----------------------------
@@ -613,13 +616,13 @@ function setCell(column:IColumnPrivate, value:any, data?:any):string{
       return convertToPhone(String(value))
     } else if (column?.mask === "number") {
       return convertToNumber(value,
-        column.paramsInput?.lengthInteger ?? 20,
-        column.paramsInput?.lengthDecimal ?? 0,
+        (column.paramsFilter as Partial<IDataInput>)?.lengthInteger ?? 20,
+        (column.paramsFilter as Partial<IDataInput>)?.lengthDecimal ?? 0,
         "")
     } else if (column?.mask === "price") {
       return convertToNumber(value,
-        column.paramsInput?.lengthInteger ?? 20,
-        column.paramsInput?.lengthDecimal ?? 0,
+        (column.paramsFilter as Partial<IDataInput>)?.lengthInteger ?? 20,
+        (column.paramsFilter as Partial<IDataInput>)?.lengthDecimal ?? 0,
         " ")
     } else { return String(value) }
   }
@@ -633,7 +636,8 @@ function setCell(column:IColumnPrivate, value:any, data?:any):string{
       case "string": valueCell = toMask();break
       case "number": valueCell = toMask();break
       case "select": valueCell = toMask();break
-      case "date":   valueCell = dayjs(value).format(column.paramsDatePicker?.mask);break
+      case "date":   valueCell = dayjs(value)
+        .format((column.paramsFilter as Partial<IDatePicker>)?.paramsDatePicker?.mask);break
       default: valueCell = value
     }
   }
@@ -692,7 +696,7 @@ function stopLoading() {
 function clickRow(key:string, data:any, indexRow:number) {
   emit( "click-row", {eventEl: (tbody.value as HTMLElement)?.querySelector(`.${key}`) as HTMLElement ?? null, data, indexRow})
 }
-function clickCell(key:string, column:IColumn, value:any, valueWithMarker:any, data:any, indexRow:number, indexCol:number) {
+function clickCell(key:string, column:IColumnPrivate, value:any, valueWithMarker:any, data:any, indexRow:number, indexCol:number) {
   if ((column as IColumnPrivate)?.isEdit) {
     editableCell.value = {indexRow, indexCol} }
   emit( "click-cell", {eventEl: (tbody.value as HTMLElement)?.querySelector(`.${key}`) as HTMLElement ?? null, column, value, valueWithMarker, data, indexRow})
@@ -700,7 +704,7 @@ function clickCell(key:string, column:IColumn, value:any, valueWithMarker:any, d
 function addRow(data:any):number {
   const newValueRow:any = {...data, _key: uuidv4()}
   const index:number = (allData.value as Array<any>)?.push(newValueRow) - 1
-  emit('add-row', {value:data, index, _key: newValueRow._key})
+  emit("add-row", {value:data, index, _key: newValueRow._key})
   return index
 }
 function deleteRow(_key:string):false|any {
@@ -724,7 +728,7 @@ function updateRow(_key:string, data:any):false|any {
     }
   } return false
 }
-function updateCell(_key:string, column:IColumn, value: any):false|any {
+function updateCell(_key:string, column:IColumnPrivate, value: any):false|any {
   if (_key && column && column?.dataField) {
     const index = allData.value?.findIndex(i=>i._key === _key)
     if (index >= 0 && column.dataField in allData.value[index]){
@@ -836,9 +840,9 @@ function stopResizeColumn() {
                       <StInput
                         v-if="column.type === 'string'||column.type === 'number'"
                         :model-value="filterColumns[column?.dataField]"
+                        v-bind="column?.paramsFilter"
                         :label="column.caption"
                         :mode="mode"
-                        :params-input="column?.paramsInput"
                         :class="column.class?.colFilterClass"
                         :class-body="column.class?.colFilterClassBody"
                         :style="`min-width: ${column.minWidth||70}px`"
@@ -848,10 +852,10 @@ function stopResizeColumn() {
                         @update:model-value="(v)=>lengthData > 100||filtering(column?.dataField, v)"
                         @clear="filtering(column?.dataField, null)"/>
                       <StSelect
-                        v-if="column.type === 'select'"
+                        v-else-if="column.type === 'select'"
                         :model-value="filterColumns[column?.dataField]"
+                        v-bind="column?.paramsFilter"
                         :label="column.caption"
-                        :params-select="column?.paramsSelect"
                         :mode="mode"
                         :class="column.class?.colFilterClass"
                         :class-body="column.class?.colFilterClassBody"
@@ -859,11 +863,11 @@ function stopResizeColumn() {
                         clear
                         @update:model-value="(v)=>filtering(column?.dataField, v)"/>
                       <StCalendar
-                        v-if="column.type === 'date'"
+                        v-else-if="column.type === 'date'"
                         :model-value="filterColumns[column?.dataField]"
+                        v-bind="column?.paramsFilter"
                         :label="column.caption"
                         :mode="mode"
-                        :params-date-picker="column?.paramsDatePicker"
                         label-mode="offsetDynamic"
                         :class="column.class?.colFilterClass"
                         :class-body="column.class?.colFilterClassBody"
@@ -917,9 +921,7 @@ function stopResizeColumn() {
                     <div
                       :class="cn('sticky classGroupText left-10 sm:left-12 flex items-center w-fit min-h-[2.5rem] truncate', styles.class?.groupText)"
                       :style="`min-height: ${heightCell}px`">
-                      <slot name="group" :item="key" :length="group.length">
-                        {{key}}
-                      </slot>
+                      <slot name="group" :item="key" :length="group.length">{{key}}</slot>
                     </div>
                   </th>
                 </tr>
@@ -952,25 +954,27 @@ function stopResizeColumn() {
                           <StInput
                             v-if="column.type === 'string'||column.type === 'number'"
                             :model-value="data[column.dataField]"
-                            :label="column.caption"
+                            v-bind="{
+                              ...column.edit?.paramsFilter,
+                              classInput: `pt-[5px] pl-[10px] text-sm font-medium ${styles.class?.cellText} ${
+                                (column.edit?.paramsFilter as Partial<IDataInput>)?.classInput}`
+                            }"
                             :mode="mode"
-                            :params-input="{
-                              ...column.edit?.paramsInput,
-                              classInput: `pt-[5px] pl-[10px] ${styles.class?.cellText} ${column.edit?.paramsInput?.classInput}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-0 -my-3 w-full"
                             label-mode="vanishing"
                             @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
                             @change:model-value="(value)=>updateCell(data?._key, column, value)"/>
                           <StSelect
-                            v-if="column.type === 'select'"
+                            v-else-if="column.type === 'select'"
                             :model-value="data[column.dataField]"
-                            :label="column.caption"
+                            v-bind="{
+                              ...column.edit?.paramsFilter,
+                              paramsFixWindow: {scrollableEl: tableBody,
+                              ...(column.edit?.paramsFilter as Partial<IDateSelect>)?.paramsFixWindow},
+                              classSelect: `pl-[10px] text-sm font-medium ${styles.class?.cellText} ${
+                                (column.edit?.paramsFilter as Partial<IDateSelect>)?.classSelect}`}"
                             :mode="mode"
-                            :params-select="{
-                              ...column.edit?.paramsSelect,
-                              paramsFixWindow: {scrollableEl: tableBody, ...column.edit?.paramsSelect?.paramsFixWindow},
-                              classSelect: `pl-[10px] ${styles.class?.cellText} ${column.edit?.paramsSelect?.classSelect}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-[2px] -my-3 w-full"
                             label-mode="vanishing"
@@ -978,14 +982,13 @@ function stopResizeColumn() {
                             @update:model-value="(value)=>{updateCell(data?._key, column, value)}"
                             />
                           <StCalendar
-                            v-if="column.type === 'date'"
+                            v-else-if="column.type === 'date'"
                             :model-value="data[column.dataField]"
-                            :label="column.caption"
+                            v-bind="{
+                              ...column.edit?.paramsFilter,
+                              paramsFixWindow: {scrollableEl: tableBody, ...(column.edit?.paramsFilter as Partial<IDatePicker>)?.paramsFixWindow},
+                              classDateText: `pt-[7px] pl-[10px] text-sm font-medium ${styles.class?.cellText} ${(column.edit?.paramsFilter as Partial<IDatePicker>)?.classDateText}`}"
                             :mode="mode"
-                            :params-date-picker="{
-                              ...column.edit?.paramsDatePicker,
-                              paramsFixWindow: {scrollableEl: tableBody, ...column.edit?.paramsDatePicker?.paramsFixWindow},
-                              classDateText: `pt-[7px] pl-[10px] ${styles.class?.cellText} ${column.edit?.paramsDatePicker?.classDateText}`}"
                             class="border-none font-normal !bg-transparent"
                             class-body="pt-0 -my-3 w-full"
                             label-mode="vanishing"

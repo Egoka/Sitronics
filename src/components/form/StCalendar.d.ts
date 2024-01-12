@@ -133,13 +133,7 @@ export interface IRangeValue {
   order: number;
   repeat: Partial<DateRepeatConfig>;
 }
-export interface IDatePicker {
-  autoFocus: boolean
-  isNotCloseOnDateChange: boolean
-  classDataPicker: StyleClass
-  classPicker: StyleClass
-  classDateText: StyleClass
-  paramsFixWindow: IFixWindow
+export interface IParamsDatePicker {
   ///Calendar//////////////////////
   borderless: boolean
   transparent: boolean
@@ -172,8 +166,16 @@ export interface IDatePicker {
   placeholder: string
   separator: "arrow"|"points"|"none"
 }
-export interface ICalendar extends Omit<ILayout, "value"|"isValue">{
+export interface IDatePicker {
+  paramsDatePicker?: Partial<IParamsDatePicker>
+  autoFocus?: boolean
+  isNotCloseOnDateChange?: boolean
+  classDataPicker?: StyleClass
+  classPicker?: StyleClass
+  classDateText?: StyleClass
+  paramsFixWindow?: IFixWindow
+}
+export interface ICalendar extends Omit<ILayout, "value"|"isValue">, Partial<IDatePicker>{
   id?: string
   modelValue?: DateValueCalendar | Partial<IRangeValue>
-  paramsDatePicker?: Partial<IDatePicker>
 }

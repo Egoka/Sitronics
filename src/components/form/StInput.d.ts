@@ -1,22 +1,21 @@
-import type {ILayout} from "@/components/functional/InputLayout.vue";
+import type {ILayout} from "@/components/functional/InputLayout";
 import type {Ref, UnwrapRef} from "vue";
 
 export type IInputType = 'text'|'number'|'email'|'password'
 export type IInputMask = 'phone'|'number'|'price'
 export interface IDataInput {
-  type?: NonNullable<IInputType>
-  autoFocus?: boolean
-  placeholder?: string
-  autocomplete?: "on"|"off"
-  mask?: IInputMask
-  lengthInteger?: number
-  lengthDecimal?: number
-  classInput?: string|Array<string|null>
+  type: IInputType
+  autoFocus: boolean
+  placeholder: string
+  autocomplete: "on"|"off"
+  mask: IInputMask
+  lengthInteger: number
+  lengthDecimal: number
+  classInput: string|Array<string|null>
 }
-export interface IInput extends Omit<ILayout, "value"|"isValue">{
+export interface IInput extends Omit<ILayout, "value"|"isValue">, Partial<IDataInput>{
   id?: string
   modelValue?: string|number|null|undefined
-  paramsInput?: Partial<IDataInput>
 }
 export interface IInputExpose {
   //---STATE-------------------------

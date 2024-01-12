@@ -13,6 +13,31 @@ export type Sorted = { [dataField:DataField]: Sort }
 export type Widths = { [dataField:DataField]: number }
 export type Filters = { [dataField:DataField]: any }
 export type ResultData = { [dataField:DataField]: Array<any> }
+
+type EditorCell =  boolean | {
+  isEdit?:boolean
+}
+type InputDataType = {
+  type?: "string"|"number"
+  paramsFilter?: Partial<IDataInput>
+  edit?: EditorCell & {
+    paramsFilter?: Partial<IDataInput>
+  }
+}
+type SelectDataType = {
+  type?: "select"
+  paramsFilter?: Partial<IDateSelect>
+  edit?: EditorCell & {
+    paramsFilter?: Partial<IDateSelect>
+  }
+}
+type DateDataType = {
+  type?: "date"
+  paramsFilter?: Partial<IDatePicker>
+  edit?: EditorCell & {
+    paramsFilter?: Partial<IDatePicker>
+  }
+}
 // ---INTERFACES--------------------------
 export interface IToolbar {
   visible?:boolean
@@ -31,17 +56,10 @@ export interface IGrouping {
   visible?:boolean
   groupField?:string
 }
-interface EditorCell {
-  isEdit?:boolean
-  paramsInput?: IDataInput
-  paramsSelect?: IDateSelect
-  paramsDatePicker?: Partial<IDatePicker>
-}
-export interface IColumn {
+export type IColumn = {
   dataField?:DataField
   name?:string
   caption?:string
-  type?:DataType
   visible?:boolean
   width?:number
   minWidth?:number
@@ -49,13 +67,9 @@ export interface IColumn {
   isFilter?:boolean
   isSort?:boolean
   isResized?:boolean
-  edit?: boolean | EditorCell
   defaultFilter?: any
   defaultSort?: Sort
   mask?:IDataInput["mask"]
-  paramsInput?: IDataInput
-  paramsSelect?: IDateSelect
-  paramsDatePicker?: Partial<IDatePicker>
   cellTemplate?: string
   setCellValue?(column:IColumn, value:any, data?:any):any,
   class?:{
@@ -69,16 +83,16 @@ export interface IColumn {
     tf?: StyleClass
     sumText?: StyleClass|"text-left text-gray-400 dark:text-gray-500"
   }
-}
-interface IColumnPrivate extends Omit<IColumn, 'dataField'|'edit'> {
+} & (InputDataType | SelectDataType | DateDataType)
+interface IColumnPrivate extends Omit<IColumn, 'dataField'> {
   id: string
   dataField:string
   isEdit: boolean
-  edit?: {
-    paramsInput?: IDataInput
-    paramsSelect?: IDateSelect
-    paramsDatePicker?: Partial<IDatePicker>
-  }
+  // edit?: {
+  //   paramsInput?: IDataInput
+  //   paramsSelect?: IDateSelect
+  //   paramsDatePicker?: Partial<IDatePicker>
+  // }
 }
 export interface ISummary {
   dataField?: string
