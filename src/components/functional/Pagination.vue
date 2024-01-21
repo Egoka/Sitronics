@@ -67,8 +67,11 @@ const modeStyle = computed<string>(()=>
 const paramsSelect = computed<Partial<IDateSelect>>(()=>({
   noQuery: true,
   classSelect: 'font-bold text-gray-600 dark:text-gray-500',
-  classSelectList: 'min-w-[8rem] top-[1rem] -translate-x-[25%] -translate-y-[120%] translate(-25%, -125%)',
-  dataSelect:arraySizesSelector.value
+  classSelectList: 'min-w-[8rem]',
+  dataSelect:arraySizesSelector.value,
+  paramsFixWindow: {
+    position: "top"
+  }
 }))
 // ---------------------------------------
 function switchPage(value: Page|Array<Page>) {
@@ -189,7 +192,7 @@ function switchSizePage(sizePageValue:Page) {
           :class-body="['m-0 min-w-[6rem] max-w-[6rem]']"
           :mode="mode"
           :model-value="sizePage"
-          :params-select="paramsSelect"
+          v-bind="paramsSelect"
           @update:model-value="switchSizePage">
         </StSelect>
       </div>

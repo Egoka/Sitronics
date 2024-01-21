@@ -535,7 +535,7 @@ const structureDialog = ref<Array<IFormStructure>>([
         <div class=" col-span-full my-5">
           <Table :data-source="data.generateData100" toolbar :columns="[{},{width: 120},{type:'date'},{width: 130},{},{},{},{}]" :pagination="{isInfoText:true}" :count-visible-rows="countVisibleRowsExampleOne">
             <template #toolbar>
-              <StSelect label="Количество видимых строк" v-model="countVisibleRowsExampleOne" :params-select="{dataSelect:[3, 5, 10, 15]}"></StSelect>
+              <StSelect label="Количество видимых строк" v-model="countVisibleRowsExampleOne" :data-select="[3, 5, 10, 15]"></StSelect>
             </template>
           </Table>
         </div>
@@ -606,7 +606,7 @@ const structureDialog = ref<Array<IFormStructure>>([
             toolbar
           >
             <template #toolbar>
-              <StSelect label="Стиль" :params-select="{dataSelect:['filled', 'outlined', 'underlined']}" v-model="mode" :mode="mode" class-body="w-[9rem] mb-0 rounded-md"/>
+              <StSelect label="Стиль" :data-select="['filled', 'outlined', 'underlined']" v-model="mode" :mode="mode" class-body="w-[9rem] mb-0 rounded-md"/>
             </template>
           </Table>
         </div>

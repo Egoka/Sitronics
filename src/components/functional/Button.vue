@@ -18,7 +18,7 @@ const props = defineProps<IButton>()
 // ---------------------------------------
 const buttonVariants = cva<ButtonStyleVariants>(
   [
-    "flex",
+    "inline-flex",
     "gap-2",
     "m-1",
     "h-min",
@@ -28,6 +28,7 @@ const buttonVariants = cva<ButtonStyleVariants>(
     "leading-none",
     "focus-visible:ring-1",
     "transition-all",
+    "duration-500",
     "disabled:opacity-50",
     "disabled:cursor-not-allowed",
     "data-[loading=true]:cursor-wait",
@@ -108,7 +109,7 @@ const buttonVariants = cva<ButtonStyleVariants>(
   }
 );
 // ---TYPE--------------------------------
-const type = computed<IButton["type"]>(()=> props.type ? props.type : "button")
+const type = computed<IButton["type"]>(()=> props.type ? props.type : (props as LinkType).link ? "link" : "button")
 // ---LINK--------------------------------
 const link = computed<LinkType["link"]|null>(()=> type.value === "link" ? (props as LinkType).link ?? "" : null)
 const linkReplace = computed<LinkType["linkReplace"]|null>(()=> type.value === "link" ? (props as LinkType).linkReplace : null)

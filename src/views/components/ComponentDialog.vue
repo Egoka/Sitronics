@@ -435,7 +435,7 @@ watch(form, ()=>{
         </p>
       </p>
       <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5">
-        <div class=" col-span-full m-5">
+        <div class="col-span-full m-5">
           <Button class="m-2" @click="isOpen1 = true;positionDialog1 = 'center'">center</Button>
           <Button class="m-2" @click="isOpen1 = true;positionDialog1 = 'top'">top</Button>
           <Button class="m-2" @click="isOpen1 = true;positionDialog1 = 'bottom'">bottom</Button>
@@ -495,11 +495,11 @@ watch(form, ()=>{
       </p>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         <div class="col-span-full m-5">
-          <Button class="m-2" @click="isOpen6 = true;sizeDialog6 = 'size1'">Размер 1</Button>
-          <Button class="m-2" @click="isOpen6 = true;sizeDialog6 = 'size2'">Размер 2</Button>
-          <Button class="m-2" @click="isOpen6 = true;sizeDialog6 = 'size3'">Размер 3</Button>
-          <Button class="m-2" @click="isOpen6 = true;sizeDialog6 = 'size4'">Размер 4</Button>
-          <Button class="m-2" @click="isOpen6 = true;sizeDialog6 = 'size5'">Размер 5</Button>
+          <Button v-for="size in ['xs','sm','md','lg','xl','2xl','3xl','4xl','5xl','6xl','7xl'] as Array<IDialog['size']>"
+                  :key="size" class="m-2"
+                  @click="isOpen6 = true;sizeDialog6 = size">
+            {{ size }}
+          </Button>
         </div>
       </p>
     </div>
@@ -514,9 +514,9 @@ watch(form, ()=>{
             Тут может быть любой текст, изображения, инструкции, формы заполнения и вообще любой интерфейс
           </p>
         </div>
-        <Button class="mt-5 mx-2" mode="destructive" @click="closeDialog">Нет</Button>
-        <Button class="mt-5 mx-2" mode="creative" @click="closeDialog">Да</Button>
-        <Button class="mt-5 mx-2 absolute right-3" mode="neutral" @click="closeDialog">Неопределенность</Button>
+        <Button class="mt-5 mx-2" color="destructive" @click="closeDialog">Нет</Button>
+        <Button class="mt-5 mx-2" color="creative" @click="closeDialog">Да</Button>
+        <Button class="mt-5 mx-2 absolute right-3" color="neutral" @click="closeDialog">Неопределенность</Button>
       </template>
     </Dialog>
     <Dialog v-model="isOpen2" :position="positionDialog2" close-button without-margin class="bg-white dark:bg-neutral-900 h-screen border border-neutral-200 dark:border-neutral-700 rounded-none">
@@ -606,7 +606,7 @@ watch(form, ()=>{
           </div>
         </div>
         <div class="bg-gray-50 dark:bg-gray-950 px-4 py-3 flex justify-center sm:justify-start sm:flex-row-reverse sm:px-6">
-          <Button class="mx-2" mode="destructive" @click="closeDialog">Деактивировать</Button>
+          <Button class="mx-2" color="destructive" @click="closeDialog">Деактивировать</Button>
         </div>
       </template>
     </Dialog>

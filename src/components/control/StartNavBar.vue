@@ -132,7 +132,6 @@ const mobileMenuOpen = ref(false)
               <Button v-for="item in navigation" :key="item.title"
                       type="link"
                       :link="item.href"
-                      mode="secondary"
                       :class="[baseUrl !== item.name ? 'router-link-active': '', 'text-gray-900 dark:text-gray-300 shadow-none rounded-lg w-full']"
                       @click="mobileMenuOpen = false">
                 {{ item.title }}

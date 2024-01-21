@@ -8,9 +8,9 @@ const activePage = ref<number>(3)
 
 <template>
   <ComponentViews>
-    <template #title>Aria</template>
+    <template #title>Pagination</template>
     <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 my-5">
-      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Badge</h2>
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">Pagination</h2>
       <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
         Стилизованный компонент, предназначенный выделить слово или словосочетание из общего интерфейса.<br/>
         Доступны несколько готовых стилей: <Badge mode="outline">primary</Badge>, <Badge mode="outline">secondary</Badge>, <Badge mode="outline">outline</Badge>, <Badge mode="outline">neutral</Badge>

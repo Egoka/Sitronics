@@ -9,7 +9,7 @@ interface IController {
 interface IProps {
   style?: CSS
   class?: string| Array<string>
-  [key:string]: any
+  [key:string]: unknown
 }
 interface ISlots {
   [slotName:string|number]:(params:any) => Array<IStructure>

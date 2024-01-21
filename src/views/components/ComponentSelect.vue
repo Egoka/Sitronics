@@ -47,31 +47,27 @@ const mode = ref()
       label="Профессия"
       label-mode="vanishing"
       required
-      :params-select="{
-        dataSelect: test,
-        keySelect: 'value',
-        multiple: false,
-        maxVisible: 2
-      }"
+      :data-select="test"
+      key-select="value"
+      :multiple="false"
+      :max-visible="2"
       help="Test field"
       clear>
       <template #before>
         <Icons type="Sun"/>
       </template>
     </Select>
-    <StSelect label="Mode select" :params-select="{dataSelect:['filled', 'outlined', 'underlined']}" v-model="mode"/>
+    <StSelect label="Mode select" :data-select="['filled', 'outlined', 'underlined']"  v-model="mode"/>
     <Select
       v-model="formFields.isInfo2"
       mode="filled"
       label="Профессия"
       label-mode="vanishing"
       required
-      :params-select="{
-        dataSelect: test,
-        keySelect: 'value',
-        multiple: true,
-        maxVisible: 2
-      }"
+      :data-select="test"
+      key-select="value"
+      :multiple="true"
+      :max-visible="2"
       help="Test field"
       clear>
       <template #before>
