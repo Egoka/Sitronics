@@ -9,7 +9,7 @@ import type {IAria} from "@/components/form/StAria";
 import type {ISwitch} from "@/components/form/StSwitch";
 //--------------------------------------------------------------
 type classCol = "col-span-full"|"sm:col-span-3"|"sm:col-span-4"|"sm:col-span-5"|"sm:col-span-6"|string
-export type IFormFields = {[key:string]:any}
+export type IFormFields = {[key:string]: unknown}
 //--------------------------------------------------------------
 export type IFields = {
   name: string
@@ -47,6 +47,13 @@ export type IFieldsTextEditor = IFields & IFieldsAdditional & ITextEditor & {
 export type IFieldsSwitch = IFields & ISwitch & {
   typeComponent: "Switch"
 }
+export type IFieldsCustom = IFields & {
+  typeComponent: "Custom"
+  nameTemplate: string
+  modelValue?: any
+  isValue?: boolean
+  [key:string]: unknown
+}
 //--------------------------------------------------------------
 export type IFieldsType =
   | IFieldsInput
@@ -55,19 +62,20 @@ export type IFieldsType =
   | IFieldsCalendar
   | IFieldsTextEditor
   | IFieldsSwitch
+  | IFieldsCustom
 export type IFieldsUseInputLayout =
   | IFieldsInput
   | IFieldsAria
   | IFieldsSelect
-  | IFieldsTextEditor
   | IFieldsCalendar
+  | IFieldsTextEditor
 //--------------------------------------------------------------
 export interface IFormStructure {
   isHidden?: boolean
   class?: "border-b border-gray-900/10 pb-12"|string
   classGrid?: "grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 mt-10"|string
   fields: Array<IFieldsType>,
-  [key:string]: any
+  [key:string]: unknown
 }
 export interface IForm {
   name?: string

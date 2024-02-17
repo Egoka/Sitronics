@@ -6,6 +6,7 @@ export type ButtonStyle = {
   rounded?: "none"|"md"|"lg"|"full"
   color?: "theme"|"neutral"|"creative"|"destructive"
   class?: StyleClass
+  classIcon?: StyleClass
 }
 export type ButtonStyleVariants = {
   mode: Record<NonNullable<ButtonStyle["mode"]>,string|string[]>

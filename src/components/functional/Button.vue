@@ -18,11 +18,11 @@ const props = defineProps<IButton>()
 // ---------------------------------------
 const buttonVariants = cva<ButtonStyleVariants>(
   [
-    "inline-flex",
     "gap-2",
     "m-1",
     "h-min",
     "rounded",
+    "inline-flex",
     "items-center",
     "justify-center",
     "leading-none",
@@ -67,7 +67,7 @@ const buttonVariants = cva<ButtonStyleVariants>(
     },
     compoundVariants: [
       { type: ["button", "reset", "submit", "icon"], mode: ["primary"], color: "theme",
-        class: ["text-theme-200", "dark:text-theme-300", "hover:text-theme-100", "dark:hover:text-theme-200", "disabled:hover:text-theme-200", "disabled:dark:hover:text-theme-300",
+        class: ["text-theme-50", "dark:text-theme-300", "hover:text-theme-100", "dark:hover:text-theme-200", "disabled:hover:text-theme-200", "disabled:dark:hover:text-theme-300",
           "bg-theme-500", "hover:bg-theme-400", "dark:bg-theme-700", "dark:hover:bg-theme-800", "disabled:hover:bg-theme-500", "disabled:dark:hover:bg-theme-700", "active:bg-theme-600", "active:dark:bg-theme-700", "focus-visible:bg-theme-600", "focus-visible:dark:bg-theme-600", "ring-theme-300", "dark:ring-theme-700"]},
       { type: ["button", "reset", "submit", "icon"], mode: ["primary"], color: "neutral",
         class: ["text-neutral-800", "dark:text-neutral-300", "hover:text-neutral-900", "dark:hover:text-neutral-200", "disabled:hover:text-neutral-800", "disabled:dark:hover:text-neutral-300",
@@ -82,10 +82,10 @@ const buttonVariants = cva<ButtonStyleVariants>(
       { type: ["button", "reset", "submit", "icon"], mode: ["outline", "ghost"], color: "neutral", class: ["text-neutral-600", "dark:text-neutral-400", "hover:text-neutral-700", "dark:hover:text-neutral-500", "disabled:hover:text-neutral-800", "disabled:dark:hover:text-neutral-300", "hover:bg-neutral-200", "dark:hover:bg-neutral-900", "ring-neutral-300", "dark:ring-neutral-800", "active:bg-neutral-200", "dark:active:bg-neutral-800"]},
       { type: ["button", "reset", "submit", "icon"], mode: ["outline", "ghost"], color: "creative", class: ["text-green-600", "dark:text-green-400", "hover:text-green-700", "dark:hover:text-green-500", "disabled:hover:text-green-800", "disabled:dark:hover:text-green-300", "hover:bg-green-100", "dark:hover:bg-green-900", "ring-green-300", "dark:ring-green-800", "active:bg-green-200", "dark:active:bg-green-800"]},
       { type: ["button", "reset", "submit", "icon"], mode: ["outline", "ghost"], color: "destructive", class: ["text-red-600", "dark:text-red-400", "hover:text-red-700", "dark:hover:text-red-500", "disabled:hover:text-red-800", "disabled:dark:hover:text-red-300", "hover:bg-red-100", "dark:hover:bg-red-900", "ring-red-300", "dark:ring-red-800", "active:bg-red-200", "dark:active:bg-red-800"]},
-      { type: ["button", "reset", "submit", "icon"], mode: ["outline"], color: "theme", class: ["border-theme-600", "dark:border-theme-700"]},
-      { type: ["button", "reset", "submit", "icon"], mode: ["outline"], color: "neutral", class: ["border-neutral-600", "dark:border-neutral-700"]},
-      { type: ["button", "reset", "submit", "icon"], mode: ["outline"], color: "creative", class: ["border-green-600", "dark:border-green-700"]},
-      { type: ["button", "reset", "submit", "icon"], mode: ["outline"], color: "destructive", class: ["border-red-600", "dark:border-red-700"]},
+      { type: ["button", "reset", "submit", "icon"], mode: ["outline"], color: "theme", class: ["border-theme-200", "dark:border-theme-700"]},
+      { type: ["button", "reset", "submit", "icon"], mode: ["outline"], color: "neutral", class: ["border-neutral-200", "dark:border-neutral-700"]},
+      { type: ["button", "reset", "submit", "icon"], mode: ["outline"], color: "creative", class: ["border-green-200", "dark:border-green-700"]},
+      { type: ["button", "reset", "submit", "icon"], mode: ["outline"], color: "destructive", class: ["border-red-200", "dark:border-red-700"]},
       { type: "link", color: "theme", class: ["after:bg-theme-400", "dark:after:bg-theme-700", "text-theme-600", "dark:text-theme-400", "hover:text-theme-700", "dark:hover:text-theme-500", "disabled:hover:text-theme-800", "disabled:dark:hover:text-theme-300"] },
       { type: "link", color: "neutral", class: ["after:bg-neutral-400", "dark:after:bg-neutral-700", "text-neutral-600", "dark:text-neutral-400", "hover:text-neutral-700", "dark:hover:text-neutral-500", "disabled:hover:text-neutral-800", "disabled:dark:hover:text-neutral-300"] },
       { type: "link", color: "creative", class: ["after:bg-green-400", "dark:after:bg-green-700", "text-green-600", "dark:text-green-400", "hover:text-green-700", "dark:hover:text-green-500", "disabled:hover:text-green-800", "disabled:dark:hover:text-green-300"] },
@@ -126,6 +126,7 @@ const classButton = computed<IButton["class"]>(()=> {
     default: return cn(buttonVariants({...removeParamsFromStructure<ButtonType & TypeLocal>(props as ButtonType, ["disabled", "icon", "iconPosition", "loading"])}), props.class)
   }
 })
+const classIcon = computed<IButton["classIcon"]>(()=> props.classIcon)
 const iconText = computed(()=> cn(getRegExpClass("text-", classButton.value)))
 const iconSize = computed(()=>{
   if (!(type.value === "button"||type.value === "icon")){ return ""}
@@ -136,18 +137,18 @@ const iconSize = computed(()=>{
 
 <template>
   <RouterLink v-if="type === 'link'" :to="link" :class="classButton" :replace="linkReplace">
-    <Icons v-if="icon && iconPosition === 'left'" :type="icon" :class="cn(iconText, '-ml-1', iconSize)"/>
+    <Icons v-if="icon && iconPosition === 'left'" :type="icon" :class="cn(iconText, '-ml-1', iconSize, classIcon)"/>
     <slot name="default"/>
-    <Icons v-if="icon && iconPosition === 'right'" :type="icon" :class="cn(iconText, '-mr-1', iconSize)"/>
+    <Icons v-if="icon && iconPosition === 'right'" :type="icon" :class="cn(iconText, '-mr-1', iconSize, classIcon)"/>
   </RouterLink>
   <button v-else-if="type === 'icon'" :type="type" :class="classButton" :data-loading="loading" :disabled="disabled">
-    <Icons v-if="icon" :type="icon" :class="cn(iconText, {'blur-[2px]': loading}, iconSize)"/>
+    <Icons v-if="icon" :type="icon" :class="cn(iconText, {'blur-[2px]': loading}, iconSize, classIcon)"/>
     <Loading v-if="loading" type="simple" :size="25" :class="cn('absolute', iconText)"/>
   </button>
   <button v-else :type="type" :class="classButton" :data-loading="loading" :disabled="disabled">
-    <Icons v-if="icon && iconPosition === 'left'" :type="icon" :class="cn(iconText, '-ml-1', iconSize)"/>
+    <Icons v-if="icon && iconPosition === 'left'" :type="icon" :class="cn(iconText, '-ml-1', iconSize, classIcon)"/>
     <slot name="default"/>
-    <Icons v-if="icon && iconPosition === 'right'" :type="icon" :class="cn(iconText, '-mr-1', iconSize)"/>
+    <Icons v-if="icon && iconPosition === 'right'" :type="icon" :class="cn(iconText, '-mr-1', iconSize, classIcon)"/>
     <Loading v-if="loading" type="simple" :class="cn('-mr-2', iconText)"/>
   </button>
 </template>

@@ -151,7 +151,7 @@ function setItems (menu:IMenuItemPrivate, depth:number=0):NonNullable<IMenuItemP
     :class="cn(
       'p-1 w-min max-w-4xl shadow-md border text-black dark:text-zinc-300',
       borderColor,
-      !horizontal||'flex flex-row',
+      !horizontal||'flex flex-row items-center',
       modeStyle,
       'overflow-auto'
       )"

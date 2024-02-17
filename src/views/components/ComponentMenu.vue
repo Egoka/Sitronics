@@ -395,8 +395,8 @@ const onlyIcons = ref(true)
         </div>
         <div class="col-span-1 my-5">
           <div class="flex flex-row items-center">
-            <Button class="ml-1 w-20 rounded-none rounded-l-md rounded-r-0">Menu</Button>
-            <Button class="h-9 w-9 px-0 mr-1 rounded-none rounded-r-md border-l-0">
+            <Button class="ml-1 w-20 rounded-none rounded-l-md rounded-r-0 mr-0">Menu</Button>
+            <Button class="h-9 w-9 px-0 mr-1 rounded-none rounded-r-md border-l-0 ml-0">
               <ChevronDownIcon class="h-4 w-4"/>
               <FixWindow event-open="click" event-close="hover" position="bottom">
                 <Menu title="My Account" :groups="baseMenu4" :separator="{gradient:[10,50]}" @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>

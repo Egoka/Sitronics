@@ -98,8 +98,8 @@ async function copy() {
        :class="cn(
          'mb-6 rounded-md',
          animation,
-         props.classBody,
          'classBody relative',
+         props.classBody,
          !isInvalid||'is-invalid'
         )"
        :style="`scroll-margin-top: ${headerHeight + 10}px;`">
@@ -181,5 +181,6 @@ async function copy() {
       :style="`max-width: ${inputBody?.['offsetWidth']||10}px`">
       {{ messageInvalid }}
     </p>
+<!--    <p data-slot="description" class="absolute block text-zinc-400 dark:text-red-400 text-sm truncate ml-1" data-headlessui-state="">We currently only ship to North America.</p>-->
   </div>
 </template>

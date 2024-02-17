@@ -130,9 +130,11 @@ function ready() {
             v-bind="paramsQuillEditor"
             @update:content="inputModelValue"/>
           <div class="absolute top-[5px] right-[5px]" @click="theme = 'bubble'">
-            <Button mode="ghost" class="group h-9 w-9 px-0 border-neutral-500 dark:border-neutral-500 hover:bg-transparent hover:dark:bg-transparent cursor-pointer">
-              <ArrowsPointingInIcon aria-hidden="true" class="h-5 w-5 mx-2 transition-all fill-neutral-500 dark:fill-neutral-500 group-hover:fill-theme-600 dark:group-hover:fill-theme-600"/>
-            </Button>
+            <Button
+              type="icon"
+              mode="outline"
+              icon="ArrowsPointingIn"
+              class-icon="text-neutral-500 dark:text-neutral-500"/>
           </div>
         </div>
       </Dialog>

@@ -5,6 +5,7 @@ import Button from "@/components/functional/Button.vue";
 import {ref, watch} from "vue";
 import {type IResultCallback} from "@/helpers/rules";
 import type {IFormExpose, IFormStructure} from "@/components/form/StForm";
+import Alert from "@/components/functional/Alert.vue";
 const form = ref<any>(null)
 const formTest = ref<IFormExpose>()
 
@@ -23,6 +24,13 @@ const structures = ref<Array<IFormStructure>>([
         rules: {
           required: "Имя обязательно для заполнения"
         }
+      },
+      {
+        typeComponent: "Custom",
+        nameTemplate: "test",
+        name: "custom",
+        title: "Режим success (успех)",
+        content: "Используется для сообщений о успешном выполнении определенного действия или операции. Этот режим обычно используется для информирования пользователя о положительных результатах, например, успешном сохранении данных или успешном завершении процесса."
       },
       {
         typeComponent: "Input",
@@ -72,6 +80,14 @@ const structures = ref<Array<IFormStructure>>([
           beforeIcon: "manage_accounts",
         },
         classCol: "sm:col-span-3",
+      },
+      {
+        typeComponent: "Custom",
+        nameTemplate: "test",
+        name: "custom12",
+        type: "warning",
+        title: "Режим success (успех)",
+        content: "Используется для сообщений о успешном выполнении определенного действия или операции. Этот режим обычно используется для информирования пользователя о положительных результатах, например, успешном сохранении данных или успешном завершении процесса."
       },
       {
         typeComponent: "Select",
@@ -155,7 +171,12 @@ const structures = ref<Array<IFormStructure>>([
         // disabled: true,
         // modelValue: "2023-08-09T21:00:00.000Z",
         modelValue: { "start": "2023-08-02T21:00:00.000Z", "end": "2023-08-10T21:00:00.000Z" },
-        paramsDatePicker: { placeholder: "Дата 01.01.2023", isRange: true, masks: {modelValue :"DD.MM.YYYY"} },
+        paramsDatePicker: {
+          columns: 3,
+          placeholder: "Дата 01.01.2023",
+          isRange: true,
+          masks: {modelValue :"DD.MM.YYYY"}
+        },
         label: "День рождения",
         slots: {
           beforeIcon: "cil:birthday-cake"
@@ -422,11 +443,18 @@ function valid() {
       submit-button="Сохранить"
       structure-class="border-b border-gray-900/50 dark:border-gray-400/50 pb-0 mt-10"
       structure-class-grid="grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6 mt-5"
-      @update:form-fields="(formFields)=>form = formFields"
-    >
+      @update:form-fields="(formFields)=>form = formFields">
       <template #itemTitle="{structure}">
         <h2 v-if="structure?.title?.length" class="text-xl font-semibold leading-7 text-gray-900 dark:text-gray-100">{{ structure?.title }}</h2>
         <p v-if="structure?.subTitle?.length" class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">{{ structure?.subTitle }}</p>
+      </template>
+      <template #test="{data, updateModelValue}">
+        <div class="dark:text-white mb-7">
+          <Alert :model-value="data.modelValue" position="center" :type="data.type ?? 'success'" :title="data?.title" class="my-2" :display-time="10" close-button @update:model-value="(v)=>{updateModelValue(v)}">
+            {{ data.content }}
+          </Alert>
+          <Button v-if="!data.modelValue" @click="()=> updateModelValue(true)" icon="ph:info-light" type="icon" mode="outline">Info</Button>
+        </div>
       </template>
     </StForm>
     <template v-if="form">

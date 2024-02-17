@@ -16,9 +16,9 @@ export function removeParamsFromStructure<
 }
 export function copyObject(o:any,i?:any,r?:any) {
   if(typeof o != "object") return o;
-  r = o instanceof Array ? [] : o&&{};
+  r = Array.isArray(o) ? [] : o&&{};
   for(i in o)
-    if(o.hasOwnProperty(i))
+    if(Object.prototype.hasOwnProperty.call(o, i))
       r[i] = copyObject(o[i])
   return r
 }

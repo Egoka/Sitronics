@@ -20,7 +20,9 @@ import type {
   IForm,
   IFormExpose,
   IFormFields,
-  IFormStructure
+  IFormStructure,
+  IFieldsCustom,
+  IFieldsCalendar,
 } from "@/components/form/StForm";
 // ---------------------------------------
 const calculatedFieldsInput = <Array<keyof IFieldsType>>
@@ -134,7 +136,7 @@ onMounted(()=>{
 })
 watch(formFields, (value:IFormFields)=>{
   emit('update:formFields', value)
-})
+}, {deep: true})
 // ---------------------------------------
 async function validateField (field: IFieldsType) {
   if (arrayFieldsValidate.includes(field.typeComponent)) {
@@ -201,13 +203,14 @@ function submit(){
         <transition leave-active-class="transition ease-in-out duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
                     enter-active-class="transition ease-in-out duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <div v-show="!structure.isHidden" :class="structure.class">
-            <slot name="itemTitle" :structure="removeParamsFromStructure(structure, ['class', 'classGrid', 'fields'])"/>
+            <slot name="itemTitle" :structure="removeParamsFromStructure(structure, ['class', 'classGrid', 'fields']) as Omit<IFormStructure, 'class'|'classGrid'|'fields'> & IFormFields"/>
             <div class="grid transition" :class="structure.classGrid">
               <div v-for="(field, itemKey) in structure.fields" :key="itemKey" :class="field.classCol">
                 <transition leave-active-class="transition ease-in-out duration-500" leave-from-class="opacity-100" leave-to-class="opacity-0"
                             enter-active-class="transition ease-in-out duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
                   <div v-show="!field.isHidden">
                     <component
+                      v-if="Object.keys(baseInputs).includes(field.typeComponent)"
                       :is="baseInputs[field.typeComponent]"
                       v-model:model-value="formFields[field.name]"
                       v-model:is-invalid="formInvalidFields[field.name]"
@@ -231,10 +234,17 @@ function submit(){
                       <template #item="{item, key, isQuery}">
                         <div v-if="!isQuery" v-html="item?.marker??item[key]"
                              class="text-gray-600 dark:text-gray-300 group-hover:text-theme-700 dark:group-hover:text-theme-400"/>
-                        <div v-else class="text-gray-500">{{item[key]}}</div>
+                        <div v-else class="text-gray-500 dark:text-gray-300">{{item[key]}}</div>
                       </template>
-                      <template #footerPicker></template>
+                      <template #footerPicker><slot name="footerPicker" :data="{...removeParamsFromStructure(field, calculatedFieldsInput), id: field.name} as IFieldsCalendar & IFormFields"></slot></template>
                     </component>
+                    <slot
+                      v-else
+                      :name="(field as IFieldsCustom)?.nameTemplate"
+                      :data="{...field, id: field.name, modelValue:formFields[field.name], isInvalid:formInvalidFields[field.name]} as IFieldsCustom & IFormFields"
+                      :updateModelValue="(value)=>{formFields[field.name] = value; inputField(field)}"
+                      :changeModelValue="(value)=>{formFields[field.name] = value; changeField(field)}"
+                    ></slot>
                   </div>
                 </transition>
               </div>

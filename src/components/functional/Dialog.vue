@@ -86,7 +86,7 @@ function closeModal() {
                   enter-active-class="transition-opacity ease-in duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
       <div v-if="isOpen" class="fixed inset-0 z-[99]">
         <slot name="background">
-          <div class="fixed inset-0 bg-neutral-500/10 dark:bg-neutral-400/10 backdrop-blur-[3px]" />
+          <div class="fixed inset-0 bg-neutral-500/10 dark:bg-neutral-900/10 backdrop-blur-[3px] transition-all duration-200" />
         </slot>
       </div>
     </transition>

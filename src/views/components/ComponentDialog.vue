@@ -543,7 +543,7 @@ watch(form, ()=>{
       </template>
     </Dialog>
     <Dialog v-model="isOpen3" :position="positionDialog3" class="max-w-[60vw] w-auto m-5 p-0">
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/RTifScOdX-U?autoplay=1&si=pJ_551bSBwKZk4bw&amp;controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/RTifScOdX-U?autoplay=1&si=pJ_551bSBwKZk4bw&amp;controls=0" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 <!--      <iframe allow="autoplay; encrypted-media" allowfullscreen class="w-full aspect-video" src="https://www.youtube.com/embed/t2I3Yd27dGw?feature=oembed&autoplay=1"></iframe>-->
     </Dialog>
     <Dialog v-model="isOpen4" :position="positionDialog4" not-close-background class="p-0">
@@ -562,8 +562,8 @@ watch(form, ()=>{
           </div>
         </div>
         <div class="bg-gray-50 dark:bg-gray-950 px-4 py-3 flex justify-center sm:justify-start sm:flex-row-reverse sm:px-6">
-          <Button class="mx-2" mode="destructive" @click="closeDialog">Деактивировать</Button>
-          <Button class="mx-2" mode="neutral" @click="closeDialog">Отмена</Button>
+          <Button class="mx-2" color="destructive" @click="closeDialog">Деактивировать</Button>
+          <Button class="mx-2" color="neutral" @click="closeDialog">Отмена</Button>
         </div>
       </template>
     </Dialog>

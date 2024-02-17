@@ -661,10 +661,10 @@ const structureDialog = ref<Array<IFormStructure>>([
                 <StSelect label="Ширина" :params-select="{classSelect:'justify-end pr-px',dataSelect:[400, 500, 700, 900, 1300, 1700, 2500, 3000], noQuery:true}" v-model="styles.width" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
                   <template v-if="styles.width" #after>px</template>
                 </StSelect>
-                <StSelect label="Высота" :params-select="{classSelect:'justify-end pr-px',dataSelect:[600, 700, 900, 1300, 1700, 2500, 3000], noQuery:true}" v-model="styles.height" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
+                <StSelect label="Высота" class-select="justify-end pr-px" :data-select="[600, 700, 900, 1300, 1700, 2500, 3000]" no-query v-model="styles.height" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
                   <template v-if="styles.height" #after>px</template>
                 </StSelect>
-                <StSelect label="Количество видимых строк" :params-select="{classSelect:'justify-end pr-px',dataSelect:[1, 3, 5, 7, 9, 13, 17, 25, 30], noQuery:true}" v-model="countVisibleRowsExampleTwo" class-body="m-2 w-[15rem] mb-0 rounded-md" clear>
+                <StSelect label="Количество видимых строк" class-select="justify-end pr-px" :data-select="[1, 3, 5, 7, 9, 13, 17, 25, 30]" no-query v-model="countVisibleRowsExampleTwo" class-body="m-2 w-[15rem] mb-0 rounded-md" clear>
                   <template v-if="countVisibleRowsExampleTwo" #after>строк</template>
                 </StSelect>
               </div>
