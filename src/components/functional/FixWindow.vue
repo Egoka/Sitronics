@@ -49,7 +49,7 @@ const border = computed<string>(()=> {
   return ""
 })
 const mode = computed<string>(()=>{
-  const baseStyle = "flex items-center px-1 border border-neutral-200 dark:border-neutral-800 text-black dark:text-zinc-300"
+  const baseStyle = "flex items-center px-1 border border-neutral-200 dark:border-neutral-900 text-black text-zinc-600 dark:text-zinc-400"
   switch (props.mode) {
     case "filled": return `${baseStyle} bg-stone-100 dark:bg-stone-900 rounded-md`;
     case "outlined": return `${baseStyle} bg-white dark:bg-neutral-950 rounded-md`;
@@ -133,7 +133,11 @@ function removeOpenListener() {
 }
 function addCloseListener() {
   switch (eventClose.value) {
-    case "hover": element.value?.addEventListener("mouseleave", close);break
+    case "hover": {
+      const el = byCursor.value ? fixWindow.value as HTMLElement : element.value
+      el?.addEventListener("mouseleave", close);
+      break
+    }
     case "click": window?.addEventListener("click", closeOnClick);break
     case "mousedown": window?.addEventListener("mousedown", closeOnClick);break
     case "mouseup": window?.addEventListener("mouseup", closeOnClick);break
@@ -301,15 +305,15 @@ function updatePosition() {
 <template>
   <transition leave-active-class="transition-opacity ease-in-out duration-300" leave-from-class="opacity-100" leave-to-class="opacity-0"
               enter-active-class="transition-opacity ease-in-out duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100">
-  <div
-    v-show="isOpen"
-    ref="fixWindow"
-    :class="cn('text-neutral-800 dark:text-neutral-300', props.classBody)"
-    :style="`position: fixed;left: 0px; top: 0px;transform: translate(${x}px, ${y}px);${border}`">
-    <div :class="cn(mode, props.class)"><slot/></div>
-    <Button v-if="isCloseButton" mode="ghost" class="absolute top-2 right-2 px-[5px] m-0.5 h-9 w-9" @click="close">
-      <XMarkIcon aria-hidden="true" class="h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>
-    </Button>
-  </div>
+    <div
+      v-show="isOpen"
+      ref="fixWindow"
+      :class="cn('text-neutral-800 dark:text-neutral-300', props.classBody)"
+      :style="`position: fixed;left: 0px; top: 0px;transform: translate(${x}px, ${y}px);${border}`">
+      <div :class="cn(mode, props.class)"><slot/></div>
+      <Button v-if="isCloseButton" mode="ghost" class="absolute top-2 right-2 px-[5px] m-0.5 h-9 w-9" @click="close">
+        <XMarkIcon aria-hidden="true" class="h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>
+      </Button>
+    </div>
   </transition>
 </template>

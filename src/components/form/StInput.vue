@@ -128,8 +128,9 @@ function blur(env:FocusEvent) {
       :autocomplete="autocomplete"
       :value="value"
       :class="cn(
-        'ring-0 border-0 w-full bg-transparent p-1 h-[28px] my-1 rounded-md text-gray-900 dark:text-gray-100',
-        'placeholder:text-transparent placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-600',
+        'relative z-10 ring-0 border-0 w-full bg-transparent p-1 h-[28px] my-1 rounded-md text-gray-900 dark:text-gray-100',
+        'placeholder:select-none focus:placeholder:text-gray-400 focus:placeholder:dark:text-gray-500',
+        label?.length ? 'placeholder:text-transparent placeholder:transition-all' : '',
         '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
         'focus:outline-0 focus:ring-0 transition-all caret-theme-500',
         props?.classInput,

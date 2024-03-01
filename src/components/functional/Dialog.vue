@@ -73,7 +73,7 @@ function closeModal() {
           classDialog,
           classPosition,
           size,
-          'absolute overflow-auto'
+          'absolute'
           )">
           <slot :closeDialog="closeModal"></slot>
         <Button v-if="isCloseButton" mode="ghost" class="absolute top-2 right-2 px-[5px] m-1 h-9 w-9" @click="closeModal">

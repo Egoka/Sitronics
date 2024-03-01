@@ -23,8 +23,8 @@ const background = computed(()=> {
       !(type === 'offsetDynamic')||`peer-focus:-translate-y-[48px] peer-focus:translate-x-4 -translate-y-7 px-1 bg-gradient-to-t ${background}`,
       !(type === 'offsetStatic')||`-translate-y-[48px] translate-x-4 px-1 bg-gradient-to-t ${background} from-50% to-transparent to-55%`,
       !(type === 'static')||'-translate-y-[60px] translate-x-4',
-      !(type === 'vanishing')||`-translate-y-[28px]`,
-      !(type === 'none')||'invisible -translate-y-[30px] translate-x-4',
+      !(type === 'vanishing')||`-translate-y-[30px]`,
+      !(type === 'none')||'opacity-0 -translate-y-[30px] !translate-x-8',
       !props.isRequired||`after:content-['*'] after:text-red-500 after:dark:text-red-800 after:ml-1`
       )"
     :style="`--tw-translate-x: ${props.translateX}px;`">

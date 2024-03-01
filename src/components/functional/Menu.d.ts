@@ -35,15 +35,23 @@ interface IGroupMenuPrivate extends Omit<IGroupMenu, "items"> {
 }
 export interface IMenuStyles {
   class?: {
-
+    body?: string
+    title?: string
+    separator?: string
+    separatorIcon?: string
+    group?: string
+    groupTitle?: string
+    item?: string
+    itemIcon?: string
+    itemTitle?: string
+    itemInfo?: string
+    itemRightIcon?: string
   }
   width?: TWidth
   height?: THeight
   animation?: "transition-all duration-500"|"transition-none"|string
-  hoverRows?:string|"hover:bg-neutral-100/90 dark:hover:bg-neutral-900/50"|boolean
-  border?: {
-
-  }
+  activeRows?:string|"bg-neutral-200/50 dark:bg-neutral-700/50"|boolean
+  selectedRows?:string|"bg-neutral-300 dark:bg-neutral-700"|boolean
 }
 export interface IMenuItem {
   title?: string
@@ -61,6 +69,7 @@ export interface IMenu extends IMenuItem{
   horizontal?: boolean
   onlyIcons?: boolean
   styles?: IMenuStyles
+  class?: StyleClass
 }
 export interface IMenuExpose {
   // ---STATE-------------------------

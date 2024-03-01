@@ -6,9 +6,11 @@ import {ref} from "vue";
 import Button from "@/components/functional/Button.vue";
 import openAlert from "@/components/functional/Alert";
 import FixWindow from "@/components/functional/FixWindow.vue";
-import {Bars3Icon, ChevronDownIcon} from "@heroicons/vue/20/solid";
+import {Bars3Icon, ChevronDownIcon, MagnifyingGlassIcon} from "@heroicons/vue/20/solid";
 import StSwitch from "@/components/form/StSwitch.vue";
 import type {IGroups} from "@/components/functional/Menu";
+import StInput from "@/components/form/StInput.vue";
+import {cn} from "@/helpers/tailwind";
 
 const baseMenu1 = ref<IGroups>([{items: [{title: 'Profile',/*icon: 'user',info: '<div>+1</div>',*/},{title: 'Billing',/*icon: 'credit-card',info: '⌘B',*/},{title: 'Settings',/*icon: 'cog-6-tooth',info: '⌘S'*/},{title: 'Keyboard shortcuts', disabled: true, /*icon: 'solar:keyboard-outline',info: '⌘K'*/},]}])
 const baseMenu2 = ref<IGroups>([{items: [{title: 'Profile',icon: 'user',/*info: '<div>+1</div>',*/},{title: 'Billing',icon: 'credit-card',/*info: '⌘B',*/},{title: 'Settings',icon: 'cog-6-tooth',/*info: '⌘S'*/},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',/*info: '⌘K'*/},]}])
@@ -16,7 +18,7 @@ const baseMenu21 = ref<IGroups>([{items: [{title: 'Profile',icon: 'chevron-right
 // const baseMenu22 = ref<IGroups>([{items: [{/*title: 'Electronics',*/icon: 'carbon:home',/*info: '<div>+1</div>',*/},{title: 'Electronics',icon: 'chevron-right',/*info: '<div>+1</div>',*/},{title: 'Computer',icon: 'chevron-right',/*info: '⌘B',*/},{title: 'Accessories',icon: 'chevron-right',/*info: '⌘S'*/},{title: 'Keyboard',icon: 'solar:keyboard-outline',/*info: '⌘K'*/},]}])
 const baseMenu3 = ref<IGroups>([{items: [{title: 'Profile',icon: 'user',info: '<div>+1</div>'},{title: 'Billing',icon: 'credit-card',info: '⌘B'},{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]}])
 const baseMenu31 = ref<IGroups>([{items: [{title: 'Home',icon: 'carbon:home'}], separator: {isVisible: false}}, {items: [{title: 'Profile',icon: 'user'}]},{items: [{title: 'Billing',icon: 'credit-card',info: '⌘B'}]},{items: [{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'}]},{items: [{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]}])
-const baseMenu4 = ref<IGroups>([{title: "Пользователь", items: [{title: 'Profile',icon: '',info: '<div>+1</div>'},{title: 'Billing',icon: 'credit-card',info: '⌘B'},{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]},{separator: {/*icon: 'akar-icons:github-outline-fill'*/},items: [{title: 'GitHub',icon: 'akar-icons:github-outline-fill',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'Support',icon: 'system-uicons:support',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'API',icon: 'bi:cloudy',info: '⌘+T',disabled: true},]}])
+const baseMenu4 = ref<IGroups>([{title: "Пользователь", items: [{title: 'Profile',icon: '',info: '<div>+1</div>'},{title: 'Billing',icon: 'credit-card',info: '⌘B'},{title: 'Settings',icon: 'cog-6-tooth',info: '⌘S'},{title: 'Keyboard shortcuts',icon: 'solar:keyboard-outline',info: '⌘K'}]},{separator: {/*icon: 'akar-icons:github-outline-fill'*/},items: [{title: 'GitHub',icon: 'akar-icons:github-outline-fill', menu: {/*title: 'Test',*/ groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'Support',icon: 'system-uicons:support',menu: {/*title: 'Test',*/groups: [{items: [{title: 'Email',icon: 'carbon:email'},{title: 'Message',icon: 'chat-bubble-left'},{title: 'More...',icon: 'plus-circle'}]}]}},{title: 'API',icon: 'bi:cloudy',info: '⌘+T',disabled: true},]}])
 const groupsMenu = ref<IGroups>([
   {
     separator: {
@@ -222,6 +224,7 @@ const groupsMenu = ref<IGroups>([
   }
 ])
 const onlyIcons = ref(true)
+const query = ref("")
 </script>
 
 <template>
@@ -380,7 +383,7 @@ const onlyIcons = ref(true)
         <div class=" col-span-1 my-5">
           <Button class="rounded-full h-9 w-9 px-0">
             <Bars3Icon class="h-4 w-4"/>
-            <FixWindow event-open="click" event-close="hover">
+            <FixWindow event-open="click" event-close="hover" :padding-window="10.0" class-body="z-30">
               <Menu title="My Account" :groups="baseMenu4" :separator="{gradient:[10,50]}" @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>
             </FixWindow>
           </Button>
@@ -388,7 +391,7 @@ const onlyIcons = ref(true)
         <div class=" col-span-1 my-5">
           <Button>
             Menu
-            <FixWindow event-open="click" event-close="hover">
+            <FixWindow event-open="click" event-close="hover" class-body="z-30">
               <Menu title="My Account" :groups="baseMenu4" :separator="{gradient:[10,50]}" @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>
             </FixWindow>
           </Button>
@@ -398,12 +401,56 @@ const onlyIcons = ref(true)
             <Button class="ml-1 w-20 rounded-none rounded-l-md rounded-r-0 mr-0">Menu</Button>
             <Button class="h-9 w-9 px-0 mr-1 rounded-none rounded-r-md border-l-0 ml-0">
               <ChevronDownIcon class="h-4 w-4"/>
-              <FixWindow event-open="click" event-close="hover" position="bottom">
+              <FixWindow event-open="click" event-close="hover" position="bottom" class-body="z-30">
                 <Menu title="My Account" :groups="baseMenu4" :separator="{gradient:[10,50]}" @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>
               </FixWindow>
             </Button>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="border-b border-theme-700/50 dark:border-theme-500/50 pb-0 mt-10">
+      <h2 class="ml-5 text-xl font-semibold leading-7 text-theme-600 dark:text-theme-500">С поиском по командам</h2>
+      <!--      <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">-->
+      <!--        <p></p>-->
+      <!--      </p>-->
+      <div class="grid transition grid-cols-1 gap-x-6 gap-y-0 sm:grid-cols-6">
+        <div class="col-span-full my-5">
+          <Menu
+            title="My Account"
+            class="w-full max-w-xl m-auto"
+            :groups="baseMenu4"
+            :styles="{
+              class: {
+                title: 'p-0'
+              },
+            }"
+            @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}">
+            <template #title>
+              <StInput
+                ref="selectSearch"
+                v-model="query"
+                label="Найти..."
+                label-mode="vanishing"
+                mode="outlined"
+                class-input="text-sm"
+                class-body="mb-0"
+                class="border-0 ring-0"
+                clear
+              >
+                <template #before>
+                  <MagnifyingGlassIcon aria-hidden="true" class="h-5 w-5 text-gray-400 dark:text-gray-600"/>
+                </template>
+              </StInput>
+            </template>
+          </Menu>
+        </div>
+<!--        <div class="col-span-2 my-5">-->
+<!--          <Menu title="My Account" :groups="baseMenu4" :separator="{gradient:[10,50]}" @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>-->
+<!--        </div>-->
+<!--        <div class="col-span-2 my-5">-->
+<!--          <Menu title="My Account" :groups="baseMenu4" :separator="{gradient:[10,50], icon: 'gala:add'}" @on-click="(event, item) => {openAlert({title: item.title, displayTime: 2000})}"/>-->
+<!--        </div>-->
       </div>
     </div>
   </ComponentViews>

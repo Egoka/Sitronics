@@ -713,10 +713,10 @@ const structureDialog = ref<Array<IFormStructure>>([
             @clickRow="clickRow"
           >
             <template #toolbar>
-                <Button mode="neutral" class="h-9" @click.stop="addRow">
-                  Создать
-                  <PlusIcon aria-hidden="true" class="ml-1 h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>
-                </Button>
+              <Button mode="primary" class="h-9" @click.stop="addRow">
+                Создать
+                <PlusIcon aria-hidden="true" class="ml-1 h-5 w-5 fill-neutral-500 dark:fill-neutral-500"/>
+              </Button>
             </template>
             <template #delete="{key}">
               <div class="bg-stone-50 dark:bg-stone-950 rounded-lg">

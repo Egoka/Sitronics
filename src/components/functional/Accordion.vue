@@ -30,7 +30,7 @@ const styleIcon = ref("h-5 w-5 shrink-0 ml-8 text-slate-400 dark:text-slate-500 
 </script>
 
 <template>
-  <div :class="cn('divide-y divide-slate-200 dark:divide-slate-800', props.styles?.body, props.class)">
+  <div :class="cn('divide-y divide-slate-200 dark:divide-slate-800', props.styles?.body, props?.class)">
     <div v-for="(item, key) in dataItems as IAccordion['dataSource']" :key="key" :class="cn('py-2',   props.styles?.item, 'group/item')">
       <h2>
         <button type="button" class="flex items-center justify-between w-full text-left font-semibold py-2" @click="toggle(key)" :aria-expanded="item.open" aria-expanded="false">

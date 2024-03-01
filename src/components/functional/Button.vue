@@ -27,12 +27,10 @@ const buttonVariants = cva<ButtonStyleVariants>(
     "justify-center",
     "leading-none",
     "focus-visible:ring-1",
-    "transition-all",
-    "duration-500",
     "disabled:opacity-50",
     "disabled:cursor-not-allowed",
     "data-[loading=true]:cursor-wait",
-    "transition-all",
+    "transition-colors",
     "duration-200"
   ],
   {

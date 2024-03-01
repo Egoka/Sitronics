@@ -2,7 +2,6 @@
 import {computed, onMounted, onUnmounted, ref, useSlots} from "vue";
 import Label from "@/components/functional/Label.vue";
 import {cn} from "@/helpers/tailwind";
-import {getLabelType} from "@/helpers/label";
 import Dropdown from "@/components/functional/Dropdown.vue";
 import FixWindow from "@/components/functional/FixWindow.vue";
 import {
@@ -84,6 +83,17 @@ onMounted(()=>{
   headerHeight.value = <number>document.querySelector("header")?.offsetHeight
 })
 // ---------------------------------------
+const getLabelType = (value:any, label:ILayout["label"], labelMode:ILabelMode)=> {
+  if (label?.length) {
+    if (!!(value)) {
+      if (["offsetDynamic","offsetStatic"].includes(labelMode)){
+        return "offsetStatic"
+      } else if (["vanishing"].includes(labelMode)){
+        return "none"
+      } else { return "static" }
+    } else { return labelMode }
+  } else { return "none" }
+}
 async function copy() {
   try {
     await navigator.clipboard.writeText(String(value.value))
@@ -94,17 +104,18 @@ async function copy() {
 </script>
 
 <template>
-  <div ref="inputBody"
-       :class="cn(
+  <div
+    ref="inputBody"
+    :class="cn('inputBody',
          'mb-6 rounded-md',
          animation,
          'classBody relative',
          props.classBody,
          !isInvalid||'is-invalid'
         )"
-       :style="`scroll-margin-top: ${headerHeight + 10}px;`">
+    :style="`scroll-margin-top: ${headerHeight + 10}px;`">
     <div v-if="slots.before" ref="beforeInput"
-         :class="cn('absolute inset-y-0 left-0 flex items-center', 'pl-3 pr-1')"
+         :class="cn('absolute inset-y-0 left-0 flex items-center', 'pr-1', beforeInput?.['offsetWidth'] > 16 ? 'pl-3' : 'pl-1')"
          :style="`height: ${height};max-height: 4rem;`">
       <slot name="before"/>
     </div>
@@ -117,7 +128,7 @@ async function copy() {
         !(mode === 'filled')||`${isDisabled ? 'border-dotted border-2 border-slate-200' : 'border-0 border-transparent'} bg-stone-100 dark:bg-stone-900`,
         animation,
         props.class,
-        !isInvalid||'border-red-500 ring-1 ring-inset ring-red-500 scroll-mt-10',
+        !isInvalid||'border-red-500 dark:border-red-500 ring-1 ring-inset ring-red-500 dark:ring-red-500 scroll-mt-10',
         !isDisabled||'bg-neutral-50 dark:bg-neutral-950 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
         'classLayout block peer overflow-auto'
         )"
@@ -125,13 +136,14 @@ async function copy() {
       <slot/>
     </div>
     <slot name="body"/>
-    <Label :title="label"
-           :type="labelType"
-           :mode="mode"
-           :is-required="isRequired"
-           :is-disabled="isDisabled"
-           :translate-x="beforeWidth||10"
-           :max-width="widthInput"/>
+    <Label
+      :title="label"
+      :type="labelType"
+      :mode="mode"
+      :is-required="isRequired"
+      :is-disabled="isDisabled"
+      :translate-x="beforeWidth+5||15"
+      :max-width="widthInput"/>
     <span ref="afterInput" class="absolute inset-y-0 right-0 flex items-center"
           :style="`height: ${height};max-height: 4rem;`">
       <div v-if="slots.after" class="flex pr-2">
@@ -177,10 +189,10 @@ async function copy() {
       </template>
     </span>
     <p
-      :class="cn('absolute block text-red-600 dark:text-red-400 text-sm truncate ml-1',isInvalid ? 'visible' : 'invisible')"
+      :data-invalid="isInvalid"
+      :class="cn('absolute block text-red-600 dark:text-red-400 text-sm truncate ml-1 data-[invalid=true]:visible invisible')"
       :style="`max-width: ${inputBody?.['offsetWidth']||10}px`">
       {{ messageInvalid }}
     </p>
-<!--    <p data-slot="description" class="absolute block text-zinc-400 dark:text-red-400 text-sm truncate ml-1" data-headlessui-state="">We currently only ship to North America.</p>-->
   </div>
 </template>

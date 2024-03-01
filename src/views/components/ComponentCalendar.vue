@@ -107,7 +107,7 @@ const range = ref({
 <!--    formFields{{formFields['isInfo']}}-->
 <!--    </div>-->
     {{formFields['isInfo']}}
-    <StCalendar v-model:model-value="formFields['isInfo']" :params-date-picker="{isRange: false}" clear>
+    <StCalendar v-model:model-value="formFields['isInfo']" :params-date-picker="{isRange: false, }" :params-fix-window="{eventClose:'click'}" clear>
       <FixWindow class="border-2 rounded-lg border-neutral-100 dark:border-neutral-900 bg-neutral-200 dark:bg-neutral-800 !p-5">
         <div class="flex justify-between space-x-4">
               <span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full">
