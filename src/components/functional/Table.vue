@@ -5,7 +5,7 @@ import {
   BarsArrowUpIcon, BarsArrowDownIcon,
   MagnifyingGlassIcon, FunnelIcon, TableCellsIcon
 } from "@heroicons/vue/20/solid";
-import * as LData from "lodash";
+import LD from "lodash";
 import dayjs from 'dayjs'
 import { v4 as uuidv4 } from 'uuid';
 import isBetween from 'dayjs/plugin/isBetween'
@@ -126,18 +126,18 @@ const dataSource = computed<Array<any>>(()=> {
   // Sort
   if (data && Object.keys(sortColumns).filter(i=>sortColumns[i] !== null).length){
     const sortedFields = getSorted(sortColumns) as any
-    data = LData.orderBy(data, Object.keys(sortedFields), Object.values(sortedFields)) }
+    data = LD.orderBy(data, Object.keys(sortedFields), Object.values(sortedFields)) }
   // Filter
   if (data && noEmptyFilters(filterColumns).length){
     const filter = getFilters(filterColumns)
-    data = LData.filter(data,(row) => Object.keys(filter)
+    data = LD.filter(data,(row) => Object.keys(filter)
       .filter(item => {
         const column = dataColumns.value.find(col=>col.dataField === item)
         if (column) return isEqualsValue(column, row[column.dataField], filter[column.dataField])
       }).length === Object.keys(filter).length) }
   // Search
   if (data && queryTable.value.length){
-    data = LData.filter(data,(row) => !!dataColumns.value
+    data = LD.filter(data,(row) => !!dataColumns.value
       .filter(item => item.visible)
       .filter(item => isEqualsValue(item, row[item.dataField], queryTable.value)).length) }
   stopLoading()
@@ -147,14 +147,14 @@ const resultDataSource = computed<ResultData>(()=> {
   let resultData:any = toRaw(dataSource.value)
   if (isPagination.value) {
     if (isGroup.value && groupField.value) {
-      resultData = Object.values(LData.groupBy(resultData, (item) => item[groupField.value as string])).flat() }
-    resultData = LData.slice(resultData, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value)) }
-  resultData = isGroup.value && groupField.value ? LData.groupBy(resultData, (item) => item[groupField.value as string]) : {0: resultData}
+      resultData = Object.values(LD.groupBy(resultData, (item) => item[groupField.value as string])).flat() }
+    resultData = LD.slice(resultData, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value)) }
+  resultData = isGroup.value && groupField.value ? LD.groupBy(resultData, (item) => item[groupField.value as string]) : {0: resultData}
   emit('result-data', resultData)
   return resultData
 })
 const dataColumns = computed<Array<IColumnPrivate>>(()=> {
-  let listFields:Array<string> = LData.uniq(LData.flatten(LData.map(allData.value, LData.keys))).filter(field=>field!=="_key")
+  let listFields:Array<string> = LD.uniq(LD.flatten(LD.map(allData.value, LD.keys))).filter(field=>field!=="_key")
   if (Array.isArray(props.columns) && props.columns?.length){
     return <Array<IColumnPrivate>>props.columns
       .map((column, index)=>{
@@ -212,7 +212,7 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
               maxVisible: 0,
               classSelect: 'normal-case font-normal max-h-[25rem]',
               classSelectList: 'normal-case font-normal',
-              dataSelect: LData.compact(LData.uniq(LData.map(allData.value, options.dataField ?? ""))) ?? [],
+              dataSelect: LD.compact(LD.uniq(LD.map(allData.value, options.dataField ?? ""))) ?? [],
               paramsFixWindow: {
                 position: 'bottom',
                 ...(column?.paramsFilter as Partial<IDateSelect>)?.paramsFixWindow
@@ -237,7 +237,7 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
                 isRange: true,
                 attributes: [{
                   highlight: { fillMode: 'light' },
-                  dates: LData.compact(LData.uniq(LData.map(allData.value, (item)=> item[options.dataField] ? String(item[options.dataField]) : null ))) ?? [],
+                  dates: LD.compact(LD.uniq(LD.map(allData.value, (item)=> item[options.dataField] ? String(item[options.dataField]) : null ))) ?? [],
                 }],
                 mask: (column.paramsFilter as Partial<IDatePicker>)?.paramsDatePicker?.masks?.modelValue ?? "DD.MM.YYYY",
               },
@@ -570,34 +570,34 @@ function isEqualsValue(column:IColumnPrivate, columnValue:any, value: any): bool
 }
 function setSummary(summary:ISummaryPrivate):string{
   let result:number|string|null|undefined = null
-  const columnData:Array<any> = LData.map(dataSource.value, summary.dataField ?? "")
+  const columnData:Array<any> = LD.map(dataSource.value, summary.dataField ?? "")
   switch (summary.type) {
     case "sum": {
       if ((["number"] as Array<DataType>).includes(summary.dataType)){
-        result = LData.sumBy(LData.compact(columnData), i=>!isNaN(Number(i)) ? Number(i) : 0)
+        result = LD.sumBy(LD.compact(columnData), i=>!isNaN(Number(i)) ? Number(i) : 0)
       } break
     }
     case "count": {
       if ((["string", "select", "number", "date"] as Array<DataType>).includes(summary.dataType)){
-        result = LData.size(columnData)
+        result = LD.size(columnData)
       } break
     }
     case "min": {
-      if ((["string", "select"] as Array<DataType>).includes(summary.dataType)) { result = LData.minBy(columnData,i=>String(i).length) }
-      if (summary.dataType === "number") { result = LData.minBy(columnData,i=>!isNaN(Number(i)) ? Number(i) : 0) }
-      if (summary.dataType === "date") { result = LData.minBy(columnData,i=>new Date(i).getTime()) }
+      if ((["string", "select"] as Array<DataType>).includes(summary.dataType)) { result = LD.minBy(columnData,i=>String(i).length) }
+      if (summary.dataType === "number") { result = LD.minBy(columnData,i=>!isNaN(Number(i)) ? Number(i) : 0) }
+      if (summary.dataType === "date") { result = LD.minBy(columnData,i=>new Date(i).getTime()) }
       break
     }
     case "max": {
-      if ((["string", "select"] as Array<DataType>).includes(summary.dataType)) { result = LData.maxBy(columnData,i=>String(i).length) }
-      if (summary.dataType === "number") { result = LData.maxBy(columnData,i=>!isNaN(Number(i)) ? Number(i) : 0) }
-      if (summary.dataType === "date") { result = LData.maxBy(columnData,i=>new Date(i).getTime()) }
+      if ((["string", "select"] as Array<DataType>).includes(summary.dataType)) { result = LD.maxBy(columnData,i=>String(i).length) }
+      if (summary.dataType === "number") { result = LD.maxBy(columnData,i=>!isNaN(Number(i)) ? Number(i) : 0) }
+      if (summary.dataType === "date") { result = LD.maxBy(columnData,i=>new Date(i).getTime()) }
       break
     }
     case "avg": {
-      if ((["string", "select"] as Array<DataType>).includes(summary.dataType)) { result = LData.round(LData.meanBy(columnData,i=>String(i).length), 0) }
-      if (summary.dataType === "number") { result = LData.round(LData.meanBy(columnData,i=>!isNaN(Number(i)) ? Number(i) : 0), 0) }
-      if (summary.dataType === "date") { result = LData.meanBy(columnData,i=>new Date(i).getTime()) }
+      if ((["string", "select"] as Array<DataType>).includes(summary.dataType)) { result = LD.round(LD.meanBy(columnData,i=>String(i).length), 0) }
+      if (summary.dataType === "number") { result = LD.round(LD.meanBy(columnData,i=>!isNaN(Number(i)) ? Number(i) : 0), 0) }
+      if (summary.dataType === "date") { result = LD.meanBy(columnData,i=>new Date(i).getTime()) }
       break
     }
   }
@@ -925,93 +925,95 @@ function stopResizeColumn() {
                     </div>
                   </th>
                 </tr>
-                <tr v-for="(data, indexRow) in group" :key="indexRow"
+                <template v-for="(data, indexRow) in group" :key="indexRow">
+                  <tr
                     :class="cn(`tr--${data?._key??indexRow} group/tr`,
                     styles.hoverRows && `${styles.hoverRows} transition-colors duration-200`, !styles.isStripedRows||
                     ((mode === 'filled') ? 'odd:bg-stone-100 even:bg-stone-50 dark:odd:bg-stone-900 dark:even:bg-stone-950' :
                     (mode === 'outlined') ? 'odd:bg-white even:bg-neutral-50 dark:odd:bg-neutral-950 dark:even:bg-neutral-900' :
                     (mode === 'underlined') ? 'odd:bg-stone-50 even:bg-stone-100 dark:odd:bg-stone-950 dark:even:bg-neutral-900' : ''))"
                     @click="clickRow(`tr--${data?._key??indexRow}`, data, indexRow)">
-                  <template v-for="(column, indexCol) in dataColumns" :key="`${indexRow}-${indexCol}`">
-                    <td v-if="column.visible"
-                        :class="cn('ColumnClassTd', `td--${data?._key??indexRow}--${column?.name??indexCol}`,
-                          'first:border-l-0 group-first/tr:border-t-0 last:border-r-0 group-last/tr:border-b-0',
-                          'text-sm font-medium',
-                          column.class?.td, styles.class?.cellText, (styles.border as {'cell'})?.cell,
-                          styles.verticalLines ? 'border-r': 'border-r-0',
-                          styles.horizontalLines ? 'border-b': 'border-b-0',
-                          editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol ? '!px-1':'')"
-                        :style="!widthsColumns[column.dataField] ? styles?.defaultWidthColumn :
-                          `width: ${widthsColumns[column.dataField]}px;
-                          min-width: ${widthsColumns[column.dataField]}px;
-                          max-width: ${widthsColumns[column.dataField]}px;`"
-                        @click="clickCell(`td--${data?._key??indexRow}--${column?.name??indexCol}`, column, data[column.dataField],
-                          setMarker(column, setCell(column, data[column.dataField], data)), data, indexRow, indexCol)">
-                      <div v-if="!column?.cellTemplate" :class="cn(column.class?.cellText, (editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol) && 'overflow-visible')"
-                           :style="`min-height: ${heightCell}px;max-height: ${(heightCell*5)+2}px;`">
-                        <div v-if="!(editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol)" v-html="setMarker(column, setCell(column, data[column.dataField], data))"/>
-                        <template v-if="editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol">
-                          <StInput
-                            v-if="column.type === 'string'||column.type === 'number'"
-                            :model-value="data[column.dataField]"
-                            v-bind="{
-                              ...column.edit?.paramsFilter,
-                              classInput: `pt-[5px] pl-[10px] text-sm font-medium ${styles.class?.cellText} ${
-                                (column.edit?.paramsFilter as Partial<IDataInput>)?.classInput}`
-                            }"
-                            :mode="mode"
-                            class="border-none font-normal !bg-transparent"
-                            class-body="pt-0 -my-3 w-full"
-                            label-mode="vanishing"
-                            @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
-                            @change:model-value="(value)=>updateCell(data?._key, column, value)"/>
-                          <StSelect
-                            v-else-if="column.type === 'select'"
-                            :model-value="data[column.dataField]"
-                            v-bind="{
-                              ...column.edit?.paramsFilter,
-                              paramsFixWindow: {scrollableEl: tableBody,
-                              ...(column.edit?.paramsFilter as Partial<IDateSelect>)?.paramsFixWindow},
-                              classSelect: `pl-[10px] text-sm font-medium ${styles.class?.cellText} ${
-                                (column.edit?.paramsFilter as Partial<IDateSelect>)?.classSelect}`}"
-                            :mode="mode"
-                            class="border-none font-normal !bg-transparent"
-                            class-body="pt-[2px] -my-3 w-full"
-                            label-mode="vanishing"
-                            @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
-                            @update:model-value="(value)=>{updateCell(data?._key, column, value)}"
-                            />
-                          <StCalendar
-                            v-else-if="column.type === 'date'"
-                            :model-value="data[column.dataField]"
-                            v-bind="{
-                              ...column.edit?.paramsFilter,
-                              paramsFixWindow: {scrollableEl: tableBody, ...(column.edit?.paramsFilter as Partial<IDatePicker>)?.paramsFixWindow},
-                              classDateText: `pt-[7px] pl-[10px] text-sm font-medium ${styles.class?.cellText} ${(column.edit?.paramsFilter as Partial<IDatePicker>)?.classDateText}`}"
-                            :mode="mode"
-                            class="border-none font-normal !bg-transparent"
-                            class-body="pt-0 -my-3 w-full"
-                            label-mode="vanishing"
-                            @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
-                            @update:model-value="(value)=>updateCell(data?._key, column, value)"/>
-                        </template>
-                      </div>
-                      <div
-                        v-else
-                        :class="cn(column.class?.cellText)"
-                        :style="`min-height: ${heightCell}px;max-height: ${(heightCell*5)+2}px;`">
-                        <slot
-                          :name="column?.cellTemplate"
-                          :key="data?._key"
-                          :column="column" :rowData="data" :value="setCell(column, data[column.dataField], data)"
-                          :value-with-marker="setMarker(column, setCell(column, data[column.dataField], data))"
-                          :is-close-editor="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
-                          :edit-valiue="(value)=>updateCell(data?._key, column, value)"
-                        />
-                      </div>
-                    </td>
-                  </template>
-                </tr>
+                    <template v-for="(column, indexCol) in dataColumns" :key="`${indexRow}-${indexCol}`">
+                      <td v-if="column.visible"
+                          :class="cn('ColumnClassTd', `td--${data?._key??indexRow}--${column?.name??indexCol}`,
+                            'first:border-l-0 group-first/tr:border-t-0 last:border-r-0 group-last/tr:border-b-0',
+                            'text-sm font-medium',
+                            column.class?.td, styles.class?.cellText, (styles.border as {'cell'})?.cell,
+                            styles.verticalLines ? 'border-r': 'border-r-0',
+                            styles.horizontalLines ? 'border-b': 'border-b-0',
+                            editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol ? '!px-1':'')"
+                          :style="!widthsColumns[column.dataField] ? styles?.defaultWidthColumn :
+                            `width: ${widthsColumns[column.dataField]}px;
+                            min-width: ${widthsColumns[column.dataField]}px;
+                            max-width: ${widthsColumns[column.dataField]}px;`"
+                          @click="clickCell(`td--${data?._key??indexRow}--${column?.name??indexCol}`, column, data[column.dataField],
+                            setMarker(column, setCell(column, data[column.dataField], data)), data, indexRow, indexCol)">
+                        <div v-if="!column?.cellTemplate" :class="cn(column.class?.cellText, (editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol) && 'overflow-visible')"
+                             :style="`min-height: ${heightCell}px;max-height: ${(heightCell*5)+2}px;`">
+                          <div v-if="!(editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol)" v-html="setMarker(column, setCell(column, data[column.dataField], data))"/>
+                          <template v-if="editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol">
+                            <StInput
+                              v-if="column.type === 'string'||column.type === 'number'"
+                              :model-value="data[column.dataField]"
+                              v-bind="{
+                                ...column.edit?.paramsFilter,
+                                classInput: `pt-[5px] pl-[10px] text-sm font-medium ${styles.class?.cellText} ${
+                                  (column.edit?.paramsFilter as Partial<IDataInput>)?.classInput}`
+                              }"
+                              :mode="mode"
+                              class="border-none font-normal !bg-transparent"
+                              class-body="pt-0 -my-3 w-full"
+                              label-mode="vanishing"
+                              @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
+                              @change:model-value="(value)=>updateCell(data?._key, column, value)"/>
+                            <StSelect
+                              v-else-if="column.type === 'select'"
+                              :model-value="data[column.dataField]"
+                              v-bind="{
+                                ...column.edit?.paramsFilter,
+                                paramsFixWindow: {scrollableEl: tableBody,
+                                ...(column.edit?.paramsFilter as Partial<IDateSelect>)?.paramsFixWindow},
+                                classSelect: `pl-[10px] text-sm font-medium ${styles.class?.cellText} ${
+                                  (column.edit?.paramsFilter as Partial<IDateSelect>)?.classSelect}`}"
+                              :mode="mode"
+                              class="border-none font-normal !bg-transparent"
+                              class-body="pt-[2px] -my-3 w-full"
+                              label-mode="vanishing"
+                              @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
+                              @update:model-value="(value)=>{updateCell(data?._key, column, value)}"
+                              />
+                            <StCalendar
+                              v-else-if="column.type === 'date'"
+                              :model-value="data[column.dataField]"
+                              v-bind="{
+                                ...column.edit?.paramsFilter,
+                                paramsFixWindow: {scrollableEl: tableBody, ...(column.edit?.paramsFilter as Partial<IDatePicker>)?.paramsFixWindow},
+                                classDateText: `pt-[7px] pl-[10px] text-sm font-medium ${styles.class?.cellText} ${(column.edit?.paramsFilter as Partial<IDatePicker>)?.classDateText}`}"
+                              :mode="mode"
+                              class="border-none font-normal !bg-transparent"
+                              class-body="pt-0 -my-3 w-full"
+                              label-mode="vanishing"
+                              @is-active="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
+                              @update:model-value="(value)=>updateCell(data?._key, column, value)"/>
+                          </template>
+                        </div>
+                        <div
+                          v-else
+                          :class="cn(column.class?.cellText)"
+                          :style="`min-height: ${heightCell}px;max-height: ${(heightCell*5)+2}px;`">
+                          <slot
+                            :name="column?.cellTemplate"
+                            :key="data?._key"
+                            :column="column" :rowData="data" :value="setCell(column, data[column.dataField], data)"
+                            :value-with-marker="setMarker(column, setCell(column, data[column.dataField], data))"
+                            :is-close-editor="(isActive)=>isActive||clearEditableCell(indexRow, indexCol)"
+                            :edit-valiue="(value)=>updateCell(data?._key, column, value)"
+                          />
+                        </div>
+                      </td>
+                    </template>
+                  </tr>
+                </template>
               </template>
             </tbody>
   <!-- -------------------------------- -->
