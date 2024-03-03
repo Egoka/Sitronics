@@ -67,15 +67,18 @@ const tfoot = ref<HTMLElement>()
 const pager = ref<HTMLElement>()
 const tableFooter = ref<HTMLElement>()
 // ---STATE-------------------------------
-const queryTable = ref<Search>("")
 const pageTable = ref<Page>(1)
 const sizeTable = ref<Page>(5)
 const widthsColumns = reactive<Widths>({})
-const sortColumns = reactive<Sorted>({})
-const filterColumns = reactive<Filters>({})
-const allData = ref<NonNullable<ITable["dataSource"]>>([])
 const isLoading = ref<TLoading>(false)
 const editableCell = ref<{indexRow:number, indexCol:number}|null>()
+// ---
+const queryTable = ref<Search>("")
+const sortColumns = reactive<Sorted>({})
+const filterColumns = reactive<Filters>({})
+// ---
+const allData = ref<NonNullable<ITable["dataSource"]>>([])
+const dataSource = ref<Array<Record<string, any>>>([])
 // ---PROPS-------------------------------
 const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode ?? "outlined")
 const isVisibleToolbar = computed<boolean>(()=> (isSearch.value || !!props.toolbar) && ((props.toolbar as IToolbar)?.visible ?? true ))
@@ -120,29 +123,6 @@ const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationB
 const heightCell = computed<number>(()=> props.styles?.heightCell ?? 24)
 const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows ?? 0)
 // ---DATA--------------------------------
-const dataSource = computed<Array<any>>(()=> {
-  if (!(allData.value && allData.value?.length)){ return [] }
-  let data = toRaw(allData.value)
-  // Sort
-  if (data && Object.keys(sortColumns).filter(i=>sortColumns[i] !== null).length){
-    const sortedFields = getSorted(sortColumns) as any
-    data = LD.orderBy(data, Object.keys(sortedFields), Object.values(sortedFields)) }
-  // Filter
-  if (data && noEmptyFilters(filterColumns).length){
-    const filter = getFilters(filterColumns)
-    data = LD.filter(data,(row) => Object.keys(filter)
-      .filter(item => {
-        const column = dataColumns.value.find(col=>col.dataField === item)
-        if (column) return isEqualsValue(column, row[column.dataField], filter[column.dataField])
-      }).length === Object.keys(filter).length) }
-  // Search
-  if (data && queryTable.value.length){
-    data = LD.filter(data,(row) => !!dataColumns.value
-      .filter(item => item.visible)
-      .filter(item => isEqualsValue(item, row[item.dataField], queryTable.value)).length) }
-  stopLoading()
-  return data ?? []
-})
 const resultDataSource = computed<ResultData>(()=> {
   let resultData:any = toRaw(dataSource.value)
   if (isPagination.value) {
@@ -401,7 +381,7 @@ const footerPaddingHeight = ref<number>(0)
 function setFooterPaddingHeight() {
   const result = (tableBody?.value?.clientHeight??0) -
     ((thead.value?.clientHeight??0) + (tbody.value?.clientHeight??0) + (tfoot.value?.clientHeight??0) + footerPaddingHeight.value)
-  footerPaddingHeight.value = result ? result : 0
+  footerPaddingHeight.value = result > 0 ? result : 0
 }
 // ---IS-DARK-----------------------------
 const isDark = ref<boolean>(window.matchMedia('(prefers-color-scheme: dark)')?.matches)
@@ -427,6 +407,7 @@ defineExpose<ITableExpose>({
   // ---METHODS-----------------------------
   addRow,deleteRow,updateRow,updateCell,
   getColumn,
+  updateDataSource,
   sorting,filtering,searching,
   switchPage,switchSizePage,
   clearFilter,
@@ -455,6 +436,7 @@ watch(()=>[countVisibleRows.value, styles.value.height],(value, oldValue)=> {
 })
 watch(()=>props.dataSource,()=>{
   allData.value = props.dataSource?.length ? props.dataSource?.map(item => { return {...item, _key: uuidv4()} }) : []
+  updateDataSource()
 },{immediate: true})
 watch(()=>sortColumns, ()=> {
   emit('sort', {dataColumns: dataColumns.value, sortedFields: getSorted(sortColumns)})
@@ -498,6 +480,30 @@ function updateHeightTable():void {
 function getColumn(dataField:IColumn["dataField"], index?:number):IColumnPrivate|undefined {
   return dataColumns.value.find((column, item)=>dataField ? column.dataField === dataField : item === index)
 }
+function updateDataSource ():Array<Record<string, any>>{
+  if (!(allData.value && allData.value?.length)){ return [] }
+  let data = toRaw(allData.value)
+  // Sort
+  if (data && Object.keys(sortColumns).filter(i=>sortColumns[i] !== null).length){
+    const sortedFields = getSorted(sortColumns) as any
+    data = LD.orderBy(data, Object.keys(sortedFields), Object.values(sortedFields)) }
+  // Filter
+  if (data && noEmptyFilters(filterColumns).length){
+    const filter = getFilters(filterColumns)
+    data = LD.filter(data,(row) => Object.keys(filter)
+      .filter(item => {
+        const column = dataColumns.value.find(col=>col.dataField === item)
+        if (column) return isEqualsValue(column, row[column.dataField], filter[column.dataField])
+      }).length === Object.keys(filter).length) }
+  // Search
+  if (data && queryTable.value.length){
+    data = LD.filter(data,(row) => !!dataColumns.value
+      .filter(item => item.visible)
+      .filter(item => isEqualsValue(item, row[item.dataField], queryTable.value)).length) }
+  stopLoading()
+  dataSource.value = data ?? []
+  return data ?? []
+}
 function sorting(dataField:IColumn["dataField"], value?:Sort) {
   if (!dataField){ return }
   if (value === undefined) {
@@ -508,6 +514,7 @@ function sorting(dataField:IColumn["dataField"], value?:Sort) {
   if (timeout > 100){ startLoading() }
   setTimeout(()=>{
     sortColumns[dataField] = (value as Sort)
+    updateDataSource()
   },timeout)
 }
 function filtering(dataField:IColumn["dataField"], value:any) {
@@ -520,6 +527,7 @@ function filtering(dataField:IColumn["dataField"], value:any) {
   if (timeout > 100){ startLoading() }
   setTimeout(()=>{
     filterColumns[dataField] = value
+    updateDataSource()
   },timeout)
 }
 function searching(value:Search|null) {
@@ -529,6 +537,7 @@ function searching(value:Search|null) {
   if (timeout > 100){ startLoading() }
   setTimeout(()=>{
     queryTable.value = value??""
+    updateDataSource()
   },timeout)
 }
 function switchPage(page:Page) {

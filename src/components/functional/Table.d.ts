@@ -12,7 +12,7 @@ export type Page = number
 export type Sorted = { [dataField:DataField]: Sort }
 export type Widths = { [dataField:DataField]: number }
 export type Filters = { [dataField:DataField]: any }
-export type ResultData = { [dataField:DataField]: Array<any> }
+export type ResultData = { [dataField:DataField]: Array<Record<string, any>> }
 
 type EditorCell =  boolean | {
   isEdit?:boolean
@@ -234,6 +234,7 @@ export interface ITableExpose {
   updateRow(_key:string, data:any):false|any
   updateCell(_key:string, column:IColumn, value: any):false|any
   getColumn(dataField:IColumn["dataField"], index?:number):IColumn|undefined
+  updateDataSource():Array<Record<string, any>>
   sorting(dataField:IColumn["dataField"], value?:Sort):void
   filtering(dataField:IColumn["dataField"], value:any):void
   searching(value:Search):void
