@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, reactive, ref, toRaw, useSlots, watch} from "vue";
+import {computed, nextTick, onMounted, onUnmounted, reactive, ref, toRaw, useSlots, watch} from "vue";
 import {
   ArrowLongUpIcon, ArrowLongDownIcon,
   BarsArrowUpIcon, BarsArrowDownIcon,
@@ -380,7 +380,7 @@ const tableObserver = new ResizeObserver(entries => entries.forEach(() => setFoo
 const footerPaddingHeight = ref<number>(0)
 function setFooterPaddingHeight() {
   const result = (tableBody?.value?.clientHeight??0) -
-    ((thead.value?.clientHeight??0) + (tbody.value?.clientHeight??0) + (tfoot.value?.clientHeight??0) + footerPaddingHeight.value)
+    ((thead.value?.clientHeight??0) + (tbody.value?.clientHeight??0) + (tfoot.value?.clientHeight??0))
   footerPaddingHeight.value = result > 0 ? result : 0
 }
 // ---IS-DARK-----------------------------
@@ -416,6 +416,7 @@ defineExpose<ITableExpose>({
 })
 // ---MOUNT-UNMOUNT-----------------------
 onMounted(()=>{
+  nextTick(()=>updateHeightTable())
   if (tbody.value) { tableObserver.observe(tbody.value as Element) }
   Object.assign(sortColumns, Object.fromEntries(new Map(
     dataColumns.value.map((column)=>[column.dataField,column.defaultSort??null]))))
@@ -423,7 +424,6 @@ onMounted(()=>{
     dataColumns.value.map((column)=>[column.dataField,column.defaultFilter??null]))))
   Object.assign(widthsColumns, Object.fromEntries(new Map(
     dataColumns.value.map((column)=>[column.dataField,column.width??column.maxWidth??column.minWidth]))))
-  setTimeout(()=>updateHeightTable(),10)
 })
 onUnmounted(()=>{
   tableObserver.disconnect();
@@ -450,7 +450,7 @@ watch(()=>queryTable.value, (query)=> {
   emit('search', query)
 })
 watch(startPage,(numberPage:number)=>{
-  setTimeout(()=>switchPage(numberPage),10)
+  nextTick(()=>switchPage(numberPage))
 }, {immediate: true})
 watch(sizePage,(sizePageValue:number)=>{
   switchSizePage (sizePageValue ?? sizePage.value)
@@ -688,11 +688,11 @@ function clearFilter() {
   emit("clear-filter")
 }
 function clearEditableCell(indexRow: number, indexCol: number) {
-  setTimeout(()=>{
+  nextTick(()=>{
     if (editableCell.value?.indexRow === indexRow && editableCell.value?.indexCol === indexCol) {
       editableCell.value = null
     }
-  },500)
+  })
 }
 function startLoading() {
   isLoading.value = true
@@ -1071,7 +1071,7 @@ function stopResizeColumn() {
                     enter-active-class="transition ease-in duration-500" enter-from-class="opacity-0" enter-to-class="opacity-100">
           <div v-if="isLoading" class="absolute z-30 top-0 bottom-0 left-0 w-full select-none text-center text-sm text-gray-500">
             <div class="flex justify-center items-center h-full w-full rounded-lg bg-neutral-100/70 dark:bg-neutral-800/50">
-              <Loading type="Fingerprint" :size="100" :color="isDark? 'theme.800' : 'theme.500'"/>
+              <Loading type="Fingerprint" :size="100" :color="isDark? 'theme.600' : 'theme.500'"/>
             </div>
           </div>
         </transition>

@@ -35,7 +35,13 @@ import {cn} from "@/helpers/tailwind";
 const tailwind = resolveConfig(tailwindConfig as Config)
 const props = defineProps<ILoading>()
 // ---------------------------------------
-const color = computed(()=>get(tailwind?.theme?.["caretColor"] ?? {}, (props.color as string)))
+const color = computed(()=> {
+  let result = get(tailwind?.theme?.["caretColor"] ?? {}, (props.color as string)) as string
+  if (result && result?.length && result.match("^hsl\\(var\\(")) {
+    result = `hsl(${getComputedStyle(document.documentElement).getPropertyValue(result?.match(/^hsl\(var\((--[a-zA-Z0-9-]*)/)?.[1] ?? "")} / 1)`
+  }
+  return result
+})
 const type = computed<NonNullable<ILoading["type"]>>(()=> {
   switch (props.type) {
     case "simple": return "simple"

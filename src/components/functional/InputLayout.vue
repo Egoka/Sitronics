@@ -142,7 +142,7 @@ async function copy() {
       :mode="mode"
       :is-required="isRequired"
       :is-disabled="isDisabled"
-      :translate-x="beforeWidth+5||15"
+      :translate-x="beforeWidth||15"
       :max-width="widthInput"/>
     <span ref="afterInput" class="absolute inset-y-0 right-0 flex items-center"
           :style="`height: ${height};max-height: 4rem;`">

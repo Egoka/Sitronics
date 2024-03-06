@@ -3,7 +3,7 @@ import {computed, getCurrentInstance, ref, watch, useSlots, onMounted} from "vue
 import InputLayout from "@/components/functional/InputLayout.vue";
 import {CheckIcon, MagnifyingGlassIcon, FunnelIcon} from "@heroicons/vue/20/solid";
 import StInput from "@/components/form/StInput.vue";
-import * as LData from "lodash";
+import LD from "lodash";
 import gsap from 'gsap'
 import Badge from "@/components/functional/Badge.vue";
 import FixWindow from "@/components/functional/FixWindow.vue";
@@ -165,8 +165,8 @@ function select(selectValue:BaseDataItem|null) {
 // ---------------------------------------
 const dataList = computed<Array<any>>(()=> {
   if (dataSelect.value?.length && valueSelect.value && isQuery.value) {
-    return LData.map(
-      LData.filter(dataSelect.value, item => String((typeof item === "object" ? item[valueSelect.value as string] : item)).toLowerCase().includes(query.value.toLowerCase())),
+    return LD.map(
+      LD.filter(dataSelect.value, item => String((typeof item === "object" ? item[valueSelect.value as string] : item)).toLowerCase().includes(query.value.toLowerCase())),
       (item: any) => {
         item.marker = query.value.length
           ? String(item[valueSelect.value as string]).replace(new RegExp(query.value, "gi"), `<span class="${classMaskQuery.value}">$&</span>`)

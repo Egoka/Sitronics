@@ -163,7 +163,7 @@ function clearDataPicker () {
     v-bind="inputLayout"
     @clear="clearDataPicker">
     <div ref="dataPicker" tabindex="0"
-         :class="cn('w-full focus:outline-0 focus:ring-0', props?.classDataPicker, 'flex min-h-[36px] max-h-16 overflow-auto')"
+         :class="cn('w-full focus:outline-0 focus:ring-0 items-center', props?.classDataPicker, 'flex min-h-[36px] max-h-16 overflow-auto')"
          @focusin="focus(true)"
          @focusout="focus(false)"
          @click="openCalendar">
