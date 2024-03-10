@@ -7,7 +7,7 @@ import Button from "@/components/functional/Button.vue";
 import { StarIcon as InStar } from "@heroicons/vue/24/outline";
 import { StarIcon as OutStar } from "@heroicons/vue/24/solid";
 import {onMounted, reactive, ref} from "vue";
-import * as LData from "lodash";
+import LD from "lodash";
 import StSelect from "@/components/form/StSelect.vue";
 import type {IMode} from "@/components/BaseTypes";
 import dayjs from "dayjs";
@@ -29,10 +29,10 @@ onMounted(()=>{
   }
 })
 function generateData (size:number) {
-  return LData.times(size, (item) => {
-    item = LData.random(size)
+  return LD.times(size, (key) => {
+    const item = LD.random(size)
     return {
-      key: item+1,
+      key: key,
       name: `Car ${item+item}`,
       age: new Date(2023, item%12, item%25, 0, 0, 0),
       etc: `Etc ${item}`,
@@ -639,26 +639,26 @@ const structureDialog = ref<Array<IFormStructure>>([
           >
             <template #header>
               <div class="flex flex-wrap m-2">
-                <StSwitch label="Горизонтальные линии" v-model="styles.horizontalLines" :params-switch="{switchingType: 'switch'}"></StSwitch>
-                <StSwitch label="Вертикальные линии" v-model="styles.verticalLines" :params-switch="{switchingType: 'switch'}"></StSwitch>
-                <StSwitch label="Разделители заголовков" v-model="styles.filterLines" :params-switch="{switchingType: 'switch'}"></StSwitch>
-                <StSwitch label="Выделение при наведении" v-model="styles.hoverRows" :params-switch="{switchingType: 'switch'}"></StSwitch>
-                <StSwitch label="Чередующиеся строки" v-model="styles.isStripedRows" :params-switch="{switchingType: 'switch'}"></StSwitch>
+                <StSwitch label="Горизонтальные линии" v-model="styles.horizontalLines" :switching-type="'switch'"></StSwitch>
+                <StSwitch label="Вертикальные линии" v-model="styles.verticalLines" :switching-type="'switch'"></StSwitch>
+                <StSwitch label="Разделители заголовков" v-model="styles.filterLines" :switching-type="'switch'"></StSwitch>
+                <StSwitch label="Выделение при наведении" v-model="styles.hoverRows" :switching-type="'switch'"></StSwitch>
+                <StSwitch label="Чередующиеся строки" v-model="styles.isStripedRows" :switching-type="'switch'"></StSwitch>
               </div>
               <div class="flex flex-wrap m-2">
-                <StSelect label="Радиус" :params-select="{classSelect:'justify-end pr-px', dataSelect:[1, 3, 5, 7, 9, 13, 17, 25, 30], noQuery:true}" v-model="styles.borderRadiusPx" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
+                <StSelect label="Радиус" class-select="justify-end pr-px" :dataSelect="[1, 3, 5, 7, 9, 13, 17, 25, 30]" no-query v-model="styles.borderRadiusPx" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
                   <template v-if="styles.borderRadiusPx" #after>px</template>
                 </StSelect>
-                <StSelect label="Высота ячейки" :params-select="{classSelect:'justify-end pr-px', dataSelect:[20, 30, 40, 60, 80, 100], noQuery:true}" v-model="styles.heightCell" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
+                <StSelect label="Высота ячейки" class-select="justify-end pr-px" :dataSelect="[20, 30, 40, 60, 80, 100]" no-query v-model="styles.heightCell" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
                   <template v-if="styles.heightCell" #after>px</template>
                 </StSelect>
-                <StSelect label="Рамка" class-body="m-2 w-[9rem] mb-0 rounded-md" clear :params-select="{multiple: true, maxVisible: 0, noQuery:true, dataSelect:borderDataSelect}"
+                <StSelect label="Рамка" class-body="m-2 w-[9rem] mb-0 rounded-md" clear multiple :max-visible="0" noQuery :data-select="borderDataSelect"
                           @update:model-value="(value)=>styles.border = (value as [])?.reduce((result,item)=>Object.assign(result, borderDataSelect.find(i=>i.id===item).key),{})"/>
-                <StSelect label="Зоны таблицы" class-body="m-2 w-[9rem] mb-0 rounded-md" clear :params-select="{multiple: true, maxVisible: 0, noQuery:true, dataSelect:classesDataSelect}"
+                <StSelect label="Зоны таблицы" class-body="m-2 w-[9rem] mb-0 rounded-md" clear multiple :max-visible="0" noQuery :data-select="classesDataSelect"
                           @update:model-value="(value)=>styles.class = (value as [])?.reduce((result,item)=>Object.assign(result, classesDataSelect.find(i=>i.id===item).key),{})"/>
               </div>
               <div class="flex flex-wrap m-2">
-                <StSelect label="Ширина" :params-select="{classSelect:'justify-end pr-px',dataSelect:[400, 500, 700, 900, 1300, 1700, 2500, 3000], noQuery:true}" v-model="styles.width" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
+                <StSelect label="Ширина" class-select="justify-end pr-px" :data-select="[400, 500, 700, 900, 1300, 1700, 2500, 3000]" no-query v-model="styles.width" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
                   <template v-if="styles.width" #after>px</template>
                 </StSelect>
                 <StSelect label="Высота" class-select="justify-end pr-px" :data-select="[600, 700, 900, 1300, 1700, 2500, 3000]" no-query v-model="styles.height" class-body="m-2 w-[9rem] mb-0 rounded-md" clear>
@@ -671,11 +671,12 @@ const structureDialog = ref<Array<IFormStructure>>([
             </template>
             <template #footer>
               <div class="flex w-full justify-end">
-                <tfoot class="text-right">
+                <div class="text-right">
                 <tr>
                   <th scope="row" colspan="3" class="md atn auc ave avm awa awf axr bxt cgi">Subtotal</th>
-                  <td class="atm aue ave avm awa axr cgp">$8,800.00</td></tr>
-                </tfoot>
+                  <td class="atm aue ave avm awa axr cgp">$8,800.00</td>
+                </tr>
+                </div>
               </div>
             </template>
           </Table>

@@ -16,7 +16,6 @@ const emit = defineEmits<{
 const mode = computed<NonNullable<IBadge["mode"]>>(()=> props.mode ?? "primary")
 const isPoint = computed<NonNullable<IBadge["point"]>>(()=> props.point ?? false)
 const isCloseButton = computed<NonNullable<IBadge["closeButton"]>>(()=> props.closeButton ?? false)
-const classBadge = computed<IBadge["class"]>(()=> props.class)
 const modeStyle = computed<string>(()=>
   (mode.value === "primary") ? "bg-theme-600 text-theme-100 dark:bg-theme-700 dark:text-theme-100" :
     (mode.value === "secondary") ? "bg-theme-100 text-theme-900 dark:bg-theme-950 dark:text-theme-100" :
@@ -45,7 +44,7 @@ function deleteBadge() {
     (isPoint||isCloseButton) && 'gap-x-[2px]',
     (isPoint && isCloseButton) ? 'px-1' : (isPoint && !isCloseButton) ? 'pl-1' : (!isPoint && isCloseButton) ? 'pr-1' : '',
     modeStyle,
-    classBadge,
+    props.class,
     'inline-flex',
     )">
     <svg

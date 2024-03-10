@@ -9,10 +9,12 @@ export type DataType = "string"|"number"|"select"|"date"
 export type Sort = "asc"|"desc"|null
 export type Search = string
 export type Page = number
-export type Sorted = { [dataField:DataField]: Sort }
-export type Widths = { [dataField:DataField]: number }
-export type Filters = { [dataField:DataField]: any }
-export type ResultData = { [dataField:DataField]: Array<Record<string, any>> }
+export type Sorted = Record<DataField, Sort>
+export type Widths = Record<DataField, number>
+export type Filters = Record<DataField, any>
+export type DataSource = Array<Record<string, any>>
+export type DataGrouping = Record<DataField, Array<Record<string, any>>>
+export type ResultData = Record<DataField, Array<Record<string, any>>>
 
 type EditorCell =  boolean | {
   isEdit?:boolean
@@ -168,10 +170,12 @@ export interface ITable {
   columns?: boolean|Array<IColumn>
   summary?: boolean|Array<ISummary>
   countVisibleRows?: number
+  sizeLoadingRows?: number
   noData?:string
   noColumn?:string
   countDataOnLoading?:number|100|1000|10000
   totalCount?:number
+  class?: StyleClass
   styles?:ITableStyles
 }
 export interface ITableExpose {

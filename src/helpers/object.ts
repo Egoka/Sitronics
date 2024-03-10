@@ -1,11 +1,11 @@
 export function removeParamsFromStructure<
-  Structure extends { [key: string]: any }
+  Structure extends Record<string, any>
 >(
   structure: Structure,
   removedFields: Array<keyof Structure>
 ): Omit<Structure, Array<keyof Structure>[number]> {
   return Object.keys(structure).reduce(
-    (acc: { [key: string]: any }, key: string) => {
+    (acc: Record<string, any>, key: string) => {
       if (!removedFields.includes(key as Array<keyof Structure>[number])) {
         acc[key] = structure[key as Array<keyof Structure>[number]];
       }

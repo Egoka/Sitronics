@@ -212,8 +212,7 @@ function onLeave(el:any, done:any) {
     v-bind="inputLayout"
     @clear="select(null)">
     <div ref="selectBody" tabindex="0"
-         :class="cn(
-           'w-full min-h-[36px] max-h-16 focus:outline-0 focus:ring-0',
+         :class="cn('selectBody w-full min-h-[36px] max-h-16 focus:outline-0 focus:ring-0',
             props?.classSelect,
             'classSelect flex overflow-auto cursor-pointer'
             )"
@@ -226,15 +225,15 @@ function onLeave(el:any, done:any) {
                             enter-active-class="transition ease-in-out duration-300" enter-from-class="opacity-0 -translate-x-5" enter-to-class="opacity-100 translate-x-0">
             <div v-for="item in typeof maxVisible === 'number' ? visibleValue.slice(0, maxVisible) : visibleValue" :key="item[keySelect]" class="z-10">
               <slot name="values" :selected="item" :key="valueSelect ? valueSelect : keySelect" :delete-select="select">
-                <Badge mode="neutral" close-button class-content="fill-theme-500" @delete="select(item)" class="m-1 mb-0 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20">
+                <Badge mode="neutral" :close-button="props?.closeButtonBadge" class-content="fill-theme-500" @delete="select(item)" class="m-1 mb-0 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20">
                   {{valueSelect? item[valueSelect] : item[keySelect]}}
                 </Badge>
               </slot>
             </div>
             <div v-if="visibleValue.length > maxVisible" class="z-10">
               <slot name="values" :selected="visibleValue.length" :key="null" :delete-select="select">
-                <Badge mode="neutral" class-content="fill-theme-500" class="m-1 mb-0 px-3 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20">
-                  <FunnelIcon aria-hidden="true" class="h-3 w-3 mr-2 text-theme-400 dark:text-theme-600"/> {{visibleValue.length}}
+                <Badge mode="neutral" :close-button="props?.closeButtonBadge" class-content="fill-theme-500" @delete="select(null)" class="m-1 mb-0 pl-2 text-xs bg-theme-50 text-theme-700 ring-theme-600/20 dark:bg-theme-950 dark:text-theme-300 dark:ring-theme-400/20">
+                  <FunnelIcon aria-hidden="true" class="h-3 w-3 mr-1 text-theme-400 dark:text-theme-600"/> {{visibleValue.length}}
                 </Badge>
               </slot>
             </div>

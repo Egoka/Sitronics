@@ -242,5 +242,6 @@ function clearDataPicker () {
   --vc-accent-700: theme("colors.theme.700");
   --vc-accent-800: theme("colors.theme.800");
   --vc-accent-900: theme("colors.theme.900");
+  --vc-rounded-full: theme("borderRadius.full")
 }
 </style>

@@ -1,6 +1,6 @@
 import type {ILayout} from "@/components/functional/InputLayout";
 import type {IFixWindow} from "@/components/functional/FixWindow";
-import type {IDataInput} from "@/components/form/StInput";
+import type {IBadge} from "@/components/functional/Badge";
 
 type IDataItem = {[key:string]: any}
 type BaseDataItem = string|number|IDataItem
@@ -9,8 +9,9 @@ export interface IDateSelect {
   autoFocus: boolean
   keySelect: string|"id"
   valueSelect: string|"value"
-  multiple:boolean
-  maxVisible:number
+  multiple: boolean
+  maxVisible: number
+  closeButtonBadge: IBadge["closeButton"]
   noData: string
   noQuery: boolean
   classSelect: string|"justify-end"

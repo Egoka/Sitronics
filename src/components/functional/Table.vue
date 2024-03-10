@@ -19,15 +19,12 @@ import StCalendar from "@/components/form/StCalendar.vue";
 import {convertToNumber, convertToPhone} from "@/helpers/numbers";
 import {cn} from "@/helpers/tailwind";
 import type {
-  DataType,
-  Filters,
-  IColumn, IColumnPrivate, IFilter, IGrouping, ISort, ISummaryPrivate,
   ITable,
-  ITableExpose, ITablePagination, ITableStyles, ITableStylesBorder, ITableStylesClass, IToolbar,
-  Page,
-  ResultData,
-  Search, Sort,
-  Sorted, Widths
+  DataType,
+  IColumn, IColumnPrivate, IFilter, IGrouping, ISort, ISummaryPrivate,
+  ITableExpose, ITablePagination, ITableStyles, IToolbar,
+  ResultData, DataGrouping, DataSource,
+  Page, Filters, Search, Sort, Sorted, Widths, ITableStylesBorder
 } from "@/components/functional/Table";
 import type {TLoading} from "@/components/BaseTypes";
 import type {IDataInput} from "@/components/form/StInput";
@@ -67,18 +64,21 @@ const tfoot = ref<HTMLElement>()
 const pager = ref<HTMLElement>()
 const tableFooter = ref<HTMLElement>()
 // ---STATE-------------------------------
+const sizeLoadedRows = ref<number>(0)
+const clientHeightTable = ref<number>(0)
 const pageTable = ref<Page>(1)
 const sizeTable = ref<Page>(5)
-const widthsColumns = reactive<Widths>({})
 const isLoading = ref<TLoading>(false)
 const editableCell = ref<{indexRow:number, indexCol:number}|null>()
 // ---
+const rowSelector = ref<string>("tr:last-child")
 const queryTable = ref<Search>("")
 const sortColumns = reactive<Sorted>({})
 const filterColumns = reactive<Filters>({})
+const widthsColumns = reactive<Widths>({})
 // ---
 const allData = ref<NonNullable<ITable["dataSource"]>>([])
-const dataSource = ref<Array<Record<string, any>>>([])
+const dataSource = ref<DataSource>([])
 // ---PROPS-------------------------------
 const mode = computed<NonNullable<ITable["mode"]>>(()=> props.mode ?? "outlined")
 const isVisibleToolbar = computed<boolean>(()=> (isSearch.value || !!props.toolbar) && ((props.toolbar as IToolbar)?.visible ?? true ))
@@ -122,14 +122,33 @@ const isHiddenNavigationButtons = computed<ITablePagination["isHiddenNavigationB
 // ---CELL--------------------------------
 const heightCell = computed<number>(()=> props.styles?.heightCell ?? 24)
 const countVisibleRows = computed<NonNullable<ITable["countVisibleRows"]>>(()=> props.countVisibleRows ?? 0)
+const sizeLoadingRows = computed<NonNullable<ITable["sizeLoadingRows"]>>(()=> props.sizeLoadingRows ?? 5)
+const isLoadingRows = computed(()=>countVisibleRows.value > 0 && !isPagination.value)
 // ---DATA--------------------------------
-const resultDataSource = computed<ResultData>(()=> {
-  let resultData:any = toRaw(dataSource.value)
+const dataGrouping = computed<DataGrouping>(()=>{
+  let data = toRaw(dataSource.value)
   if (isPagination.value) {
     if (isGroup.value && groupField.value) {
-      resultData = Object.values(LD.groupBy(resultData, (item) => item[groupField.value as string])).flat() }
-    resultData = LD.slice(resultData, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value)) }
-  resultData = isGroup.value && groupField.value ? LD.groupBy(resultData, (item) => item[groupField.value as string]) : {0: resultData}
+      data = Object.values(LD.groupBy(data, (item) => item[groupField.value as string])).flat() }
+    data = LD.slice(data, sizeTable.value * (pageTable.value - 1), sizeTable.value * (pageTable.value)) }
+  return isGroup.value && groupField.value ? LD.groupBy(data, (item) => item[groupField.value as string]) : {0: data}
+})
+const resultDataSource = computed<ResultData>(()=> {
+  let resultData:Record<string, any> = toRaw(dataGrouping.value)
+  let limit = countVisibleRows.value + sizeLoadedRows.value
+  if (resultData && isLoadingRows.value) {
+    const result:Record<string, any> = {}
+    for (const item of Object.keys(resultData)) {
+      if (limit > resultData[item]?.length) {
+        result[item] = resultData[item]
+        limit -= resultData[item]?.length
+      } else {
+        result[item] = resultData[item].slice(0, limit)
+        limit = 0; break
+      }
+    }
+    resultData = result
+  }
   emit('result-data', resultData)
   return resultData
 })
@@ -154,15 +173,6 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
           isResized: typeof column.isResized === "boolean" ? column.isResized : resizedColumns.value,
           isEdit: typeof column.edit === "boolean" ? column.edit : column?.edit?.isEdit ?? isEditCells.value,
           type: column.type ?? "string",
-          class: {
-            ...column.class,
-            colFilterClass: column.class?.colFilterClass??"border-none font-normal",
-            colFilterClassBody: column.class?.colFilterClassBody??"tm-0 my-1",
-            colText: column.class?.colText??"text-left text-gray-400 dark:text-gray-500",
-            td: column.class?.td??"px-6 py-4 text-gray-800 dark:text-gray-300",
-            cellText: column.class?.cellText??"flex items-center whitespace-pre-line overflow-auto",
-            sumText: column.class?.sumText??"font-normal text-sm text-left text-gray-400 dark:text-gray-500"
-          }
         }
         switch (options.type) {
           case "string": {
@@ -251,6 +261,7 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
         id: `Col-${column}-${index}`,
         dataField: column,
         name: `Col-${column}`,
+        type: "string",
         caption: /^\d+$/.test(column) ? `Col ${column}`
           : (column.charAt(0).toUpperCase() + column.slice(1))?.replace(/_/g, ' '),
         visible: true,
@@ -258,15 +269,6 @@ const dataColumns = computed<Array<IColumnPrivate>>(()=> {
         isSort: isSort.value,
         isResized: resizedColumns.value,
         isEdit: isEditCells.value,
-        type: "string",
-        class: {
-          colFilterClass: "border-none font-normal",
-          colFilterClassBody: "tm-0 my-1",
-          colText: "text-left text-gray-400 dark:text-gray-500",
-          td: "px-6 py-4 text-gray-800 dark:text-gray-300",
-          cellText: "flex items-center whitespace-pre-line overflow-auto",
-          sumText: "font-normal text-sm text-left text-gray-400 dark:text-gray-500"
-        }
       }
     })
   }
@@ -324,26 +326,18 @@ const summaryColumns = computed(()=>{
   }, {})
 })
 // ---STYLE-------------------------------
-const baseTableHeight = 240 // 15rem
+const baseTableHeight = 288 // 18rem
 const heightTable = ref<string>(countVisibleRows.value ? `height: ${baseTableHeight}px` : "height: auto")
-const styles = computed<ITableStyles>(()=>{
+const defaultBorder = computed(()=> typeof props.styles?.border === "string"
+  ? props.styles?.border as string : "border-neutral-200 dark:border-neutral-800")
+const styles = computed<Omit<ITableStyles, 'border'>&{border?:ITableStylesBorder}>(():any=>{
   const s = props.styles
-  const sc:ITableStylesClass|undefined = props.styles?.class
-  const sb:ITableStylesBorder|undefined = (props.styles?.border as ITableStylesBorder|undefined)
   const hoverRows = typeof props.styles?.hoverRows === 'string'
     ? (props.styles?.hoverRows as string)
     : typeof props.styles?.hoverRows === 'boolean' && props.styles?.hoverRows
       ? "hover:bg-neutral-100/90 dark:hover:bg-neutral-900/50": ''
-  const defaultBorder:string = typeof props.styles?.border === "string"
-    ? props.styles?.border as string : "border-neutral-200 dark:border-neutral-800"
   return {
-    class: {
-      body: sc?.body, toolbar: sc?.toolbar, bodyTable: sc?.bodyTable,
-      slotHeader: sc?.slotHeader, slotFooter: sc?.slotFooter,
-      table: sc?.table, thead: sc?.thead, tbody: sc?.tbody, tfoot: sc?.tfoot,
-      group: sc?.group, groupText: sc?.groupText,
-      cellText: sc?.cellText, pagination: sc?.pagination,
-    },
+    ...props.styles,
     hoverRows: hoverRows,
     width: s?.width? typeof s?.width === "number" ? `${s?.width}px` : s?.width : "",
     height: s?.height? typeof s?.height === "number" ? `${s?.height}px` : s?.height : "",
@@ -351,19 +345,6 @@ const styles = computed<ITableStyles>(()=>{
     borderRadiusPx: s?.borderRadiusPx ?? (mode.value === 'underlined'? 0 : 7),
     isStripedRows: s?.isStripedRows ?? false,
     horizontalLines: s?.horizontalLines ?? true,
-    verticalLines: s?.verticalLines ?? false,
-    filterLines: s?.filterLines ?? false,
-    defaultWidthColumn: s?.defaultWidthColumn ?? "max-width: 600px;min-width:100px;width:auto",
-    border: {
-      table: sb?.table ?? defaultBorder,
-      header: sb?.header ?? defaultBorder,
-      filter: sb?.filter ?? defaultBorder,
-      head: sb?.head ?? defaultBorder,
-      cell: sb?.cell ?? defaultBorder,
-      summary: sb?.summary ?? defaultBorder,
-      pagination: sb?.pagination ?? defaultBorder,
-      footer: sb?.footer ?? defaultBorder,
-    }
   }
 })
 const tableBodyStyle = computed<string>(()=> {
@@ -379,7 +360,7 @@ const modeStyle = computed<string>(()=>
 const tableObserver = new ResizeObserver(entries => entries.forEach(() => setFooterPaddingHeight()))
 const footerPaddingHeight = ref<number>(0)
 function setFooterPaddingHeight() {
-  const result = (tableBody?.value?.clientHeight??0) -
+  const result = (clientHeightTable.value??0) -
     ((thead.value?.clientHeight??0) + (tbody.value?.clientHeight??0) + (tfoot.value?.clientHeight??0))
   footerPaddingHeight.value = result > 0 ? result : 0
 }
@@ -416,7 +397,6 @@ defineExpose<ITableExpose>({
 })
 // ---MOUNT-UNMOUNT-----------------------
 onMounted(()=>{
-  nextTick(()=>updateHeightTable())
   if (tbody.value) { tableObserver.observe(tbody.value as Element) }
   Object.assign(sortColumns, Object.fromEntries(new Map(
     dataColumns.value.map((column)=>[column.dataField,column.defaultSort??null]))))
@@ -424,6 +404,10 @@ onMounted(()=>{
     dataColumns.value.map((column)=>[column.dataField,column.defaultFilter??null]))))
   Object.assign(widthsColumns, Object.fromEntries(new Map(
     dataColumns.value.map((column)=>[column.dataField,column.width??column.maxWidth??column.minWidth]))))
+  nextTick(()=> {
+    updateHeightTable()
+    startLastRowVisibleObserver()
+  })
 })
 onUnmounted(()=>{
   tableObserver.disconnect();
@@ -431,6 +415,7 @@ onUnmounted(()=>{
 })
 // ---WATCHERS----------------------------
 watch(()=>[countVisibleRows.value, styles.value.height],(value, oldValue)=> {
+  clientHeightTable.value = 0
   const timeout:number = value[0] === oldValue[0] && styles.value?.hoverRows !== "transition-none" ? 500 : 1
   setTimeout(() => updateHeightTable(), timeout)
 })
@@ -471,11 +456,16 @@ function updateHeightTable():void {
       parseFloat(getComputedStyle(componentTable.value as HTMLElement).paddingBottom)
     const height = (componentTableHeight ?? 0) - (tableToolbar.value?.clientHeight ?? 0) -
       (tableHeader.value?.clientHeight ?? 0) - (pager.value?.clientHeight ?? 0) - (tableFooter.value?.clientHeight ?? 0)
+    clientHeightTable.value = height>=0 ? height : 0
     heightTable.value = `height:${height>=0 ? height : 0}px;`
   } else if (countVisibleRows.value) {
     const resultHeight = (thead.value?.clientHeight ?? 0) + (tfoot.value?.clientHeight ?? 0) + getHeightVisibleRows() - 1
+    clientHeightTable.value = resultHeight > 0 ? resultHeight : baseTableHeight
     heightTable.value = `height: ${resultHeight > 0 ? resultHeight : baseTableHeight}px;`
-  } else { heightTable.value = "height: auto;" }
+  } else {
+    clientHeightTable.value = tableBody?.value?.clientHeight ?? 0
+    heightTable.value = "height: auto;"
+  }
 }
 function getColumn(dataField:IColumn["dataField"], index?:number):IColumnPrivate|undefined {
   return dataColumns.value.find((column, item)=>dataField ? column.dataField === dataField : item === index)
@@ -502,6 +492,7 @@ function updateDataSource ():Array<Record<string, any>>{
       .filter(item => isEqualsValue(item, row[item.dataField], queryTable.value)).length) }
   stopLoading()
   dataSource.value = data ?? []
+  startLastRowVisibleObserver()
   return data ?? []
 }
 function sorting(dataField:IColumn["dataField"], value?:Sort) {
@@ -733,7 +724,7 @@ function updateRow(_key:string, data:any):false|any {
       emit('before-edit-row', {newValue: newValueRow, oldValue: allData.value[index], _key})
       allData.value[index] = newValueRow
       emit('after-edit-row', {newValue: allData.value[index], oldValue: newValueRow, _key})
-      return allData.value[index] 
+      return allData.value[index]
     }
   } return false
 }
@@ -748,6 +739,36 @@ function updateCell(_key:string, column:IColumnPrivate, value: any):false|any {
     }
   } return false
 }
+function startLastRowVisibleObserver() {
+  if (tbody.value && isLoadingRows.value) {
+    const el = tbody.value.querySelector(rowSelector.value)
+    if (el) lastRowVisibleObserver.unobserve(el)
+    sizeLoadedRows.value = (countVisibleRows.value + sizeLoadedRows.value) > dataSource.value?.length
+      ? dataSource.value?.length
+      : sizeLoadedRows.value
+    nextTick(()=> {
+      if (tbody.value){
+        const el = tbody.value.querySelector(rowSelector.value)
+        if (el) lastRowVisibleObserver.observe(el)
+      }
+    })
+  }
+}
+function updateSizeLoadedRows() {
+  if (!tbody.value) return
+  lastRowVisibleObserver.unobserve(tbody.value.querySelector(rowSelector.value) as HTMLElement)
+  sizeLoadedRows.value+=sizeLoadingRows.value
+  nextTick(()=> {
+    if (!tbody.value) return
+    if (sizeLoadedRows.value >= dataSource.value?.length) return
+    lastRowVisibleObserver.observe(tbody.value.querySelector(rowSelector.value) as HTMLElement)
+  })
+}
+// ---INTERSECTION_OBSERVER---------------
+const lastRowVisibleObserver = new IntersectionObserver(entries => {
+  if (!entries[0].isIntersecting) return
+  updateSizeLoadedRows()
+}, {root: tableBody.value, rootMargin: `100px`})
 // ---RESIZE-COLUMN-----------------------
 function resizeColumn($event: MouseEvent, columnId: string) {
   const columnEl = (thead.value as HTMLElement)?.querySelector(`.${columnId}`);
@@ -785,7 +806,7 @@ function stopResizeColumn() {
   <div ref="componentTable"
        :class="cn(
 'componentTable classBody inline-block align-middle relative w-full p-1.5',
-         styles?.animation, styles.class?.body)"
+         styles?.animation, styles.class?.body, props?.class)"
        :style="`width:${styles.width};height:${styles.height};`">
     <div v-if="isVisibleToolbar"
          ref="tableToolbar"
@@ -818,12 +839,12 @@ function stopResizeColumn() {
           </Button>
       </transition>
     </div>
-    <div :class="cn('flex flex-col border', (styles.border as {'table'})?.table)" :style="`border-radius: ${styles.borderRadiusPx}px;`">
+    <div :class="cn('flex flex-col border', defaultBorder, styles.border?.table)" :style="`border-radius: ${styles.borderRadiusPx}px;`">
       <div v-if="slots.header"
            ref="tableHeader"
            :class="cn('min-h-[1.5rem] text-gray-500', !(isSummary||isPagination)||'relative', modeStyle)"
            :style="`border-top-left-radius: ${styles.borderRadiusPx}px;border-top-right-radius: ${styles.borderRadiusPx}px;`">
-        <div :class="cn('classSlotHeader p-2 border-b-2', styles.class?.slotHeader, (styles.border as {'header'})?.header)">
+        <div :class="cn('classSlotHeader p-2 border-b-2', styles.class?.slotHeader, defaultBorder, styles.border?.header)">
           <slot name="header"/>
         </div>
       </div>
@@ -839,12 +860,11 @@ function stopResizeColumn() {
             <tr>
               <template v-for="(column, key) in dataColumns" :key="column.id">
                 <th v-if="column.visible" scope="col"
-                    :class="cn(column.id, column.class?.th, 'group/th', column.isFilter ? 'pl-1 pr-0 py-2' : 'pl-6 py-5', 'border-b', (styles.border as {'head'})?.head)"
-                    :style="!widthsColumns[column.dataField] ? styles?.defaultWidthColumn :
-                    `width: ${widthsColumns[column.dataField]}px;
-                    min-width: ${widthsColumns[column.dataField]}px;
-                    max-width: ${widthsColumns[column.dataField]}px;`">
-                  <div :class="cn('group relative flex w-full', styles.filterLines ? 'border-r group-last/th:border-r-0' : '', (styles.border as {'filter'})?.filter)">
+                    :class="cn(column.id, column.class?.th, 'group/th', column.isFilter ? 'pl-1 pr-0 py-2' : 'pl-6 py-5', 'border-b', defaultBorder, styles.border?.head)"
+                    :style="!widthsColumns[column.dataField]
+                    ? styles?.defaultWidthColumn ?? 'max-width: 600px;min-width:100px;width:auto'
+                    : `width: ${widthsColumns[column.dataField]}px;min-width: ${widthsColumns[column.dataField]}px;max-width: ${widthsColumns[column.dataField]}px;`">
+                  <div :class="cn('group relative flex w-full', styles.filterLines && 'border-r group-last/th:border-r-0', defaultBorder, styles.border?.filter)">
                     <div v-if="column.isFilter" :class="cn('w-full cursor-pointer', column.class?.colFilter, (column.isSort||isSort)||'px-1')">
                       <StInput
                         v-if="column.type === 'string'||column.type === 'number'"
@@ -852,8 +872,8 @@ function stopResizeColumn() {
                         v-bind="column?.paramsFilter"
                         :label="column.caption"
                         :mode="mode"
-                        :class="column.class?.colFilterClass"
-                        :class-body="column.class?.colFilterClassBody"
+                        :class="cn('border-none font-normal', column.class?.colFilterClass)"
+                        :class-body="cn('tm-0 my-1', column.class?.colFilterClassBody)"
                         :style="`min-width: ${column.minWidth||70}px`"
                         label-mode="offsetDynamic"
                         clear
@@ -866,8 +886,8 @@ function stopResizeColumn() {
                         v-bind="column?.paramsFilter"
                         :label="column.caption"
                         :mode="mode"
-                        :class="column.class?.colFilterClass"
-                        :class-body="column.class?.colFilterClassBody"
+                        :class="cn('border-none font-normal', column.class?.colFilterClass)"
+                        :class-body="cn('tm-0 my-1', column.class?.colFilterClassBody)"
                         :style="`min-width: ${column.width||column.minWidth||50}px`"
                         clear
                         @update:model-value="(v)=>filtering(column?.dataField, v)"/>
@@ -878,13 +898,13 @@ function stopResizeColumn() {
                         :label="column.caption"
                         :mode="mode"
                         label-mode="offsetDynamic"
-                        :class="column.class?.colFilterClass"
-                        :class-body="column.class?.colFilterClassBody"
+                        :class="cn('border-none font-normal', column.class?.colFilterClass)"
+                        :class-body="cn('tm-0 my-1', column.class?.colFilterClassBody)"
                         :style="`min-width: ${widthsColumns[column.dataField]? widthsColumns[column.dataField]-30 : column.width||column.minWidth||50}px`"
                         clear
                         @update:model-value="(v)=>filtering(column?.dataField, v)"/>
                     </div>
-                    <div v-else :class="cn('block text-sm font-medium truncate', column.class?.colText)">
+                    <div v-else :class="cn('block text-sm font-medium truncate', 'text-left text-gray-400 dark:text-gray-500', column.class?.colText)">
                       {{ column.caption }}
                     </div>
                     <div v-if="column.isSort??isSort"
@@ -926,7 +946,8 @@ function stopResizeColumn() {
                         'font-medium text-base whitespace-nowrap',
                         'text-left text-gray-800 dark:text-gray-300 px-6 py-2 pr-3 pl-10 sm:pl-12',
                         styles.class?.group || modeStyle,
-                        (styles.border as {'cell'})?.cell)">
+                        defaultBorder,
+                        styles.border?.cell)">
                     <div
                       :class="cn('sticky classGroupText left-10 sm:left-12 flex items-center w-fit min-h-[2.5rem] truncate', styles.class?.groupText)"
                       :style="`min-height: ${heightCell}px`">
@@ -940,26 +961,33 @@ function stopResizeColumn() {
                     styles.hoverRows && `${styles.hoverRows} transition-colors duration-200`, !styles.isStripedRows||
                     ((mode === 'filled') ? 'odd:bg-stone-100 even:bg-stone-50 dark:odd:bg-stone-900 dark:even:bg-stone-950' :
                     (mode === 'outlined') ? 'odd:bg-white even:bg-neutral-50 dark:odd:bg-neutral-950 dark:even:bg-neutral-900' :
-                    (mode === 'underlined') ? 'odd:bg-stone-50 even:bg-stone-100 dark:odd:bg-stone-950 dark:even:bg-neutral-900' : ''))"
+                    (mode === 'underlined') && 'odd:bg-stone-50 even:bg-stone-100 dark:odd:bg-stone-950 dark:even:bg-neutral-900'))"
                     @click="clickRow(`tr--${data?._key??indexRow}`, data, indexRow)">
                     <template v-for="(column, indexCol) in dataColumns" :key="`${indexRow}-${indexCol}`">
                       <td v-if="column.visible"
                           :class="cn('ColumnClassTd', `td--${data?._key??indexRow}--${column?.name??indexCol}`,
                             'first:border-l-0 group-first/tr:border-t-0 last:border-r-0 group-last/tr:border-b-0',
                             'text-sm font-medium',
-                            column.class?.td, styles.class?.cellText, (styles.border as {'cell'})?.cell,
+                            'px-6 py-4 text-gray-800 dark:text-gray-300',
+                            column.class?.td, styles.class?.cellText, defaultBorder, styles.border?.cell,
                             styles.verticalLines ? 'border-r': 'border-r-0',
                             styles.horizontalLines ? 'border-b': 'border-b-0',
                             editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol ? '!px-1':'')"
-                          :style="!widthsColumns[column.dataField] ? styles?.defaultWidthColumn :
-                            `width: ${widthsColumns[column.dataField]}px;
-                            min-width: ${widthsColumns[column.dataField]}px;
-                            max-width: ${widthsColumns[column.dataField]}px;`"
+                          :style="!widthsColumns[column.dataField]
+                          ? styles?.defaultWidthColumn ?? 'max-width: 600px;min-width:100px;width:auto'
+                           : `width: ${widthsColumns[column.dataField]}px;min-width: ${widthsColumns[column.dataField]}px;max-width: ${widthsColumns[column.dataField]}px;`"
                           @click="clickCell(`td--${data?._key??indexRow}--${column?.name??indexCol}`, column, data[column.dataField],
                             setMarker(column, setCell(column, data[column.dataField], data)), data, indexRow, indexCol)">
-                        <div v-if="!column?.cellTemplate" :class="cn(column.class?.cellText, (editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol) && 'overflow-visible')"
-                             :style="`min-height: ${heightCell}px;max-height: ${(heightCell*5)+2}px;`">
-                          <div v-if="!(editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol)" v-html="setMarker(column, setCell(column, data[column.dataField], data))"/>
+                        <div
+                          v-if="!column?.cellTemplate"
+                          :class="cn(
+                            'flex items-center whitespace-pre-line overflow-auto',
+                            column.class?.cellText,
+                            (editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol) && 'overflow-visible')"
+                          :style="`min-height: ${heightCell}px;max-height: ${(heightCell*5)+2}px;`">
+                          <div
+                            v-if="!(editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol)"
+                            v-html="setMarker(column, setCell(column, data[column.dataField], data))"/>
                           <template v-if="editableCell?.indexRow === indexRow && editableCell?.indexCol === indexCol">
                             <StInput
                               v-if="column.type === 'string'||column.type === 'number'"
@@ -1008,7 +1036,7 @@ function stopResizeColumn() {
                         </div>
                         <div
                           v-else
-                          :class="cn(column.class?.cellText)"
+                          :class="cn('flex items-center whitespace-pre-line overflow-auto', column.class?.cellText)"
                           :style="`min-height: ${heightCell}px;max-height: ${(heightCell*5)+2}px;`">
                           <slot
                             :name="column?.cellTemplate"
@@ -1036,9 +1064,9 @@ function stopResizeColumn() {
                 <th
                   v-if="column.visible"
                   scope="col"
-                  :class="cn('px-3 py-3', column.class?.tf, 'border-t', (styles.border as {'summary'})?.summary)">
+                  :class="cn('px-3 py-3', column.class?.tf, 'border-t', defaultBorder, styles.border?.summary)">
                   <div
-                    :class="cn('block font-normal text-sm truncate', column.class?.sumText)"
+                    :class="cn('block font-normal text-sm text-left text-gray-400 dark:text-gray-500 truncate', column.class?.sumText)"
                     v-html="summaryColumns[column.dataField]"/>
                 </th>
               </template>
@@ -1062,7 +1090,7 @@ function stopResizeColumn() {
             :sizes-selector="sizesSelector"
             :is-page-size-selector="isPageSizeSelector"
             :is-hidden-navigation-buttons="isHiddenNavigationButtons"
-            :class="cn('classPagination border-t sm:px-2', styles.class?.pagination, (styles.border as {'pagination'})?.pagination)"
+            :class="cn('classPagination border-t sm:px-2', styles.class?.pagination, defaultBorder, styles.border?.pagination)"
             @update:model-value="switchPage"
             @update:size-page="switchSizePage"/>
         </div>
@@ -1103,7 +1131,7 @@ function stopResizeColumn() {
         ref="tableFooter"
         :class="cn('min-h-[1.5rem] -mt-[1px] text-gray-500', !(isSummary||isPagination)||'relative sm:px-5', modeStyle)"
         :style="`border-bottom-left-radius: ${styles.borderRadiusPx}px;border-bottom-right-radius: ${styles.borderRadiusPx}px;`">
-        <div :class="cn('classSlotFooter p-2 border-t-2', styles.class?.slotFooter, (styles.border as {'footer'})?.footer)">
+        <div :class="cn('classSlotFooter p-2 border-t-2', styles.class?.slotFooter, defaultBorder, styles.border?.footer)">
           <slot name="footer"/>
         </div>
       </div>

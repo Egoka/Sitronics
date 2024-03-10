@@ -122,7 +122,7 @@ async function copy() {
     <div
       ref="input"
       :class="cn(
-        'rounded-md w-full max-h-20 text-gray-900 dark:text-gray-100 sm:text-sm sm:leading-6 focus-visible:ring-0',
+        'classLayout rounded-md w-full max-h-20 text-gray-900 dark:text-gray-100 sm:text-sm sm:leading-6 focus-visible:ring-0',
         !(mode === 'outlined')||'border border-gray-300 dark:border-gray-600 bg-white dark:bg-neutral-950',
         !(mode === 'underlined')||'rounded-none border-0 border-gray-300 dark:border-gray-700 border-b bg-stone-50 dark:bg-stone-950',
         !(mode === 'filled')||`${isDisabled ? 'border-dotted border-2 border-slate-200' : 'border-0 border-transparent'} bg-stone-100 dark:bg-stone-900`,
@@ -130,7 +130,7 @@ async function copy() {
         props.class,
         !isInvalid||'border-red-500 dark:border-red-500 ring-1 ring-inset ring-red-500 dark:ring-red-500 scroll-mt-10',
         !isDisabled||'bg-neutral-50 dark:bg-neutral-950 text-slate-500 dark:text-slate-500 border-slate-200 dark:border-slate-800 border-dashed shadow-none',
-        'classLayout block peer overflow-auto'
+        'block peer overflow-auto'
         )"
       :style="`width:${width};height:${height};min-height: ${baseHeight}px;padding-left: ${beforeWidth||10}px; padding-right: ${afterWidth||10}px;`">
       <slot/>
