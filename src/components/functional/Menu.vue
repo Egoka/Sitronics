@@ -187,7 +187,7 @@ function setItems (menu:IMenuItemPrivate, depth:number=0):NonNullable<IMenuItemP
         <div
           v-if="!onlyIcons && group.title"
           :class="cn(
-            'mt-2 ml-8 leading-4 text-neutral-400 dark:text-neutral-500 uppercase text-[10px] font-bold',
+            'mt-2 ml-8 leading-4 text-left text-neutral-400 dark:text-neutral-500 uppercase text-[10px] font-bold',
             styles?.class?.groupTitle
             )">
           {{ group.title }}

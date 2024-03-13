@@ -920,7 +920,7 @@ function stopResizeColumn() {
                     <div
                       v-if="column.isResized??resizedColumns"
                       :class="cn(
-                        'resizable absolute z-10 inset-y-0 flex items-center hover:opacity-100 px-2 cursor-ew-resize transition-opacity duration-500',
+                        'resizable absolute z-10 inset-y-0 flex items-center hover:opacity-100 pr-2 cursor-ew-resize transition-opacity duration-500',
                         dataColumns.length-1 > key ? '-right-3' : 'right-3',
                         resizableColumn === column.id ? 'opacity-100': 'opacity-0')"
                       @mousedown="startResizeColumn($event, column.id)" @mouseup="stopResizeColumn">
