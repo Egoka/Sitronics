@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import {computed, onBeforeMount, onMounted, reactive, ref} from "vue";
+import {computed, onBeforeMount, onMounted, reactive, ref, watch} from "vue";
 import {cn} from "@/helpers/tailwind";
 import Icons from "@/components/functional/Icons.vue";
 import type {ISplit, Panel, SizePanels} from "@/components/functional/Split";
 import type {StyleClass} from "@/components/BaseTypes";
+import {createLogger} from "vite";
+import {lowerFirst} from "lodash";
 // ---PROPS-EMITS-SLOTS-------------------
 const props = defineProps<ISplit>()
 // ---REF-LINK----------------------------
@@ -55,23 +57,27 @@ function setSizePanels (array:ISplit["panels"]) {
 function resizePanel($event: MouseEvent, namePanel: Panel["name"]) {
   if (!resizableGroup.value && !resizablePanels.value[namePanel]) return
   const isHor = direction.value === "horizontal"
+  const isPix = units.value === "pixels"
+  const group = resizableGroup.value?.getBoundingClientRect()
   const panel = resizablePanels.value[namePanel]?.getBoundingClientRect()
   const indexNamePanel = panels.value.findIndex(item=>item.name === namePanel)
+  //------------------
   let addedDistance = Math.round(isHor
     ? $event.clientX - panel.x - panel.width
     : $event.clientY - panel.y - panel.height)
+  addedDistance = isPix ? addedDistance : (addedDistance / ((group?.width??0) / 100))
   const newSizePanel = sizePanels[namePanel] + addedDistance > 0 ? sizePanels[namePanel] + addedDistance : 0
   //------------------
-  let left = 0
+  let sumLeftPanels = 0
   for (let i = indexNamePanel; i >= 0; i--) {
     const item = panels.value[i]
-    left += sizePanels[item.name]
+    sumLeftPanels += sizePanels[item.name]
   }
-  let rightAddedDistance = addedDistance <= 0 ? left + addedDistance >= 0 ? addedDistance : addedDistance >= 0 ? left : -left : addedDistance
+  let rightAddedDistance = addedDistance <= 0 ? sumLeftPanels + addedDistance >= 0 ? addedDistance : -sumLeftPanels : addedDistance
   for (let i = indexNamePanel + 1; i < panels.value.length; i++) {
     let newSize = sizePanels[panels.value[i].name] - rightAddedDistance
     rightAddedDistance = rightAddedDistance - sizePanels[panels.value[i].name]
-    if (left > 0) {
+    if (sumLeftPanels > 0) {
       if (rightAddedDistance <= 0) {
         sizePanels[panels.value[i].name] = newSize > 0 ? newSize : 0
       } else {
@@ -90,7 +96,7 @@ function resizePanel($event: MouseEvent, namePanel: Panel["name"]) {
     for (let i = indexNamePanel - 1; i >= 0; i--) {
       const newSize = sizePanels[panels.value[i].name] - leftAddedDistance
       leftAddedDistance = leftAddedDistance - sizePanels[panels.value[i].name]
-        sizePanels[panels.value[i].name] = newSize > 0 ? newSize : 0
+      sizePanels[panels.value[i].name] = newSize > 0 ? newSize : 0
       if (newSize > 0) break
     }
   }
@@ -98,6 +104,7 @@ function resizePanel($event: MouseEvent, namePanel: Panel["name"]) {
 }
 const resizablePanel = ref<Panel["name"]|null>(null)
 const isStartResize = ref<boolean>(false)
+const isStartMove = ref<boolean>(false)
 function moveResizedPanels(ev: MouseEvent) {
   resizePanel(ev, resizablePanel.value??"");
 }
@@ -111,15 +118,20 @@ function startResizePanel($event: MouseEvent, namePanel: Panel["name"]) {
 }
 function stopResizePanel($event?: MouseEvent, namePanel?: Panel["name"]) {
   isStartResize.value = false
+  if (!isStartMove.value) {
+    resizablePanel.value = null;
+  }
   window.removeEventListener('mousemove', moveResizedPanels);
   window.removeEventListener('mouseup', stopResizePanel);
 }
 function moveResizePanel($event: MouseEvent, namePanel: Panel["name"]) {
+  isStartMove.value = true
   if (!isStartResize.value) {
-    resizablePanel.value = namePanel
+   resizablePanel.value = namePanel
   }
 }
 function outResizePanel($event: MouseEvent, namePanel: Panel["name"]) {
+  isStartMove.value = false
   if (!isStartResize.value) {
     resizablePanel.value = null;
   }
@@ -129,7 +141,7 @@ function outResizePanel($event: MouseEvent, namePanel: Panel["name"]) {
 <template>
   <div
     ref="resizableGroup"
-    :class="cn(props?.class, 'flex h-full w-full data-[direction=vertical]:flex-col max-w-md overflow-hidden dark:text-gray-300')"
+    :class="cn(props?.class, 'flex h-full w-full data-[direction=vertical]:flex-col max-w-md overflow-hidden dark:text-gray-300 transition-all')"
     :data-direction="direction"
     :data-name="props.autoSaveName ?? null"
     :data-units="units ?? null">
