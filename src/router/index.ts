@@ -141,6 +141,14 @@ const router = createRouter({
       component: () => import('../views/components/ComponentMenu.vue')
     },
     {
+      path: '/components/split',
+      name: 'split',
+      meta: {
+        layout: 'home'
+      },
+      component: () => import('../views/components/ComponentSplit.vue')
+    },
+    {
       path: '/components/all',
       name: 'componentsAll',
       meta: {

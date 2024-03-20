@@ -98,6 +98,11 @@ const items = ref([
     href: baseUrl+'/menu',
     imageSrc: 'https://horizon-ui.com/components/static/media/menu.7249d83e9c1c2d8d55bcfbc0398dcb5d.svg',
   },
+  {
+    name: 'Split',
+    href: baseUrl+'/split',
+    imageSrc: 'https://horizon-ui.com/components/static/media/separator.7662b6b3825a827e2d601fdcb3d1cbb8.svg',
+  },
 ])
 </script>
 <template>
