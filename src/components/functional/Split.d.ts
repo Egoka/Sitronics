@@ -1,8 +1,7 @@
 import type {IIcon} from "@/components/functional/Icons";
 import type {StyleClass} from "@/components/BaseTypes";
-
+export type CursorType = "center" | "left" | "right"
 export type Size = number
-export type SizePanels = Record<Panel["name"], number>
 export type ISplitStyles = {
 
 }
