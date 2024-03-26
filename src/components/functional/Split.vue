@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onBeforeMount, onMounted, reactive, ref, watch} from "vue";
+import {computed, onMounted, reactive, ref, watch} from "vue";
 import {cn} from "@/helpers/tailwind";
 import Icons from "@/components/functional/Icons.vue";
 import type {CursorType, ISplit, Panel, Size} from "@/components/functional/Split";
@@ -22,15 +22,17 @@ const sizePanels = reactive<Record<Panel["name"], number>>({})
 const cursorPanels = reactive<Record<Panel["name"], CursorType>>({})
 const activeCursorPanel = ref<CursorType>("center")
 // ---PROPS-------------------------------
-const units = computed<ISplit["units"]>(()=> props.units ?? "pixels")
+const units = computed<ISplit["units"]>(()=> props.units ?? "percentages")
 const panels = computed<ISplit["panels"]>(()=> props?.panels.map(item=>{
   if (item?.size && typeof item?.size as string === "string" && +item?.size > 0) item.size = +item.size
+  if (item?.minSize && typeof item?.minSize as string === "string" && +item?.minSize > 0) item.minSize = +item.minSize
+  if (item?.maxSize && typeof item?.maxSize as string === "string" && +item?.maxSize > 0) item.maxSize = +item.maxSize
   if (item?.minSize || item?.maxSize) {
     if (item?.size && item?.maxSize && item?.size > item?.maxSize) {
       item.size = item?.maxSize
     } else if (item?.size && item?.minSize && item?.size < item?.minSize) {
       item.size = item?.minSize
-    } else if (item?.maxSize && item?.minSize) {
+    } else if (item?.maxSize && item?.minSize && !item.size) {
       item.size = item?.minSize + (item?.maxSize - item?.minSize) / 2
     }
   }
@@ -85,9 +87,9 @@ function getDefaultSize(array:ISplit["panels"]) {
 }
 function getStyleCursor(cursor:CursorType) {
   switch (cursor) {
-    case "center": return "cursor-col-resize data-[direction=vertical]:cursor-row-resize";
-    case "right": return "cursor-e-resize data-[direction=vertical]:cursor-s-resize"
-    case "left": return "cursor-w-resize data-[direction=vertical]:cursor-n-resize"
+    case "center": return direction.value === "horizontal" ? "cursor-col-resize" : direction.value === "vertical" ? "cursor-row-resize" : "";
+    case "right": return direction.value === "horizontal" ? "cursor-e-resize" : direction.value === "vertical" ? "cursor-s-resize" : ""
+    case "left": return direction.value === "horizontal" ? "cursor-w-resize" : direction.value === "vertical" ? "cursor-n-resize" : ""
   }
 }
 // ---RESIZE-PANELS-----------------------
@@ -136,15 +138,26 @@ function resizePanel($event: MouseEvent, namePanel: Panel["name"]) {
     ? (addedDistance / ((group?.width??0) / 100))
     : addedDistance
   //------------------
-  let sumLeftPanels = 0
-  for (let i = indexNamePanel; i >= 0; i--) {
-    sumLeftPanels += addedDistanceToSum(panels.value[i], addedDistance * -1)}
-  let sumRightPanels = 0
-  for (let i = indexNamePanel + 1; i < panels.value.length; i++) {
-    sumRightPanels += addedDistanceToSum(panels.value[i], addedDistance)}
+  let rightAddedDistance = addedDistance * -1
+  let leftAddedDistance = addedDistance
   //------------------
-  let rightAddedDistance = setAddedDistance(addedDistance * -1, sumLeftPanels, sumRightPanels, sizePanels[panels.value[0].name])
-  let leftAddedDistance = setAddedDistance(addedDistance, sumRightPanels, sumLeftPanels, sizePanels[panels.value[panels.value.length-1].name])
+  let sumLeftPanels = 0
+  let indexLastLeft = 0
+  for (let i = indexNamePanel; i >= 0; i--) {
+    if (panels.value[i].disabled) break
+    sumLeftPanels += addedDistanceToSum(panels.value[i], rightAddedDistance)
+    indexLastLeft = i
+  }
+  let sumRightPanels = 0
+  let indexRightLeft = panels.value.length-1
+  for (let i = indexNamePanel + 1; i < panels.value.length; i++) {
+    if (panels.value[i].disabled) break
+    sumRightPanels += addedDistanceToSum(panels.value[i], leftAddedDistance)
+    indexRightLeft = i
+  }
+  //------------------
+  rightAddedDistance = setAddedDistance(rightAddedDistance, sumLeftPanels, sumRightPanels, sizePanels[panels.value[indexLastLeft].name])
+  leftAddedDistance = setAddedDistance(leftAddedDistance, sumRightPanels, sumLeftPanels, sizePanels[panels.value[indexRightLeft].name])
   //------------------
   if (rightAddedDistance === 0) {
     cursorPanels[namePanel] = addedDistance < 0 ? "right" : addedDistance > 0 ? "left" : "center"
@@ -154,6 +167,7 @@ function resizePanel($event: MouseEvent, namePanel: Panel["name"]) {
   activeCursorPanel.value = cursorPanels[namePanel]
   //------------------
   for (let i = indexNamePanel + 1; i < panels.value.length; i++) {
+    if (panels.value[i]?.disabled || panels.value[i-1]?.disabled) break
     if (rightAddedDistance < 0 && sizePanels[panels.value[i].name] === (panels.value[i]?.minSize ?? 0)) continue
     const oldSize = sizePanels[panels.value[i].name]
     sizePanels[panels.value[i].name] = getNewSize(panels.value[i], oldSize, rightAddedDistance)
@@ -162,6 +176,7 @@ function resizePanel($event: MouseEvent, namePanel: Panel["name"]) {
   }
   //------------------
   for (let i = indexNamePanel; i >= 0; i--) {
+    if (panels.value[i]?.disabled || panels.value[i+1]?.disabled) break
     if (leftAddedDistance < 0 && sizePanels[panels.value[i].name] === (panels.value[i]?.minSize ?? 0)) continue
     const oldSize = sizePanels[panels.value[i].name]
     sizePanels[panels.value[i].name] = getNewSize(panels.value[i], oldSize, leftAddedDistance)
@@ -180,6 +195,7 @@ const resizablePanel = ref<Panel["name"]|null>(null)
 const isStartResize = ref<boolean>(false)
 const isStartMove = ref<boolean>(false)
 function moveResizedPanels(ev: MouseEvent) {
+  panels.value.find(panel=>panel.name === resizablePanel.value)
   resizePanel(ev, resizablePanel.value??"")
   emit('updated-panels', sizePanels)
   emit('updated-size-panel', sizePanels[resizablePanel.value??""], resizablePanel.value??"")
@@ -189,6 +205,7 @@ function startResizePanel($event: MouseEvent, namePanel: Panel["name"]) {
   if($event.preventDefault) $event.preventDefault();
   resizablePanel.value = namePanel;
   isStartResize.value = true
+  document.body.classList.add(getStyleCursor(activeCursorPanel.value))
   window.addEventListener('mousemove', moveResizedPanels);
   window.addEventListener('mouseup', stopResizePanel);
   emit("start-resize-panel", $event, namePanel)
@@ -198,6 +215,7 @@ function stopResizePanel($event?: MouseEvent, namePanel?: Panel["name"]) {
   if (!isStartMove.value) {
     resizablePanel.value = null;
   }
+  document.body.classList.remove(getStyleCursor(activeCursorPanel.value))
   window.removeEventListener('mousemove', moveResizedPanels);
   window.removeEventListener('mouseup', stopResizePanel);
   emit("stop-resize-panel", $event, namePanel)
@@ -212,6 +230,10 @@ function outResizePanel($event: MouseEvent, namePanel: Panel["name"]) {
   if (!isStartResize.value) resizablePanel.value = null
   emit("out-resize-panel", $event, namePanel)
 }
+watch(activeCursorPanel, (value, oldValue)=>{
+  document.body.classList.remove(getStyleCursor(oldValue))
+  document.body.classList.add(getStyleCursor(value))
+})
 </script>
 
 <template>
@@ -224,17 +246,17 @@ function outResizePanel($event: MouseEvent, namePanel: Panel["name"]) {
     :data-direction="direction"
     :data-name="props.autoSaveName ?? null"
     :data-units="units ?? null">
-    <template v-for="(panel, key) in panels" :key="panel.name+key">
+    <template v-for="(panel, key) in panels" :key="key">
       <div
         :ref="(el)=>setItemRef(el, panel.name)"
-        class="relative overflow-hidden w-full"
+        :class="cn(panel.class, 'relative overflow-hidden w-full')"
         :data-name="panel.name"
         :data-size="sizePanels[panel.name]"
         :style="`flex: ${units === 'percentages' ? sizePanels[panel.name] : '0'} 1 ${units === 'pixels' ? sizePanels[panel.name]+'px' : '0px'}`">
         <slot :name="panel.name" :size="sizePanels[panel.name]" :panel="panel"></slot>
       </div>
       <div
-        v-if="key !== panels?.length-1"
+        v-if="!(panel.disabled ||panels[key+1]?.disabled) && key !== panels?.length-1"
         role="separator"
         tabindex="0"
         :class="cn(separatorClass, getStyleCursor(cursorPanels[panel.name]), 'group')"
@@ -267,6 +289,7 @@ function outResizePanel($event: MouseEvent, namePanel: Panel["name"]) {
           <Icons v-else :type="separatorType" :class="cn('h-2.5 w-2.5 text-gray-500', direction === 'vertical' && 'rotate-90')"/>
         </div>
       </div>
+      <div v-else-if="key !== panels?.length-1" role="separator" :class="cn(separatorClass, 'group')"/>
     </template>
   </div>
 </template>

@@ -10,6 +10,8 @@ export type Panel = {
   size?: Size
   maxSize?: Size
   minSize?: Size
+  disabled?: boolean
+  class?: StyleClass
 }
 export type Group = {
   units?: "percentages"|"pixels"
