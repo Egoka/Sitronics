@@ -8,7 +8,7 @@ export type Position =
   "bottom"|"bottom-right"|"bottom-left"|
   "right" |"right-top"   |"right-bottom"|
   "left"  |"left-top"    |"left-bottom"
-export type StyleClass = string|Array<string>
+export type StyleClass = undefined|string|Array<string>
 export type TWidth = number|string|"500px"|"50rem"|"50em"|"50vw"
 export type THeight = number|string|"500px"|"50rem"|"50em"|"50vh"
 export type RefLink = string|HTMLElement

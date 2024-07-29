@@ -24,7 +24,7 @@ const visibleNumberPages = computed<NonNullable<IPagination["visibleNumberPages"
 const total = computed<NonNullable<IPagination["total"]>>(()=>props.total ?? 0)
 const isInfoText = computed<IPagination["isInfoText"]>(()=>props.isInfoText ?? false)
 const isPageSizeSelector = computed<IPagination["isPageSizeSelector"]>(()=>(props.isPageSizeSelector || !!props.sizesSelector?.length) ?? false)
-const isNavigationButtons = computed<IPagination["isHiddenNavigationButtons"]>(()=>!props.isHiddenNavigationButtons ?? false)
+const isNavigationButtons = computed<IPagination["isHiddenNavigationButtons"]>(()=>!props.isHiddenNavigationButtons)
 const arraySizesSelector = computed<Array<{key:number, value: string}>>(()=>
   ((props.sizesSelector ?? [...new Set([+sizePage.value,5,15,20,50,100,150])]) as Array<number>)
     ?.sort((a, b) => a - b)

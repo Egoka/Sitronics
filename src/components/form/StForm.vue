@@ -169,7 +169,7 @@ function validateFields(nameField?:Array<string>|string):boolean {
       }
     })
   )
-  const isValidateForm = Object.values(formInvalidFields).filter(i=>i)?.length > 0 ?? false
+  const isValidateForm = Object.values(formInvalidFields).filter(i=>i)?.length > 0
   if (isValidateForm) {
     nextTick(() => {
       document.querySelector(".is-invalid")

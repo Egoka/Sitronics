@@ -9,7 +9,7 @@ import 'v-calendar/style.css';
 import {cn} from "@/helpers/tailwind";
 import {removeParamsFromStructure} from "@/helpers/object";
 import FixWindow from "@/components/functional/FixWindow.vue";
-import {type ILayout} from "@/components/functional/InputLayout";
+import type { ILayout} from "@/components/functional/InputLayout";
 import type {
   ICalendar,
   ICalendarPicker, IParamsDatePicker,
